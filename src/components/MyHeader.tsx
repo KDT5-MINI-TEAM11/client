@@ -8,7 +8,9 @@ export default function MyHeader() {
     <Header style={{ backgroundColor: 'palegreen' }}>
       <Space size="large">
         {NAV_ITEMS.map((item) => (
-          <Link to={item.href}>{item.label}</Link>
+          <Link to={item.href} key={item.href}>
+            {item.label}
+          </Link>
         ))}
       </Space>
     </Header>

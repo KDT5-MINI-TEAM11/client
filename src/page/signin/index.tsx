@@ -24,7 +24,7 @@ export default function Signin() {
       >
         <Form.Item
           label="이메일"
-          name="email"
+          name="userEmail"
           rules={[
             { required: true, message: '이메일을 입력해주세요' },
             {
@@ -40,8 +40,8 @@ export default function Signin() {
           <Input size="large" />
         </Form.Item>
         <Form.Item
-          label="Password"
-          name="password"
+          label="비밀번호"
+          name="userPassword"
           rules={[{ required: true, message: '비밀번호를 입력해주세요' }]}
         >
           <Input.Password size="large" />
