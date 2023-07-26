@@ -12,7 +12,7 @@ export default function Signin() {
   return (
     <Card
       bordered={false}
-      style={{ margin: '0px 20px', minWidth: 400 }}
+      style={{ margin: '0px 20px', maxWidth: 400 }}
       title="로그인"
     >
       <Form
@@ -36,6 +36,7 @@ export default function Signin() {
               },
             },
           ]}
+          hasFeedback
         >
           <Input size="large" />
         </Form.Item>
