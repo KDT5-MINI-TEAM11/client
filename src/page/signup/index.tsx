@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Button, Input, Form, Space, Select, Card } from 'antd';
 import { Link } from 'react-router-dom';
-import useInput from './useInput';
+import useInput from '@/page/signup/useInput';
+import { EMAIL_REGEX, PASSWORD_REGEX } from '@/data/constants';
 
 const onFinish = (values: any) => {
   console.log('Success:', values);
@@ -22,10 +23,6 @@ export default function SingUp() {
   const [phoneNumber, onChangePhoneNumber] = useInput('');
   const [position, setPosition] = useState('');
 
-  /*   const password = /^(?=.*\d)(?=.*[!@#$%^&*()-+=])(?=.*[a-zA-Z]).{8,16}$/;
-
-  const email = /^[A-Za-z0-9_\.\-]+@[A-Za-z0-9\-]+\.[A-Za-z0-9\-]+/; */
-
   const onChangePrefixPhoneNumber = (value: string) =>
     setPrefixPhoneNumber(value);
 
@@ -36,6 +33,77 @@ export default function SingUp() {
   };
 
   const combinedPhoneNumber = getPhoneNumber();
+
+  const validateEmail = useCallback((_: any, value: string) => {
+    if (!value || EMAIL_REGEX.test(value)) {
+      return Promise.resolve();
+    }
+    return Promise.reject(new Error('올바른 형식의 메일을 입력해주세요.'));
+  }, []);
+
+  const validatePassword = useCallback((_: any, value: string) => {
+    const NUMBER_REGEX = /\d/;
+    const SPECIAL_REGEX = /[!@#$%^&*()-+=]/;
+    const ENGLISH_REGEX = /[a-zA-Z]/;
+
+    if (!value) {
+      return Promise.reject(new Error('비밀번호를 입력해주세요.'));
+    }
+
+    if (!NUMBER_REGEX.test(value) && !ENGLISH_REGEX.test(value)) {
+      return Promise.reject(
+        new Error(
+          '비밀번호에는 최소 하나의 숫자와 영어 대소문자가 포함되어야 합니다.',
+        ),
+      );
+    }
+
+    if (!SPECIAL_REGEX.test(value) && !ENGLISH_REGEX.test(value)) {
+      return Promise.reject(
+        new Error(
+          '비밀번호에는 최소 하나의 특수문자와 영어 대소문자가 포함되어야 합니다.',
+        ),
+      );
+    }
+
+    if (!NUMBER_REGEX.test(value) && !SPECIAL_REGEX.test(value)) {
+      return Promise.reject(
+        new Error(
+          '비밀번호에는 최소 하나의 숫자와 특수문자가 포함되어야 합니다.',
+        ),
+      );
+    }
+
+    if (!NUMBER_REGEX.test(value)) {
+      return Promise.reject(
+        new Error('비밀번호에는 최소 하나의 숫자가 포함되어야 합니다.'),
+      );
+    }
+
+    if (!SPECIAL_REGEX.test(value)) {
+      return Promise.reject(
+        new Error('비밀번호에는 최소 하나의 특수문자가 포함되어야 합니다.'),
+      );
+    }
+
+    if (!ENGLISH_REGEX.test(value)) {
+      return Promise.reject(
+        new Error(
+          '비밀번호에는 최소 하나의 영어 대소문자가 포함되어야 합니다.',
+        ),
+      );
+    }
+
+    if (!PASSWORD_REGEX.test(value)) {
+      return Promise.reject(
+        new Error(
+          '비밀번호는 8~16자 사이이며, 최소 한 개의 숫자, 특수문자, 영문자를 포함해야 합니다.',
+        ),
+      );
+    }
+
+    return Promise.resolve();
+  }, []);
 
   return (
     <Card>
@@ -64,7 +132,10 @@ export default function SingUp() {
         <Form.Item
           label="E-Mail"
           name="e-mail"
-          rules={[{ required: true, message: '이메일을 입력해주세요.' }]}
+          rules={[
+            { required: true, message: '이메일을 입력해주세요.' },
+            { validator: validateEmail },
+          ]}
         >
           <Input
             placeholder="ex) anyone123@email.com"
@@ -76,7 +147,7 @@ export default function SingUp() {
         <Form.Item
           label="비밀번호"
           name="password"
-          rules={[{ required: true, message: '비밀번호를 입력해주세요' }]}
+          rules={[{ validator: validatePassword }]}
           hasFeedback
         >
           <Input.Password
