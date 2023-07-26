@@ -1,54 +1,64 @@
-import { Button, Checkbox, Form, Input } from 'antd';
+import { Button, Typography, Card, Form, Input, Space } from 'antd';
+import { EMAIL_REGEX } from '@/data/constants';
+import { Link } from 'react-router-dom';
 
-const onFinish = (values: any) => {
-  console.log('Success:', values);
+const { Text } = Typography;
+
+const onFinish = (values: { email: string; password: string }) => {
+  console.log(values);
 };
 
-const onFinishFailed = (errorInfo: any) => {
-  console.log('Failed:', errorInfo);
-};
-
-export default function Singin() {
+export default function Signin() {
   return (
-    <Form
-      name="basic"
-      labelCol={{ span: 8 }}
-      wrapperCol={{ span: 16 }}
-      style={{ maxWidth: 600 }}
-      initialValues={{ remember: true }}
-      onFinish={onFinish}
-      onFinishFailed={onFinishFailed}
-      autoComplete="off"
+    <Card
+      bordered={false}
+      style={{ margin: '0px 20px', minWidth: 400 }}
+      title="로그인"
     >
-      <Form.Item
-        label="Username"
-        name="username"
-        rules={[{ required: true, message: 'Please input your username!' }]}
+      <Form
+        layout="vertical"
+        name="basic"
+        wrapperCol={{ span: 30, offset: 0 }}
+        style={{ maxWidth: 400 }}
+        onFinish={onFinish}
       >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
-        label="Password"
-        name="password"
-        rules={[{ required: true, message: 'Please input your password!' }]}
-      >
-        <Input.Password />
-      </Form.Item>
-
-      <Form.Item
-        name="remember"
-        valuePropName="checked"
-        wrapperCol={{ offset: 8, span: 16 }}
-      >
-        <Checkbox>Remember me</Checkbox>
-      </Form.Item>
-
-      <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-        <Button type="primary" htmlType="submit">
-          Submit
+        <Form.Item
+          label="이메일"
+          name="email"
+          rules={[
+            { required: true, message: '이메일을 입력해주세요' },
+            {
+              validator: (_, value) => {
+                if (!value || EMAIL_REGEX.test(value)) {
+                  return Promise.resolve();
+                }
+                return Promise.reject('올바른 형식의 메일을 입력해주세요');
+              },
+            },
+          ]}
+        >
+          <Input size="large" />
+        </Form.Item>
+        <Form.Item
+          label="Password"
+          name="password"
+          rules={[{ required: true, message: '비밀번호를 입력해주세요' }]}
+        >
+          <Input.Password size="large" />
+        </Form.Item>
+        <Button
+          type="primary"
+          htmlType="submit"
+          size="large"
+          style={{ width: '100%' }}
+        >
+          로그인
         </Button>
-      </Form.Item>
-    </Form>
+        <Space style={{ marginTop: 10 }}>
+          <Text>아직 회원가입을 하지 않으셨나요?</Text>
+          <Link to="/signup">회원가입</Link>
+        </Space>
+      </Form>
+    </Card>
   );
 }
