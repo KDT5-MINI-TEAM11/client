@@ -16,3 +16,5 @@ export const NAV_ITEMS = [
     href: '/myaccount',
   },
 ];
+
+export const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
