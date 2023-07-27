@@ -104,17 +104,6 @@ export default function SingUp() {
     return Promise.resolve();
   }, []);
 
-  // 연락처 뒷번호 유효성 검사
-  const validatePhoneNumber = useCallback((_: any, value: string) => {
-    const PHONE_REGEX = /([0-9]{3,4})([0-9]{4})$/;
-
-    if (!value || PHONE_REGEX.test(value)) {
-      return Promise.resolve();
-    }
-
-    return Promise.reject(new Error('올바른 전화번호 형식이 아닙니다.'));
-  }, []);
-
   // 연락처 앞자리 선택 동적으로 생성
   const selectedNumbers = [0, 1, 6, 7, 8, 9];
 
@@ -126,6 +115,17 @@ export default function SingUp() {
       </Option>
     );
   });
+
+  // 연락처 뒷번호 유효성 검사
+  const validatePhoneNumber = useCallback((_: any, value: string) => {
+    const PHONE_REGEX = /([0-9]{3,4})([0-9]{4})$/;
+
+    if (!value || PHONE_REGEX.test(value)) {
+      return Promise.resolve();
+    }
+
+    return Promise.reject(new Error('올바른 전화번호 형식이 아닙니다.'));
+  }, []);
 
   // 연락처 앞 번호 (ex. 010 or 011) 선택
   // select 방식이라 useInput 커스텀 훅 사용하지않고 state로 관리
@@ -184,7 +184,7 @@ export default function SingUp() {
   return (
     <Card
       bordered={false}
-      style={{ margin: '0px 20px', minWidth: 400 }}
+      style={{ margin: '0px 20px', maxWidth: 400 }}
       title="회원가입"
     >
       <Form
@@ -203,12 +203,7 @@ export default function SingUp() {
             { validator: validateName },
           ]}
         >
-          <Input
-            placeholder="ex) 김아무개"
-            value={name}
-            onChange={onChangeName}
-            allowClear
-          />
+          <Input value={name} onChange={onChangeName} allowClear />
         </Form.Item>
         <Form.Item
           label="E-Mail"
