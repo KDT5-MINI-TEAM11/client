@@ -1,70 +1,49 @@
-import React from 'react';
-import {
-  LaptopOutlined,
-  NotificationOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
-import type { MenuProps } from 'antd';
-import { Breadcrumb, Layout, Menu } from 'antd';
-import { Outlet } from 'react-router-dom';
+import { Layout, Menu, MenuProps } from 'antd';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { MYACCOUNT_NAV_ITEMS } from '@/data/constants';
+import { useState } from 'react';
 
 const { Content, Sider } = Layout;
 
-const items: MenuProps['items'] = [
-  UserOutlined,
-  LaptopOutlined,
-  NotificationOutlined,
-].map((icon, index) => {
-  const key = String(index + 1);
-
-  return {
-    key: `sub${key}`,
-    icon: React.createElement(icon),
-    label: `subnav ${key}`,
-
-    children: new Array(1).fill(null).map((_, j) => {
-      const subKey = index * 4 + j + 1;
-      return {
-        key: subKey,
-        label: `내계정${subKey}`,
-      };
-    }),
-  };
-});
-
 export default function MyAccountLayout() {
+  const { pathname } = useLocation();
+  const [selectedMenuKey, setSelectedMenuKey] = useState(() => pathname);
+
+  const navigate = useNavigate();
+
+  // 현재 접속중인 url의 뒷부분을 가져옴
+
+  const items: MenuProps['items'] = MYACCOUNT_NAV_ITEMS.map((item) => ({
+    key: item.href,
+    label: item.label,
+    onClick: () => {
+      navigate(item.href);
+      setSelectedMenuKey(item.href);
+    },
+  }));
+
   return (
     <Layout>
-      <Layout>
-        <Sider
-          width={200}
-          style={{ minHeight: 'calc(100vh - 64px) ', background: 'white' }}
+      <Sider
+        width={200}
+        style={{ minHeight: 'calc(100vh - 64px) ', background: 'white' }}
+      >
+        <Menu
+          mode="inline"
+          style={{ height: '100%', borderRight: 0 }}
+          items={items}
+          selectedKeys={[pathname === selectedMenuKey ? selectedMenuKey : '']}
+        />
+      </Sider>
+      <Layout style={{ padding: 20 }}>
+        <Content
+          style={{
+            padding: 24,
+            background: 'white',
+          }}
         >
-          <Menu
-            mode="inline"
-            defaultSelectedKeys={['1']}
-            defaultOpenKeys={['sub1']}
-            style={{ height: '100%', borderRight: 0 }}
-            items={items}
-          />
-        </Sider>
-        <Layout style={{ padding: '0 24px 24px' }}>
-          <Breadcrumb style={{ margin: '16px 0' }}>
-            <Breadcrumb.Item>홈</Breadcrumb.Item>
-            <Breadcrumb.Item>내계정</Breadcrumb.Item>
-          </Breadcrumb>
-          <Content
-            style={{
-              padding: 24,
-              margin: 0,
-              minHeight: 280,
-              background: 'white',
-            }}
-          >
-            Content
-            <Outlet />
-          </Content>
-        </Layout>
+          <Outlet />
+        </Content>
       </Layout>
     </Layout>
   );
