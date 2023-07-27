@@ -1,38 +1,25 @@
 import { DUMMY_USER } from '@/data/dummyData';
-import { Badge, Descriptions } from 'antd';
+import { Image, Descriptions } from 'antd';
 
 export default function MyAccount() {
   return (
-    <Descriptions title="User Info" bordered>
-      <Descriptions.Item label="이름">{DUMMY_USER.user_name}</Descriptions.Item>
-      <Descriptions.Item label="Billing Mode">Prepaid</Descriptions.Item>
-      <Descriptions.Item label="Automatic Renewal">YES</Descriptions.Item>
-      <Descriptions.Item label="Order time">
-        2018-04-24 18:00:00
+    <Descriptions title="내 정보" bordered>
+      <Descriptions.Item label="프로필">
+        <Image height={150} width={200} src={DUMMY_USER.profile_thumb_url} />
       </Descriptions.Item>
-      <Descriptions.Item label="Usage Time" span={2}>
-        2019-04-24 18:00:00
+      <Descriptions.Item label="이름" style={{ height: '100%' }}>
+        {DUMMY_USER.user_name}
       </Descriptions.Item>
-      <Descriptions.Item label="Status" span={3}>
-        <Badge status="processing" text="Running" />
+      <Descriptions.Item label="아이디">
+        {DUMMY_USER.user_email}
       </Descriptions.Item>
-      <Descriptions.Item label="Negotiated Amount">$80.00</Descriptions.Item>
-      <Descriptions.Item label="Discount">$20.00</Descriptions.Item>
-      <Descriptions.Item label="Official Receipts">$60.00</Descriptions.Item>
-      <Descriptions.Item label="Config Info">
-        Data disk type: MongoDB
-        <br />
-        Database version: 3.4
-        <br />
-        Package: dds.mongo.mid
-        <br />
-        Storage space: 10 GB
-        <br />
-        Replication factor: 3
-        <br />
-        Region: East China 1
-        <br />
+      <Descriptions.Item label="전화번호">
+        {DUMMY_USER.phone_number}
       </Descriptions.Item>
+      <Descriptions.Item label="연차">
+        {DUMMY_USER.remaining_vacation}
+      </Descriptions.Item>
+      <Descriptions.Item label="직급">{DUMMY_USER.position}</Descriptions.Item>
     </Descriptions>
   );
 }
