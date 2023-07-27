@@ -36,7 +36,10 @@ export default function MyAccountLayout() {
   return (
     <Layout>
       <Layout>
-        <Sider width={200} style={{ height: '100vh', background: 'white' }}>
+        <Sider
+          width={200}
+          style={{ minHeight: 'calc(100vh - 64px) ', background: 'white' }}
+        >
           <Menu
             mode="inline"
             defaultSelectedKeys={['1']}
