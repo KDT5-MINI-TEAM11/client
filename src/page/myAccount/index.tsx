@@ -4,6 +4,24 @@ import defaultProfile from '@/assets/defaultProfile.png';
 import { POSITIONS } from '@/data/constants';
 
 export default function MyAccount() {
+  function formatPhoneNumber(phoneNumber: string) {
+    const phoneStr = phoneNumber.toString();
+
+    if (phoneStr.length >= 10) {
+      const formattedNumber =
+        phoneStr.substring(0, 3) +
+        '-' +
+        phoneStr.substring(3, 7) +
+        '-' +
+        phoneStr.substring(7);
+      return formattedNumber;
+    } else {
+      return phoneStr;
+    }
+  }
+
+  const formattedPhoneNumber = formatPhoneNumber(DUMMY_USER.phone_number);
+
   return (
     <>
       <Descriptions
@@ -20,7 +38,7 @@ export default function MyAccount() {
           {DUMMY_USER.user_email}
         </Descriptions.Item>
         <Descriptions.Item label="전화번호">
-          {DUMMY_USER.phone_number}
+          {formattedPhoneNumber}
         </Descriptions.Item>
         <Descriptions.Item label="직급">
           {POSITIONS[DUMMY_USER.position].label}
