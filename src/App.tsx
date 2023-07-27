@@ -7,6 +7,9 @@ import Signup from '@/page/signup';
 import Singin from '@/page/signin';
 import MyAccount from '@/page/myAccount';
 import MyLayout from '@/components/MyLayout';
+import MyAccountLayout from '@/page/myAccount/MyAccoutLayout';
+import Vacation from './page/myAccount/vacation';
+import Edit from './page/myAccount/edit';
 
 export default function App() {
   const theme = {
@@ -21,7 +24,11 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/signin" element={<Singin />} />
-          <Route path="/myaccount" element={<MyAccount />} />
+          <Route element={<MyAccountLayout />}>
+            <Route path="/myaccount" element={<MyAccount />} />          
+            <Route path="myaccount/edit" element={<Edit />} /> 
+            <Route path="myaccount/vacation" element={<Vacation />} /> 
+          </Route>
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

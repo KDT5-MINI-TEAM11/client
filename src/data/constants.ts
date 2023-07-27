@@ -18,3 +18,18 @@ export const NAV_ITEMS = [
 ];
 
 export const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+export const MYACCOUNT_NAV_ITEMS = [
+  {
+    label: '내 정보',
+    href: '/myaccount',
+  },
+  {
+    label: '내 정보 수정',
+    href: '/myaccount/edit',
+  },
+  {
+    label: '내 연차, 당직',
+    href: '/myaccount/vacation',
+  },
+];
