@@ -17,6 +17,7 @@ export default function App() {
       colorPrimary: '#ffc400',
     },
   };
+
   return (
     <ConfigProvider theme={theme} locale={koKR}>
       <Routes>
