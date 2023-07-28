@@ -2,6 +2,7 @@ import { DUMMY_USER } from '@/data/dummyData';
 import { Image, Descriptions, Skeleton } from 'antd';
 import defaultProfile from '@/assets/defaultProfile.png';
 import { POSITIONS } from '@/data/constants';
+import formatPhoneNumber from '@/utils/formatPhonenumber';
 
 export default function MyAccount() {
   return (
@@ -20,7 +21,7 @@ export default function MyAccount() {
           {DUMMY_USER.user_email}
         </Descriptions.Item>
         <Descriptions.Item label="전화번호">
-          {DUMMY_USER.phone_number}
+          {formatPhoneNumber(DUMMY_USER.phone_number)}
         </Descriptions.Item>
         <Descriptions.Item label="직급">
           {POSITIONS[DUMMY_USER.position].label}
