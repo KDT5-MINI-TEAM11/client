@@ -8,7 +8,6 @@ import Singin from '@/page/signin';
 import MyAccount from '@/page/myAccount';
 import MyLayout from '@/components/MyLayout';
 import Vacation from '@/page/myAccount/vacation';
-import Edit from '@/page/myAccount/edit';
 import MyAccountLayout from '@/page/myAccount/myAccoutLayout';
 
 export default function App() {
@@ -27,7 +26,6 @@ export default function App() {
           <Route path="/signin" element={<Singin />} />
           <Route element={<MyAccountLayout />}>
             <Route path="/myaccount" element={<MyAccount />} />
-            <Route path="myaccount/edit" element={<Edit />} />
             <Route path="myaccount/vacation" element={<Vacation />} />
           </Route>
           <Route path="*" element={<NotFound />} />
