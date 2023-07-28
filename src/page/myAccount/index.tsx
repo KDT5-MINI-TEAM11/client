@@ -1,11 +1,17 @@
 import { DUMMY_USER } from '@/data/dummyData';
-import { Image, Descriptions, Skeleton } from 'antd';
+import { Image, Descriptions, Skeleton, Input, Space, Button } from 'antd';
 import defaultProfile from '@/assets/defaultProfile.png';
 import { POSITIONS } from '@/data/constants';
 import formatPhoneNumber from '@/utils/formatPhonenumber';
-import { EditOutlined } from '@ant-design/icons';
+import { EditOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { useState } from 'react';
 
 export default function MyAccount() {
+  const [editPhoneNumber, setEditPhoneNumber] = useState(false);
+  const [editPhoneNumberInput, setEditPhonNumberInput] = useState(
+    DUMMY_USER.phone_number,
+  );
+
   return (
     <>
       <Descriptions
@@ -21,19 +27,44 @@ export default function MyAccount() {
         <Descriptions.Item label="이메일">
           {DUMMY_USER.user_email}
         </Descriptions.Item>
+
         <Descriptions.Item
           label={
             <>
               전화번호
               <EditOutlined
+                onClick={() => {
+                  setEditPhoneNumber(true);
+                }}
                 style={{ marginLeft: 5, fontSize: 15 }}
-                className="edit_icon"
+                className="icons"
               />
             </>
           }
         >
-          {formatPhoneNumber(DUMMY_USER.phone_number)}
+          {editPhoneNumber ? (
+            <>
+              <Space.Compact>
+                <Input
+                  placeholder="-없이입력해주세요"
+                  value={editPhoneNumberInput}
+                  onChange={(e) => setEditPhonNumberInput(e.target.value)}
+                />
+                <Button type="primary">수정</Button>
+              </Space.Compact>
+              <CloseCircleOutlined
+                className="icons"
+                onClick={() => {
+                  setEditPhoneNumber(false);
+                  setEditPhonNumberInput(DUMMY_USER.phone_number);
+                }}
+              />
+            </>
+          ) : (
+            <>{formatPhoneNumber(DUMMY_USER.phone_number)}</>
+          )}
         </Descriptions.Item>
+
         <Descriptions.Item label="직급">
           {POSITIONS[DUMMY_USER.position].label}
         </Descriptions.Item>
@@ -48,7 +79,7 @@ export default function MyAccount() {
               사진
               <EditOutlined
                 style={{ marginLeft: 5, fontSize: 15 }}
-                className="edit_icon"
+                className="icons"
               />
             </>
           }

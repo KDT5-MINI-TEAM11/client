@@ -2,11 +2,11 @@
   object-fit: cover;
 }
 
-.edit_icon {
+.icons {
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.edit_icon:hover {
+.icons:hover {
   scale: 1.2;
 }
