@@ -1,26 +1,38 @@
 import { useCallback } from 'react';
-import { Button, Input, Form, Select, Card } from 'antd';
+import { Button, Input, Form, Select, Card, Upload } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { EMAIL_REGEX, PASSWORD_REGEX, POSITIONS } from '@/data/constants';
+import { RuleObject } from 'antd/es/form';
+
+interface valuseType {
+  confirm_password: string;
+  phone: string;
+  position: string;
+  profileThumbUrl: string;
+  userEmail: string;
+  userPassword: string;
+  username: string;
+}
 
 export default function SingUp() {
   const navigate = useNavigate();
   const { Option } = Select;
 
-  const onFinish = (values: any) => {
-    const { prefix, phone, ...otherValues } = values;
-    const phoneNumber = `${prefix}${phone}`;
-
-    const newValues = {
-      ...otherValues,
-      phoneNumber: phoneNumber,
-    };
-    console.log('Success:', newValues);
+  const onFinish = (values: valuseType) => {
+    console.log('Success:', values);
     navigate('/'); // 회원가입이 성공한 경우 홈으로 이동
   };
 
+  const normFile = (e: any) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
+  };
+
   // 이메일 유효성 검사
-  const validateEmail = useCallback((_: any, value: string) => {
+  const validateEmail = useCallback((_: RuleObject, value: string) => {
     if (!value || EMAIL_REGEX.test(value)) {
       return Promise.resolve();
     }
@@ -28,7 +40,7 @@ export default function SingUp() {
   }, []);
 
   // 비밀번호 유효성 검사
-  const validatePassword = useCallback((_: any, value: string) => {
+  const validatePassword = useCallback((_: RuleObject, value: string) => {
     const NUMBER_REGEX = /\d/;
     const SPECIAL_REGEX = /[!@#$%^&*()-+=]/;
     const ENGLISH_REGEX = /[a-zA-Z]/;
@@ -88,15 +100,6 @@ export default function SingUp() {
     return Promise.resolve();
   }, []);
 
-  const prefixSelector = (
-    <Form.Item name="prefix" noStyle>
-      <Select placeholder="-선택-" style={{ width: 85 }}>
-        <Option value={'010'}>010</Option>
-        <Option value={'011'}>011</Option>
-      </Select>
-    </Form.Item>
-  );
-
   // 직급 선택 동적으로 생성
   const selectedPositionOptions = Object.keys(POSITIONS).map((key) => {
     return (
@@ -137,8 +140,9 @@ export default function SingUp() {
         >
           <Input placeholder="ex) anyone123@email.com" allowClear />
         </Form.Item>
+
         <Form.Item
-          label="비밀번호"
+          label="비밀번호 (영문, 숫자, 특수문자를 포함해주세요.)"
           name="userPassword"
           rules={[{ required: true, validator: validatePassword }]}
           hasFeedback
@@ -148,6 +152,7 @@ export default function SingUp() {
             allowClear
           />
         </Form.Item>
+
         <Form.Item
           label="비밀번호 확인"
           name="confirm_password"
@@ -170,17 +175,31 @@ export default function SingUp() {
           <Input.Password allowClear />
         </Form.Item>
         <Form.Item
-          label="연락처"
+          label="연락처 (ex. 01012345678)"
           name="phone"
           rules={[{ required: true, message: '연락처를 입력해주세요.' }]}
         >
           <Input
-            addonBefore={prefixSelector}
             style={{ width: '100%' }}
-            placeholder="하이픈(-)없이 12345678"
+            placeholder="하이픈(-)없이 01012345678"
             allowClear
           />
         </Form.Item>
+
+        <Form.Item
+          label="프로필"
+          name="profileThumbUrl"
+          valuePropName="fileList"
+          getValueFromEvent={normFile}
+        >
+          <Upload action="/upload.do" listType="picture-card">
+            <div>
+              <PlusOutlined />
+              <div style={{ marginTop: 8 }}>Upload</div>
+            </div>
+          </Upload>
+        </Form.Item>
+
         <Form.Item
           name="position"
           label="직급"
@@ -193,6 +212,7 @@ export default function SingUp() {
             {selectedPositionOptions}
           </Select>
         </Form.Item>
+
         <Button
           type="primary"
           htmlType="submit"
