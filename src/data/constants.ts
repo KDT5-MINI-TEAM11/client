@@ -1,3 +1,5 @@
+export const BASE_API_URL = 'http://localhost:8080/api';
+
 export const NAV_ITEMS = [
   {
     label: '홈',
