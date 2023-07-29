@@ -1,9 +1,23 @@
 import { DUMMY_USER } from '@/data/dummyData';
-import { Image, Descriptions, Skeleton, Input, Space, Button } from 'antd';
+import {
+  Image,
+  Descriptions,
+  Skeleton,
+  Input,
+  Space,
+  Button,
+  Modal,
+} from 'antd';
+import {
+  EditOutlined,
+  CloseCircleOutlined,
+  EyeInvisibleOutlined,
+  EyeTwoTone,
+} from '@ant-design/icons';
 import defaultProfile from '@/assets/defaultProfile.png';
 import { POSITIONS } from '@/data/constants';
 import formatPhoneNumber from '@/utils/formatPhonenumber';
-import { EditOutlined, CloseCircleOutlined } from '@ant-design/icons';
+
 import { useState } from 'react';
 
 export default function MyAccount() {
@@ -11,6 +25,23 @@ export default function MyAccount() {
   const [editPhoneNumberInput, setEditPhonNumberInput] = useState(
     DUMMY_USER.phone_number,
   );
+  const [editPassword, setEditPassword] = useState(false);
+  const [editPasswordInput, setEditPasswordInput] = useState(
+    DUMMY_USER.user_password,
+  );
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
 
   return (
     <>
@@ -73,6 +104,57 @@ export default function MyAccount() {
           {POSITIONS[DUMMY_USER.position].maxVacation}
         </Descriptions.Item>
         <Descriptions.Item label="정보2">$60.00</Descriptions.Item>
+
+        <Descriptions.Item
+          label={
+            <>
+              비밀번호(영문, 숫자, 특수문자를 포함해주세요)
+              <EditOutlined
+                onClick={() => {
+                  setEditPassword(true);
+                }}
+                style={{ marginLeft: 5, fontSize: 15 }}
+                className="icons"
+              />
+            </>
+          }
+        >
+          {editPassword ? (
+            <>
+              <Space.Compact>
+                <Button type="primary" onClick={showModal}>
+                  비밀번호수정
+                </Button>
+                <Modal
+                  title="Basic Modal"
+                  open={isModalOpen}
+                  onOk={handleOk}
+                  onCancel={handleCancel}
+                >
+                  <Space direction="vertical">
+                    <Input.Password placeholder="비밀번호를 입력해주세요" />
+                    <Input.Password
+                      placeholder="비밀번호를 입력해주세요"
+                      iconRender={(visible) =>
+                        visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                      }
+                    />
+                  </Space>
+                </Modal>
+              </Space.Compact>
+              <CloseCircleOutlined
+                className="icons"
+                onClick={() => {
+                  setEditPassword(false);
+                  setEditPasswordInput(DUMMY_USER.user_password);
+                }}
+              />
+            </>
+          ) : (
+            <>{DUMMY_USER.user_password}</>
+          )}
+        </Descriptions.Item>
+
         <Descriptions.Item
           label={
             <>
