@@ -1,13 +1,17 @@
 import { Button, Typography, Card, Form, Input, Space, message } from 'antd';
 import { EMAIL_REGEX } from '@/data/constants';
 import { Link, useNavigate } from 'react-router-dom';
-import { signIn } from '@/api/signin';
+import { signin } from '@/api/signin';
 import { useState } from 'react';
 import setAccessTokenToCookie from '@/utils/setAccessTokenToCookie';
+import { useSetRecoilState } from 'recoil';
+import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
 
 const { Text } = Typography;
 
 export default function Signin() {
+  const setAccessToken = useSetRecoilState(AccessTokenAtom);
+
   const [messageApi, contextHolder] = message.useMessage();
 
   const navigate = useNavigate();
@@ -20,12 +24,15 @@ export default function Signin() {
   }) => {
     setIsSending(true);
     try {
-      const response = await signIn(values);
+      const response = await signin(values);
       // 로그인 성공
       if (response.ok) {
         const data = await response.json();
         const { accessToken } = data.response;
+        // 쿠키에 저장
         setAccessTokenToCookie(accessToken);
+        // recoil에 저장
+        setAccessToken(accessToken);
         navigate('/');
         return;
       }
@@ -49,11 +56,7 @@ export default function Signin() {
   return (
     <>
       {contextHolder}
-      <Card
-        bordered={false}
-        style={{ margin: '0px 20px', maxWidth: 400 }}
-        title="로그인"
-      >
+      <Card bordered={false} style={{ margin: '0px 20px', maxWidth: 400 }}>
         <Form
           layout="vertical"
           name="basic"

@@ -1,14 +1,15 @@
-import { atom, selector } from 'recoil';
+import getAccessTokenFromCookie from '@/utils/getAccessTokenFromCookie';
+import { atom } from 'recoil';
 
 export const AccessTokenAtom = atom({
   key: 'AccessToken',
-  default: 'accesstokkenfromlocalstorage',
+  default: getAccessTokenFromCookie(),
 });
 
-export const ToUpperCaseToken = selector({
-  key: 'UpperToken',
-  get: ({ get }) => {
-    const AcessToken = get(AccessTokenAtom);
-    return AcessToken.toUpperCase();
-  },
-});
+// export const ToUpperCaseToken = selector({
+//   key: 'UpperToken',
+//   get: ({ get }) => {
+//     const AcessToken = get(AccessTokenAtom);
+//     return AcessToken.toUpperCase();
+//   },
+// });

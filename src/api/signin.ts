@@ -1,6 +1,6 @@
 import { BASE_API_URL } from '@/data/constants';
 
-export const signIn = async (loginData: {
+export const signin = async (loginData: {
   userEmail: string;
   userPassword: string;
 }) => {
