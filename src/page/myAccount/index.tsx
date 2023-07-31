@@ -97,6 +97,10 @@ export default function MyAccount() {
     return Promise.resolve();
   }, []);
 
+  const onFinish = (values) => {
+    console.log('Success:', values);
+  };
+
   return (
     <>
       <Descriptions
@@ -196,56 +200,63 @@ export default function MyAccount() {
           비밀번호수정
         </Button>
         <Modal
+          centered
           title="비밀번호 수정"
           open={isModalOpen}
           onOk={handleOk}
           onCancel={handleCancel}
         >
-          <Space direction="vertical" style={{ display: 'flex' }}>
-            <Form.Item
-              label="현재 비밀번호"
-              name="userPassword"
-              rules={[{ required: true }]}
-              hasFeedback
+          <Form
+            layout="vertical"
+            name="basic"
+            wrapperCol={{ span: 30, offset: 0 }}
+            style={{ maxWidth: 350 }}
+            onFinish={onFinish}
+            autoComplete="off"
+          >
+            <Space direction="vertical" style={{ display: 'flex' }}>
+              <Form.Item
+                label="신규 비밀번호"
+                name="newPassword"
+                rules={[{ required: true, validator: validatePassword }]}
+                hasFeedback
+              >
+                <Input.Password
+                  placeholder="비밀번호는 8자리 이상 16자리 미만입니다."
+                  allowClear
+                />
+              </Form.Item>
+              <Form.Item
+                label="신규 비밀번호 재입력"
+                name="confirmPassword"
+                dependencies={['newPassword']}
+                hasFeedback
+                rules={[
+                  { required: true, message: '비밀번호를 입력해주세요' },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (!value || getFieldValue('newPassword') === value) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(
+                        new Error('비밀번호가 일치하지 않습니다.'),
+                      );
+                    },
+                  }),
+                ]}
+              >
+                <Input.Password allowClear />
+              </Form.Item>
+            </Space>
+            <Button
+              type="primary"
+              htmlType="submit"
+              size="large"
+              style={{ width: '100%' }}
             >
-              <Input.Password
-                placeholder="비밀번호는 8자리 이상 16자리 미만입니다."
-                defaultValue={DUMMY_USER.user_password}
-              />
-            </Form.Item>
-            <Form.Item
-              label="신규 비밀번호"
-              name="userPassword"
-              rules={[{ required: true, validator: validatePassword }]}
-              hasFeedback
-            >
-              <Input.Password
-                placeholder="비밀번호는 8자리 이상 16자리 미만입니다."
-                allowClear
-              />
-            </Form.Item>
-            <Form.Item
-              label="신규 비밀번호 재입력"
-              name="confirm_password"
-              dependencies={['userPassword']}
-              hasFeedback
-              rules={[
-                { required: true, message: '비밀번호를 입력해주세요' },
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    if (!value || getFieldValue('userPassword') === value) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject(
-                      new Error('비밀번호가 일치하지 않습니다.'),
-                    );
-                  },
-                }),
-              ]}
-            >
-              <Input.Password allowClear />
-            </Form.Item>
-          </Space>
+              비밀번호 수정
+            </Button>
+          </Form>
         </Modal>
       </Space.Compact>
     </>
