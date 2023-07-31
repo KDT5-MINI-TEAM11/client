@@ -8,6 +8,7 @@ export const signin = async (loginData: {
     headers: {
       'content-type': 'application/json',
     },
+    withCredentials: true,
   });
   return response;
 };
