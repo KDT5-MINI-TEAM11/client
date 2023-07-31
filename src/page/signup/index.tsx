@@ -4,8 +4,8 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { EMAIL_REGEX, PASSWORD_REGEX, POSITIONS } from '@/data/constants';
 import { RuleObject } from 'antd/es/form';
-import { handleUpload } from './cloudinary';
-import { signUp } from './signUpApi';
+import { handleUpload } from '@/api/cloudinary';
+import { signUp } from '@/api/signUpApi';
 
 interface valuseType {
   confirm_password: string;
@@ -36,19 +36,35 @@ export default function SingUp() {
     }
 
     try {
-      await signUp(newValues);
+      const res = await signUp(newValues);
+      if (res.status === 200) {
+        const data = res.data;
+        return data;
+      }
+      throw new Error('회원가입에 실패했습니다.');
     } catch (error) {
-      console.log(error);
+      console.error('오류 발생:', error);
     }
 
     navigate('/'); // 회원가입이 성공한 경우 홈으로 이동
   };
 
   const getImageUrl = async (values: valuseType) => {
-    let imageUrl = null;
+    let imageUrl: any = null;
 
-    if (values.profileThumbUrl && values.profileThumbUrl.length > 0) {
-      imageUrl = await handleUpload(values.profileThumbUrl[0].originFileObj);
+    try {
+      if (values.profileThumbUrl && values.profileThumbUrl.length > 0) {
+        const res = await handleUpload(values.profileThumbUrl[0].originFileObj);
+        if (res?.status === 200) {
+          const data = res.data;
+          imageUrl = data.url; // 이미지 URL을 받아옴
+        } else {
+          throw new Error('이미지 업로드에 실패하였습니다.');
+        }
+      }
+    } catch (error) {
+      console.error('오류 발생:', error);
+      imageUrl = null; // 오류가 발생했으므로 imageUrl을 null로 설정
     }
 
     return imageUrl;
