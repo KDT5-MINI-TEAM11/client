@@ -1,0 +1,12 @@
+.profile_image {
+  object-fit: cover;
+}
+
+.icons {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.icons:hover {
+  scale: 1.2;
+}
