@@ -1,15 +1,13 @@
-import { BASE_API_URL } from '@/data/constants';
+import axios from '@/api/axios';
 
 export const signin = async (loginData: {
   userEmail: string;
   userPassword: string;
 }) => {
-  const response = await fetch(`${BASE_API_URL}/v1/auth/signin`, {
-    method: 'POST',
+  const response = await axios.post('/v1/auth/signin', loginData, {
     headers: {
       'content-type': 'application/json',
     },
-    body: JSON.stringify(loginData),
   });
   return response;
 };

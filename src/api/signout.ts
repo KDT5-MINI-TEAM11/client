@@ -1,11 +1,6 @@
-import { BASE_API_URL } from '@/data/constants';
+import axios from '@/api/axios';
 
 export const signout = async () => {
-  const response = await fetch(`${BASE_API_URL}/v1/auth/signout`, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-    },
-  });
+  const response = await axios('/v1/auth/signout');
   return response;
 };
