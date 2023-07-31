@@ -5,7 +5,12 @@ import MyHeader from './MyHeader';
 
 export default function MyLayout() {
   return (
-    <Layout style={{ display: 'flex', minHeight: '100vh' }}>
+    <Layout
+      style={{
+        display: 'flex',
+        minHeight: '100vh',
+      }}
+    >
       <MyHeader />
       <Content
         style={{
