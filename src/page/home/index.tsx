@@ -2,6 +2,7 @@ import { AccessTokenAtom, isSignedinSelector } from '@/recoil/AccessTokkenAtom';
 import { theme } from 'antd';
 import { useRecoilValue } from 'recoil';
 import Signin from '../../components/Signin';
+import useRefreshToken from '@/hooks/useRefreshToken';
 
 export default function Home() {
   const {
@@ -12,6 +13,18 @@ export default function Home() {
 
   const isSignedin = useRecoilValue(isSignedinSelector);
 
+  const refreshAccessToken = useRefreshToken();
+  // const handleRefresh = async () => {
+  //   try {
+  //     const res = await axios.get('/v1/auth/refresh-token', {
+  //       withCredentials: true,
+  //     });
+  //     console.log(res);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
   return (
     <>
       <Signin />
@@ -20,11 +33,12 @@ export default function Home() {
       >
         홈🏠🏠🏠🏠 <span style={{ color: colorPrimary }}>사용하고 싶으색</span>
         <span style={{ backgroundColor: colorPrimaryBg }}>원하는 색을</span>
-        <div>{accessToken?.slice(0, 30)}</div>
+        <div>{accessToken?.slice(200)}</div>
         <span style={{ color: colorSuccess }}>
           theme에서 가져와서 사용theme에서 가져와서 사용theme에서 가져와서
           사용theme에서 가져와서 사용
         </span>
+        <button onClick={refreshAccessToken}>리프레시</button>
       </main>
     </>
   );

@@ -18,10 +18,9 @@ export default function MyHeader() {
     setIsSigningout(true);
     try {
       const response = await signout();
-      const data = await response.json();
       messageApi.open({
         type: 'success',
-        content: data.response,
+        content: response.data.response,
       });
     } catch (error) {
       console.log(error);
@@ -29,6 +28,7 @@ export default function MyHeader() {
       setAccessToken(null);
       setIsSigningout(false);
       deleteAccessTokenFromCookie();
+      // 새로고침 필요함
     }
   };
   return (

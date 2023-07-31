@@ -1,11 +1,12 @@
 import { Button, Typography, Card, Form, Input, Space, message } from 'antd';
 import { EMAIL_REGEX } from '@/data/constants';
 import { Link, useNavigate } from 'react-router-dom';
-import { signin } from '@/api/signin';
 import { useState } from 'react';
 import setAccessTokenToCookie from '@/utils/setAccessTokenToCookie';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { AccessTokenAtom, isSignedinSelector } from '@/recoil/AccessTokkenAtom';
+import { signin } from '@/api/signin';
+import { AxiosError } from 'axios';
 
 const { Text } = Typography;
 
@@ -13,8 +14,6 @@ export default function Signin() {
   const setAccessToken = useSetRecoilState(AccessTokenAtom);
 
   const [messageApi, contextHolder] = message.useMessage();
-
-  const navigate = useNavigate();
 
   const [isSending, setIsSending] = useState(false);
 
@@ -26,9 +25,8 @@ export default function Signin() {
     try {
       const response = await signin(values);
       // 로그인 성공
-      if (response.ok) {
-        const data = await response.json();
-        const { accessToken } = data.response;
+      if (response.status === 200) {
+        const { accessToken } = response.data.response;
         // 쿠키에 저장
         setAccessTokenToCookie(accessToken);
         // recoil에 저장
@@ -39,18 +37,13 @@ export default function Signin() {
         });
         return;
       }
-      // 미등록인 이메일인 경우, 비번 틀린 경우, 이외 지정 오류
-      const data = await response.json();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       messageApi.open({
         type: 'error',
-        content: data.error.message,
-      });
-      // 서버로 부터 응답이 오지 않는 에러
-    } catch (error) {
-      console.log(error);
-      messageApi.open({
-        type: 'error',
-        content: '로그인에 실패하였습니다. 관리자에게 문의하세요.',
+        content:
+          error.response.data.error.message ||
+          '로그인에 실패하였습니다. 관리자에게 문의하세요.',
       });
     } finally {
       setIsSending(false);
