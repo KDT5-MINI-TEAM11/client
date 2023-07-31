@@ -11,10 +11,6 @@ export const MYACCOUNT_NAV_ITEMS = [
     href: '/myaccount',
   },
   {
-    label: '내 정보 수정',
-    href: '/myaccount/edit',
-  },
-  {
     label: '내 연차, 당직',
     href: '/myaccount/vacation',
   },
