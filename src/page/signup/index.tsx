@@ -4,24 +4,65 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { EMAIL_REGEX, PASSWORD_REGEX, POSITIONS } from '@/data/constants';
 import { RuleObject } from 'antd/es/form';
+import { handleUpload } from '@/api/cloudinary';
+import { signUp } from '@/api/signUpApi';
 
 interface valuseType {
   confirm_password: string;
   phone: string;
   position: string;
-  profileThumbUrl: string;
+  profileThumbUrl: any;
   userEmail: string;
   userPassword: string;
-  username: string;
+  userName: string;
 }
 
 export default function SingUp() {
   const navigate = useNavigate();
   const { Option } = Select;
 
-  const onFinish = (values: valuseType) => {
-    console.log('Success:', values);
-    navigate('/'); // 회원가입이 성공한 경우 홈으로 이동
+  const onFinish = async (values: valuseType) => {
+    const imageUrl = await getImageUrl(values);
+
+    const newValues = {
+      ...values,
+      profileThumbUrl: imageUrl,
+    };
+
+    try {
+      const res = await signUp(newValues);
+      if (res.status === 200) {
+        const data = res.data;
+        navigate('/'); // 회원가입이 성공한 경우 홈으로 이동
+        return data;
+      }
+      throw new Error('회원가입에 실패했습니다.');
+    } catch (error) {
+      console.error('오류 발생:', error);
+    }
+
+    console.log(newValues);
+  };
+
+  const getImageUrl = async (values: valuseType) => {
+    let imageUrl: any = null;
+
+    try {
+      if (values.profileThumbUrl && values.profileThumbUrl.length > 0) {
+        const res = await handleUpload(values.profileThumbUrl[0].originFileObj);
+        if (res?.status === 200) {
+          const data = res.data;
+          imageUrl = data.url; // 이미지 URL을 받아옴
+        } else {
+          throw new Error('이미지 업로드에 실패하였습니다.');
+        }
+      }
+    } catch (error) {
+      console.error('오류 발생:', error);
+      imageUrl = null; // 오류가 발생했으므로 imageUrl을 null로 설정
+    }
+
+    return imageUrl;
   };
 
   const normFile = (e: any) => {
@@ -110,11 +151,7 @@ export default function SingUp() {
   });
 
   return (
-    <Card
-      bordered={false}
-      style={{ margin: '0px 20px', width: 400 }}
-      title="회원가입"
-    >
+    <Card bordered={false} style={{ margin: '0px 20px', width: 400 }}>
       <Form
         layout="vertical"
         name="basic"
@@ -125,7 +162,7 @@ export default function SingUp() {
       >
         <Form.Item
           label="이름"
-          name="username"
+          name="userName"
           rules={[{ required: true, message: '이름을 입력해주세요.' }]}
         >
           <Input allowClear />
@@ -176,7 +213,7 @@ export default function SingUp() {
         </Form.Item>
         <Form.Item
           label="연락처 (ex. 01012345678)"
-          name="phone"
+          name="phoneNumber"
           rules={[{ required: true, message: '연락처를 입력해주세요.' }]}
         >
           <Input
@@ -192,11 +229,10 @@ export default function SingUp() {
           valuePropName="fileList"
           getValueFromEvent={normFile}
         >
-          <Upload action="/upload.do" listType="picture-card">
-            <div>
-              <PlusOutlined />
-              <div style={{ marginTop: 8 }}>Upload</div>
-            </div>
+          <Upload beforeUpload={() => false}>
+            <Button>
+              <PlusOutlined /> Click to Upload
+            </Button>
           </Upload>
         </Form.Item>
 
