@@ -29,16 +29,11 @@ export default function SingUp() {
       profileThumbUrl: imageUrl,
     };
 
-    if (imageUrl) {
-      console.log('이미지 URL:', imageUrl);
-    } else {
-      console.log('이미지 없음');
-    }
-
     try {
       const res = await signUp(newValues);
       if (res.status === 200) {
         const data = res.data;
+        navigate('/'); // 회원가입이 성공한 경우 홈으로 이동
         return data;
       }
       throw new Error('회원가입에 실패했습니다.');
@@ -46,7 +41,7 @@ export default function SingUp() {
       console.error('오류 발생:', error);
     }
 
-    navigate('/'); // 회원가입이 성공한 경우 홈으로 이동
+    console.log(newValues);
   };
 
   const getImageUrl = async (values: valuseType) => {
