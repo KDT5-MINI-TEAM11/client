@@ -21,7 +21,6 @@ export default function MyAccount() {
   const [editPhoneNumberInput, setEditPhonNumberInput] = useState(
     DUMMY_USER.phone_number,
   );
-  const [editPassword, setEditPassword] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -163,94 +162,6 @@ export default function MyAccount() {
         <Descriptions.Item
           label={
             <>
-              비밀번호(영문, 숫자, 특수문자를 포함해주세요)
-              <EditOutlined
-                onClick={() => {
-                  setEditPassword(true);
-                }}
-                style={{ marginLeft: 5, fontSize: 15 }}
-                className="icons"
-              />
-            </>
-          }
-        >
-          {editPassword ? (
-            <>
-              <Space.Compact>
-                <Button type="primary" onClick={showModal}>
-                  비밀번호수정
-                </Button>
-                <Modal
-                  title="비밀번호 수정"
-                  open={isModalOpen}
-                  onOk={handleOk}
-                  onCancel={handleCancel}
-                >
-                  <Space direction="vertical" style={{ display: 'flex' }}>
-                    <Form.Item
-                      label="현재 비밀번호"
-                      name="userPassword"
-                      rules={[{ required: true, validator: validatePassword }]}
-                      hasFeedback
-                    >
-                      <Input.Password
-                        placeholder="비밀번호는 8자리 이상 16자리 미만입니다."
-                        allowClear
-                      />
-                    </Form.Item>
-                    <Form.Item
-                      label="신규 비밀번호"
-                      name="userPassword"
-                      rules={[{ required: true, validator: validatePassword }]}
-                      hasFeedback
-                    >
-                      <Input.Password
-                        placeholder="비밀번호는 8자리 이상 16자리 미만입니다."
-                        allowClear
-                      />
-                    </Form.Item>
-                    <Form.Item
-                      label="신규 비밀번호 재입력"
-                      name="confirm_password"
-                      dependencies={['userPassword']}
-                      hasFeedback
-                      rules={[
-                        { required: true, message: '비밀번호를 입력해주세요' },
-                        ({ getFieldValue }) => ({
-                          validator(_, value) {
-                            if (
-                              !value ||
-                              getFieldValue('userPassword') === value
-                            ) {
-                              return Promise.resolve();
-                            }
-                            return Promise.reject(
-                              new Error('비밀번호가 일치하지 않습니다.'),
-                            );
-                          },
-                        }),
-                      ]}
-                    >
-                      <Input.Password allowClear />
-                    </Form.Item>
-                  </Space>
-                </Modal>
-              </Space.Compact>
-              <CloseCircleOutlined
-                className="icons"
-                onClick={() => {
-                  setEditPassword(false);
-                }}
-              />
-            </>
-          ) : (
-            <>{DUMMY_USER.user_password}</>
-          )}
-        </Descriptions.Item>
-
-        <Descriptions.Item
-          label={
-            <>
               사진
               <EditOutlined
                 style={{ marginLeft: 5, fontSize: 15 }}
@@ -271,6 +182,72 @@ export default function MyAccount() {
           />
         </Descriptions.Item>
       </Descriptions>
+
+      <Space.Compact>
+        <Button
+          type="primary"
+          style={{
+            width: '25rem',
+            margin: '40px 0px',
+            borderRadius: '10px',
+          }}
+          onClick={showModal}
+        >
+          비밀번호수정
+        </Button>
+        <Modal
+          title="비밀번호 수정"
+          open={isModalOpen}
+          onOk={handleOk}
+          onCancel={handleCancel}
+        >
+          <Space direction="vertical" style={{ display: 'flex' }}>
+            <Form.Item
+              label="현재 비밀번호"
+              name="userPassword"
+              rules={[{ required: true }]}
+              hasFeedback
+            >
+              <Input.Password
+                placeholder="비밀번호는 8자리 이상 16자리 미만입니다."
+                defaultValue={DUMMY_USER.user_password}
+              />
+            </Form.Item>
+            <Form.Item
+              label="신규 비밀번호"
+              name="userPassword"
+              rules={[{ required: true, validator: validatePassword }]}
+              hasFeedback
+            >
+              <Input.Password
+                placeholder="비밀번호는 8자리 이상 16자리 미만입니다."
+                allowClear
+              />
+            </Form.Item>
+            <Form.Item
+              label="신규 비밀번호 재입력"
+              name="confirm_password"
+              dependencies={['userPassword']}
+              hasFeedback
+              rules={[
+                { required: true, message: '비밀번호를 입력해주세요' },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue('userPassword') === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(
+                      new Error('비밀번호가 일치하지 않습니다.'),
+                    );
+                  },
+                }),
+              ]}
+            >
+              <Input.Password allowClear />
+            </Form.Item>
+          </Space>
+        </Modal>
+      </Space.Compact>
     </>
   );
 }
