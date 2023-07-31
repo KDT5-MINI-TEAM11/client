@@ -13,7 +13,7 @@ import Signup from './page/signup';
 export default function App() {
   const theme = {
     token: {
-      colorPrimary: '#ffc400',
+      colorPrimary: '#03bafc',
     },
   };
 

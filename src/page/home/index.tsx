@@ -13,17 +13,7 @@ export default function Home() {
 
   const isSignedin = useRecoilValue(isSignedinSelector);
 
-  const refreshAccessToken = useRefreshToken();
-  // const handleRefresh = async () => {
-  //   try {
-  //     const res = await axios.get('/v1/auth/refresh-token', {
-  //       withCredentials: true,
-  //     });
-  //     console.log(res);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
+  const { refreshAccessToken } = useRefreshToken();
 
   return (
     <>

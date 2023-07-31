@@ -2,7 +2,9 @@ import { Badge, Typography, Avatar } from 'antd';
 import { Link } from 'react-router-dom';
 import { IuserHeaderInfo } from '@/types/IuserHeaderInfo';
 import { POSITIONS } from '@/data/constants';
+
 const { Text } = Typography;
+
 export default function UserInfo({
   userHeaderInfo,
 }: {
@@ -20,6 +22,7 @@ export default function UserInfo({
       <Link to="/myaccount">{userHeaderInfo.userName}</Link>
       <Badge
         count={userHeaderInfo.position}
+        // antd에서 지정된 색들이 있음 몇개 가져와서 constants 직책별로 넣어둠
         color={POSITIONS[userHeaderInfo?.position]?.color}
       />
       <Text>
