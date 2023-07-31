@@ -21,26 +21,26 @@ export const MYACCOUNT_NAV_ITEMS = [
 ];
 
 export const POSITIONS: {
-  [key: string]: { label: string; maxVacation: number };
+  [key: string]: { label: string; total_vacation: number };
 } = {
   LEVEL1: {
     label: '레벨1',
-    maxVacation: 15,
+    total_vacation: 15,
   },
   LEVEL2: {
     label: '레벨2',
-    maxVacation: 18,
+    total_vacation: 18,
   },
   LEVEL3: {
     label: '레벨3',
-    maxVacation: 21,
+    total_vacation: 21,
   },
   LEVEL4: {
     label: '레벨4',
-    maxVacation: 24,
+    total_vacation: 24,
   },
   MANAGER: {
     label: '매니저',
-    maxVacation: 27,
+    total_vacation: 27,
   },
 };

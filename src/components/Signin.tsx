@@ -4,8 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { signin } from '@/api/signin';
 import { useState } from 'react';
 import setAccessTokenToCookie from '@/utils/setAccessTokenToCookie';
-import { useSetRecoilState } from 'recoil';
-import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { AccessTokenAtom, isSignedinSelector } from '@/recoil/AccessTokkenAtom';
 
 const { Text } = Typography;
 
@@ -33,10 +33,13 @@ export default function Signin() {
         setAccessTokenToCookie(accessToken);
         // recoil에 저장
         setAccessToken(accessToken);
-        navigate('/');
+        messageApi.open({
+          type: 'success',
+          content: '로그인 하였습니다.',
+        });
         return;
       }
-      // 미등록인 이메일인 경우, 비번 틀린 경우
+      // 미등록인 이메일인 경우, 비번 틀린 경우, 이외 지정 오류
       const data = await response.json();
       messageApi.open({
         type: 'error',
@@ -53,8 +56,16 @@ export default function Signin() {
       setIsSending(false);
     }
   };
+
+  const isSignedin = useRecoilValue(isSignedinSelector);
   return (
-    <>
+    <div
+      style={{
+        position: 'absolute',
+        zIndex: 10,
+        display: isSignedin ? 'none' : 'block',
+      }}
+    >
       {contextHolder}
       <Card bordered={false} style={{ margin: '0px 20px', maxWidth: 400 }}>
         <Form
@@ -63,6 +74,7 @@ export default function Signin() {
           wrapperCol={{ span: 30, offset: 0 }}
           style={{ maxWidth: 400 }}
           onFinish={onFinish}
+          // autoComplete="off"
         >
           <Form.Item
             label="이메일"
@@ -105,6 +117,6 @@ export default function Signin() {
           </Space>
         </Form>
       </Card>
-    </>
+    </div>
   );
 }

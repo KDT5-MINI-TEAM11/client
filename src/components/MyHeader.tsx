@@ -11,6 +11,7 @@ export default function MyHeader() {
   const [messageApi, contextHolder] = message.useMessage();
 
   const [isSigningout, setIsSigningout] = useState(false);
+
   const [accessToken, setAccessToken] = useRecoilState(AccessTokenAtom);
 
   const handleSignout = async () => {
@@ -25,9 +26,6 @@ export default function MyHeader() {
     } catch (error) {
       console.log(error);
     } finally {
-      // 성공하든 실패하든 recoil상태에서 null로
-      // 성공하든 실패하든 이면 굳이 통신을 할 이유가 있음? (토큰도 안보냄)
-      // 쿠키 삭제 필요성?, 함수들 모듈화 하는게 맞는건지? 재사용 여부를 현재 어떻게 판단함?
       setAccessToken(null);
       setIsSigningout(false);
       deleteAccessTokenFromCookie();
@@ -51,10 +49,7 @@ export default function MyHeader() {
               </Button>
             </>
           ) : (
-            <>
-              <Link to="/signin">로그인</Link>
-              <Link to="signup">회원가입</Link>
-            </>
+            <></>
           )}
         </Space>
       </Header>
