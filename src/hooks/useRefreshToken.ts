@@ -17,7 +17,7 @@ export default function useRefreshToken() {
     const nowToSecond = Math.floor(new Date().getTime() / 1000);
 
     // accessToken이 있고(로그인 되어있고) 만료시간이 5분 이내로 남은 경우
-    if (expirationTime && expirationTime - nowToSecond < 28 * 60) {
+    if (expirationTime && expirationTime - nowToSecond < 5 * 60) {
       try {
         const response = await axios.get('/v1/auth/refresh-token', {
           withCredentials: true, // httpOnly인 경우 설정해줘야함
@@ -33,8 +33,8 @@ export default function useRefreshToken() {
         setAccessTokenToCookie(newAccessToken);
       } catch (error) {
         // 일단 에러인 경우 accessToken을 쿠키와 recoil에서 모두 삭제
-        setAccessToken(null);
-        deleteAccessTokenFromCookie();
+        // setAccessToken(null);
+        // deleteAccessTokenFromCookie();
       }
       // acessToken이 null인 경우
     } else if (!expirationTime) {
