@@ -22,6 +22,7 @@ interface valuseType {
   confirm_password: string;
   phone: string;
   position: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   profileThumbUrl: any;
   userEmail: string;
   userPassword: string;
@@ -63,7 +64,7 @@ export default function SingUp() {
   };
 
   const getImageUrl = async (values: valuseType) => {
-    let imageUrl: any = null;
+    let imageUrl = null;
 
     try {
       if (values.profileThumbUrl && values.profileThumbUrl.length > 0) {
@@ -85,6 +86,7 @@ export default function SingUp() {
     return imageUrl;
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const normFile = (e: any) => {
     if (Array.isArray(e)) {
       return e;
@@ -181,6 +183,7 @@ export default function SingUp() {
         setIsEmailCheck(true); // 중복되지 않은 이메일일 경우
         message.success('사용 가능한 이메일입니다.');
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (
         error.response &&

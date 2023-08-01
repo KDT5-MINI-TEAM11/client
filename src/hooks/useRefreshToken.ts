@@ -2,8 +2,9 @@ import axios from '@/api/axios';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
 import getPayloadFromJWT from '@/utils/getPayloadFromJWT';
 import { useRecoilState } from 'recoil';
-import deleteAccessTokenFromCookie from '@/utils/deleteAccessTokenFromCookie';
 import setAccessTokenToCookie from '@/utils/setAccessTokenToCookie';
+
+// 백엔드문제인지 프론트 문제인지 모르겠으나 문제 있음.
 
 export default function useRefreshToken() {
   // 리코일에 저장한 access토큰
@@ -19,7 +20,7 @@ export default function useRefreshToken() {
     // accessToken이 있고(로그인 되어있고) 만료시간이 5분 이내로 남은 경우
     if (expirationTime && expirationTime - nowToSecond < 5 * 60) {
       try {
-        const response = await axios.get('/v1/auth/refresh-token', {
+        const response = await axios('/v1/auth/refresh-token', {
           withCredentials: true, // httpOnly인 경우 설정해줘야함
         });
 
@@ -31,7 +32,9 @@ export default function useRefreshToken() {
 
         // 쿠키에 저장
         setAccessTokenToCookie(newAccessToken);
+        console.log('재발급완료');
       } catch (error) {
+        console.log(error);
         // 일단 에러인 경우 accessToken을 쿠키와 recoil에서 모두 삭제
         // setAccessToken(null);
         // deleteAccessTokenFromCookie();

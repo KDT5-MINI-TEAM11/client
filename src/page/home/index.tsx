@@ -1,35 +1,49 @@
-import { AccessTokenAtom, isSignedinSelector } from '@/recoil/AccessTokkenAtom';
-import { theme } from 'antd';
+import { isSignedinSelector } from '@/recoil/AccessTokkenAtom';
+import { Calendar, Layout, Modal } from 'antd';
 import { useRecoilValue } from 'recoil';
 import Signin from '../../components/Signin';
-import useRefreshToken from '@/hooks/useRefreshToken';
+import Sider from 'antd/es/layout/Sider';
+import { Content } from 'antd/es/layout/layout';
+import { useState } from 'react';
 
 export default function Home() {
-  const {
-    token: { colorPrimary, colorPrimaryBg, colorSuccess },
-  } = theme.useToken();
-
-  const accessToken = useRecoilValue(AccessTokenAtom);
-
   const isSignedin = useRecoilValue(isSignedinSelector);
-
-  const { refreshAccessToken } = useRefreshToken();
+  const [isModalOpen, setIsModalOpen] = useState(!isSignedin);
 
   return (
     <>
-      <Signin />
-      <main
-        style={{ filter: isSignedin ? '' : 'blur(4px)', userSelect: 'none' }}
+      <Modal
+        title="로그인"
+        centered
+        closeIcon={false}
+        footer={null}
+        open={isModalOpen}
       >
-        홈🏠🏠🏠🏠 <span style={{ color: colorPrimary }}>사용하고 싶으색</span>
-        <span style={{ backgroundColor: colorPrimaryBg }}>원하는 색을</span>
-        <div>{accessToken?.slice(200)}</div>
-        <span style={{ color: colorSuccess }}>
-          theme에서 가져와서 사용theme에서 가져와서 사용theme에서 가져와서
-          사용theme에서 가져와서 사용
-        </span>
-        <button onClick={refreshAccessToken}>리프레시</button>
-      </main>
+        <Signin setIsModalOpen={setIsModalOpen} />
+      </Modal>
+      <Layout
+        style={{
+          filter: isSignedin ? '' : 'blur(5px)',
+          userSelect: 'none',
+          height: 'calc(100vh - 60px)',
+          display: 'flex',
+          flexDirection: 'row',
+        }}
+      >
+        <Sider width={300} style={{ background: 'white' }}></Sider>
+        <Layout style={{ padding: '0 15px', flex: 1, height: '100%' }}>
+          <Content
+            style={{
+              padding: '0 10px',
+              background: 'white',
+              height: '100%',
+              overflow: 'auto',
+            }}
+          >
+            <Calendar />
+          </Content>
+        </Layout>
+      </Layout>
     </>
   );
 }
