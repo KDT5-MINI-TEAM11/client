@@ -11,10 +11,10 @@ export const handleUpload = async (file: string | Blob) => {
     return null;
   }
 
-  const res = await axios.post(
+  const response = await axios.post(
     `https://api.cloudinary.com/v1_1/${cloudinaryName}/image/upload/`,
     formData,
   );
 
-  return res;
+  return response;
 };
