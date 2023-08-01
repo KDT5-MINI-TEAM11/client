@@ -1,4 +1,3 @@
-import { DUMMY_USER } from '@/data/dummyData';
 import {
   Image,
   Descriptions,
@@ -6,103 +5,119 @@ import {
   Input,
   Space,
   Button,
-  Modal,
+  message,
 } from 'antd';
 import { EditOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import defaultProfile from '@/assets/defaultProfile.png';
-import { POSITIONS, PASSWORD_REGEX } from '@/data/constants';
+import { POSITIONS } from '@/data/constants';
 import formatPhoneNumber from '@/utils/formatPhonenumber';
 
-import { useCallback, useState } from 'react';
-import Form, { RuleObject } from 'antd/es/form';
+import { useEffect, useState } from 'react';
+import { getMyAccount } from '@/api/getMyAccount';
+import { useRecoilValue } from 'recoil';
+import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
+import useRefreshToken from '@/hooks/useRefreshToken';
+import { changeMyInfo } from '@/api/changeMyInfo';
+import PasswordChangeModal from './passwordChangeModal';
+
+interface MyAccountInfoType {
+  phoneNumber: string;
+  position: string;
+  profileThumbUrl: string;
+  userEmail: string;
+  userName: string;
+  usedVacation: string;
+}
 
 export default function MyAccount() {
-  const [editPhoneNumber, setEditPhoneNumber] = useState(false);
-  const [editPhoneNumberInput, setEditPhonNumberInput] = useState(
-    DUMMY_USER.phone_number,
-  );
+  const [myAccountInfo, setMyAccountInfo] = useState<MyAccountInfoType>({
+    phoneNumber: '',
+    position: '',
+    profileThumbUrl: '',
+    userEmail: '',
+    userName: '',
+    usedVacation: '',
+  });
 
+  // antd message(화면 상단에 뜨는 메세지)기능
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const { refreshAccessToken } = useRefreshToken();
+  const [editPhoneNumber, setEditPhoneNumber] = useState(false);
+  const [editPhoneNumberInput, setEditPhonNumberInput] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
+  const accessToken = useRecoilValue(AccessTokenAtom);
 
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
+  useEffect(() => {
+    const getData = async () => {
+      if (!accessToken) {
+        return;
+      }
+      await refreshAccessToken();
+      try {
+        const response = await getMyAccount(accessToken);
+        if (response.status === 200) {
+          // 성공했을때
+          const userData = response.data.response as MyAccountInfoType;
+          setMyAccountInfo({
+            phoneNumber: userData.phoneNumber,
+            position: userData.position,
+            profileThumbUrl: userData.profileThumbUrl,
+            userEmail: userData.userEmail,
+            userName: userData.userName,
+            usedVacation: userData.usedVacation,
+          });
+          setEditPhonNumberInput(userData.phoneNumber);
+          return;
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        console.log(
+          error.response.data.error.message ||
+            '사용자 정보를 불러오지 못했습니다.',
+        );
+      }
+    };
+    getData();
+  }, [accessToken]);
 
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
-
-  // 비밀번호 유효성 검사
-  const validatePassword = useCallback((_: RuleObject, value: string) => {
-    const NUMBER_REGEX = /\d/;
-    const SPECIAL_REGEX = /[!@#$%^&*()-+=]/;
-    const ENGLISH_REGEX = /[a-zA-Z]/;
-
-    if (!value) {
-      return Promise.reject(new Error('비밀번호를 입력해주세요.'));
-    }
-
-    if (!NUMBER_REGEX.test(value) && !ENGLISH_REGEX.test(value)) {
-      return Promise.reject(
-        new Error(
-          '비밀번호에는 최소 하나의 숫자와 영어 대소문자가 포함되어야 합니다.',
-        ),
+  const handleChangeMyInfo = async () => {
+    await refreshAccessToken();
+    try {
+      const response = await changeMyInfo(accessToken, {
+        phoneNumber: editPhoneNumberInput,
+      });
+      if (response.status === 200) {
+        setMyAccountInfo((prev) => ({
+          ...prev,
+          phoneNumber: editPhoneNumberInput,
+        }));
+        // 성공
+        console.log(response);
+        messageApi.open({
+          type: 'success',
+          content: '전화번호를 수정하였습니다.',
+        });
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.log(
+        error.response.data.error.message ||
+          '사용자 정보 수정에 실패하였습니다.',
       );
+      messageApi.open({
+        type: 'error',
+        content: '전화번호를 수정실패',
+      });
+    } finally {
+      setEditPhoneNumber(false);
     }
-
-    if (!SPECIAL_REGEX.test(value) && !ENGLISH_REGEX.test(value)) {
-      return Promise.reject(
-        new Error(
-          '비밀번호에는 최소 하나의 특수문자와 영어 대소문자가 포함되어야 합니다.',
-        ),
-      );
-    }
-
-    if (!NUMBER_REGEX.test(value) && !SPECIAL_REGEX.test(value)) {
-      return Promise.reject(
-        new Error(
-          '비밀번호에는 최소 하나의 숫자와 특수문자가 포함되어야 합니다.',
-        ),
-      );
-    }
-
-    if (!NUMBER_REGEX.test(value)) {
-      return Promise.reject(
-        new Error('비밀번호에는 최소 하나의 숫자가 포함되어야 합니다.'),
-      );
-    }
-
-    if (!SPECIAL_REGEX.test(value)) {
-      return Promise.reject(
-        new Error('비밀번호에는 최소 하나의 특수문자가 포함되어야 합니다.'),
-      );
-    }
-
-    if (!ENGLISH_REGEX.test(value)) {
-      return Promise.reject(
-        new Error(
-          '비밀번호에는 최소 하나의 영어 대소문자가 포함되어야 합니다.',
-        ),
-      );
-    }
-
-    if (!PASSWORD_REGEX.test(value)) {
-      return Promise.reject(new Error('비밀번호는 8~16자 입니다.'));
-    }
-
-    return Promise.resolve();
-  }, []);
-
-  const onFinish = (values) => {
-    console.log('Success:', values);
   };
 
   return (
     <>
+      {contextHolder}
       <Descriptions
         title="내 정보"
         bordered
@@ -111,23 +126,34 @@ export default function MyAccount() {
         labelStyle={{ textAlign: 'center' }}
       >
         <Descriptions.Item label="이름">
-          {DUMMY_USER.user_name}
+          {myAccountInfo.userName}
         </Descriptions.Item>
         <Descriptions.Item label="이메일">
-          {DUMMY_USER.user_email}
+          {myAccountInfo.userEmail}
         </Descriptions.Item>
 
         <Descriptions.Item
           label={
             <>
               전화번호
-              <EditOutlined
-                onClick={() => {
-                  setEditPhoneNumber(true);
-                }}
-                style={{ marginLeft: 5, fontSize: 15 }}
-                className="icons"
-              />
+              {editPhoneNumber ? (
+                <CloseCircleOutlined
+                  className="icons"
+                  style={{ marginLeft: 5, fontSize: 15 }}
+                  onClick={() => {
+                    setEditPhoneNumber(false);
+                    setEditPhonNumberInput(myAccountInfo.phoneNumber);
+                  }}
+                />
+              ) : (
+                <EditOutlined
+                  onClick={() => {
+                    setEditPhoneNumber(true);
+                  }}
+                  style={{ marginLeft: 5, fontSize: 15 }}
+                  className="icons"
+                />
+              )}
             </>
           }
         >
@@ -139,29 +165,25 @@ export default function MyAccount() {
                   value={editPhoneNumberInput}
                   onChange={(e) => setEditPhonNumberInput(e.target.value)}
                 />
-                <Button type="primary">수정</Button>
+                <Button type="primary" onClick={handleChangeMyInfo}>
+                  수정
+                </Button>
               </Space.Compact>
-              <CloseCircleOutlined
-                className="icons"
-                onClick={() => {
-                  setEditPhoneNumber(false);
-                  setEditPhonNumberInput(DUMMY_USER.phone_number);
-                }}
-              />
             </>
           ) : (
-            <>{formatPhoneNumber(DUMMY_USER.phone_number)}</>
+            <>{formatPhoneNumber(myAccountInfo.phoneNumber)}</>
           )}
         </Descriptions.Item>
 
         <Descriptions.Item label="직급">
-          {POSITIONS[DUMMY_USER.position].label}
+          {myAccountInfo.position}
         </Descriptions.Item>
-        <Descriptions.Item label="남은 연차">
-          {DUMMY_USER.remaining_vacation} /{' '}
-          {POSITIONS[DUMMY_USER.position].total_vacation}
+        <Descriptions.Item label="사용한 연차">
+          {myAccountInfo.usedVacation}일
         </Descriptions.Item>
-        <Descriptions.Item label="정보2">$60.00</Descriptions.Item>
+        <Descriptions.Item label="총 연차">
+          {POSITIONS[myAccountInfo.position]?.total_vacation}일
+        </Descriptions.Item>
 
         <Descriptions.Item
           label={
@@ -181,84 +203,27 @@ export default function MyAccount() {
             rootClassName="profile_image"
             width={200}
             height={200}
-            src={DUMMY_USER.profile_thumb_url}
+            src={myAccountInfo.profileThumbUrl}
             fallback={defaultProfile}
           />
         </Descriptions.Item>
       </Descriptions>
 
-      <Space.Compact>
-        <Button
-          type="primary"
-          style={{
-            width: '25rem',
-            margin: '40px 0px',
-            borderRadius: '10px',
-          }}
-          onClick={showModal}
-        >
-          비밀번호수정
-        </Button>
-        <Modal
-          centered
-          title="비밀번호 수정"
-          open={isModalOpen}
-          onOk={handleOk}
-          onCancel={handleCancel}
-        >
-          <Form
-            layout="vertical"
-            name="basic"
-            wrapperCol={{ span: 30, offset: 0 }}
-            style={{ maxWidth: 350 }}
-            onFinish={onFinish}
-            autoComplete="off"
-          >
-            <Space direction="vertical" style={{ display: 'flex' }}>
-              <Form.Item
-                label="신규 비밀번호"
-                name="newPassword"
-                rules={[{ required: true, validator: validatePassword }]}
-                hasFeedback
-              >
-                <Input.Password
-                  placeholder="비밀번호는 8자리 이상 16자리 미만입니다."
-                  allowClear
-                />
-              </Form.Item>
-              <Form.Item
-                label="신규 비밀번호 재입력"
-                name="confirmPassword"
-                dependencies={['newPassword']}
-                hasFeedback
-                rules={[
-                  { required: true, message: '비밀번호를 입력해주세요' },
-                  ({ getFieldValue }) => ({
-                    validator(_, value) {
-                      if (!value || getFieldValue('newPassword') === value) {
-                        return Promise.resolve();
-                      }
-                      return Promise.reject(
-                        new Error('비밀번호가 일치하지 않습니다.'),
-                      );
-                    },
-                  }),
-                ]}
-              >
-                <Input.Password allowClear />
-              </Form.Item>
-            </Space>
-            <Button
-              type="primary"
-              htmlType="submit"
-              size="large"
-              style={{ width: '100%' }}
-            >
-              비밀번호 수정
-            </Button>
-          </Form>
-        </Modal>
-      </Space.Compact>
+      <Button
+        type="primary"
+        style={{
+          margin: '10px 0px',
+        }}
+        onClick={() => {
+          setIsModalOpen(true);
+        }}
+      >
+        비밀번호수정
+      </Button>
+      <PasswordChangeModal
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+      />
     </>
   );
 }
