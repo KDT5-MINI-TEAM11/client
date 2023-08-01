@@ -1,11 +1,22 @@
-import { useCallback } from 'react';
-import { Button, Input, Form, Select, Card, Upload } from 'antd';
+import { useCallback, useState, useEffect } from 'react';
+import {
+  Button,
+  Input,
+  Form,
+  Select,
+  Card,
+  Upload,
+  message,
+  Space,
+} from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { EMAIL_REGEX, PASSWORD_REGEX, POSITIONS } from '@/data/constants';
 import { RuleObject } from 'antd/es/form';
 import { handleUpload } from '@/api/cloudinary';
-import { signUp } from '@/api/signUpApi';
+import { signup } from '@/api/signup';
+import { checkEmail, checkEmailAuth } from '@/api/checkEmail';
+import { verificationEmail } from '@/api/verification';
 
 interface valuseType {
   confirm_password: string;
@@ -18,8 +29,15 @@ interface valuseType {
 }
 
 export default function SingUp() {
+  const [isEmailCehck, setIsEmailCheck] = useState(false);
+  const [verification, setVerification] = useState(false);
+  const [timer, setTimer] = useState(180);
+  const [reSend, setReSend] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
   const navigate = useNavigate();
   const { Option } = Select;
+  const [form] = Form.useForm();
 
   const onFinish = async (values: valuseType) => {
     const imageUrl = await getImageUrl(values);
@@ -30,9 +48,9 @@ export default function SingUp() {
     };
 
     try {
-      const res = await signUp(newValues);
-      if (res.status === 200) {
-        const data = res.data;
+      const response = await signup(newValues);
+      if (response.status === 200) {
+        const data = response.data;
         navigate('/'); // 회원가입이 성공한 경우 홈으로 이동
         return data;
       }
@@ -49,9 +67,11 @@ export default function SingUp() {
 
     try {
       if (values.profileThumbUrl && values.profileThumbUrl.length > 0) {
-        const res = await handleUpload(values.profileThumbUrl[0].originFileObj);
-        if (res?.status === 200) {
-          const data = res.data;
+        const response = await handleUpload(
+          values.profileThumbUrl[0].originFileObj,
+        );
+        if (response?.status === 200) {
+          const data = response.data;
           imageUrl = data.url; // 이미지 URL을 받아옴
         } else {
           throw new Error('이미지 업로드에 실패하였습니다.');
@@ -150,9 +170,118 @@ export default function SingUp() {
     );
   });
 
+  const handleCheckEmail = async () => {
+    setIsLoading(true);
+    try {
+      const values = await form.validateFields(['userEmail']);
+      const userEmail = values.userEmail;
+      const response = await checkEmail(userEmail);
+
+      if (response.data.success) {
+        setIsEmailCheck(true); // 중복되지 않은 이메일일 경우
+        message.success('사용 가능한 이메일입니다.');
+      }
+    } catch (error: any) {
+      if (
+        error.response &&
+        error.response.data.error.message === '이미 가입 된 이메일 입니다.'
+      ) {
+        setIsEmailCheck(false); // 중복된 이메일일 경우
+        message.error('이미 사용 중인 이메일입니다.');
+        form.setFieldsValue({ emailAuth: null });
+      } else {
+        message.error('이메일 중복 체크 중 오류가 발생했습니다.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerificationEmail = async () => {
+    setIsLoading(true);
+    try {
+      const values = await form.validateFields(['userEmail']);
+      const userEmail = values.userEmail;
+      const response = await verificationEmail(userEmail);
+
+      if (response.status === 200) {
+        message.success('인증번호를 발송했습니다.');
+        setTimer(180);
+      } else {
+        message.warning('이메일을 다시 확인해주세요.');
+      }
+      return response;
+    } catch (error) {
+      message.error('인증번호 발송에 오류가 발생했습니다.');
+      return null;
+    } finally {
+      setIsLoading(false);
+      setVerification(true);
+    }
+  };
+
+  const handleReSend = async () => {
+    if (reSend) {
+      setIsLoading(true);
+      try {
+        setReSend(false);
+        await handleVerificationEmail();
+      } catch (error) {
+        console.error('이메일 인증 요청 중 오류 발생:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    let exactTimer: string | number | NodeJS.Timeout | undefined;
+    if (timer > 0) {
+      exactTimer = setTimeout(
+        () => setTimer((prevTimer) => prevTimer - 1),
+        1000,
+      );
+    } else {
+      setReSend(true);
+    }
+    return () => {
+      if (exactTimer) {
+        clearTimeout(exactTimer);
+      }
+    };
+  }, [timer]);
+
+  const handleEmailAuth = async () => {
+    try {
+      const userEmailData = await form.validateFields(['userEmail']);
+      const userEmail = userEmailData.userEmail;
+      const emailAuthData = await form.validateFields(['emailAuth']);
+      const userEmailAuth = emailAuthData.emailAuth;
+      const data = { userEmail, userEmailAuth };
+      const response = await checkEmailAuth(data);
+
+      if (response.data.success) {
+        message.success('이메일 인증 성공!');
+        setEmailVerified(true);
+      } else {
+        message.error('이메일 인증 실패!');
+      }
+    } catch (error) {
+      message.error('서버 요청에 실패하였습니다.');
+    }
+  };
+
+  const handleReAuthentication = () => {
+    setIsEmailCheck(false);
+    setVerification(false);
+    setEmailVerified(false);
+    setReSend(false);
+  };
+
   return (
     <Card bordered={false} style={{ margin: '0px 20px', width: 400 }}>
       <Form
+        form={form}
         layout="vertical"
         name="basic"
         wrapperCol={{ span: 30, offset: 0 }}
@@ -167,6 +296,7 @@ export default function SingUp() {
         >
           <Input allowClear />
         </Form.Item>
+
         <Form.Item
           label="이메일"
           name="userEmail"
@@ -176,6 +306,70 @@ export default function SingUp() {
           ]}
         >
           <Input placeholder="ex) anyone123@email.com" allowClear />
+        </Form.Item>
+
+        <Form.Item
+          name="emailAuth"
+          rules={[
+            {
+              required: true,
+              validator: (_, value) => {
+                if (!value) {
+                  return Promise.reject('필수 진행 항목입니다.');
+                }
+                return Promise.resolve();
+              },
+            },
+          ]}
+        >
+          {isEmailCehck ? (
+            verification ? (
+              emailVerified ? (
+                // 인증에 성공한 경우 - 재인증 버튼 표시
+                <div>
+                  <Button type="primary" onClick={handleReAuthentication}>
+                    재인증
+                  </Button>
+                </div>
+              ) : (
+                // 인증 번호 입력 창과 제출 버튼
+                <div>
+                  <Space>
+                    <Input placeholder="인증번호를 입력해주세요." />
+                    <Button type="primary" onClick={handleEmailAuth}>
+                      제출
+                    </Button>
+                    <Button
+                      type="primary"
+                      onClick={handleReSend}
+                      disabled={!reSend}
+                    >
+                      재발송
+                    </Button>
+                  </Space>
+                  <div>남은 시간: {timer}초</div>
+                </div>
+              )
+            ) : (
+              // 인증 번호 전송 버튼
+              <Button
+                type="primary"
+                onClick={handleVerificationEmail}
+                disabled={isLoading}
+              >
+                인증번호 전송
+              </Button>
+            )
+          ) : (
+            // 이메일 중복 체크 버튼
+            <Button
+              type="primary"
+              onClick={handleCheckEmail}
+              disabled={isLoading}
+            >
+              이메일 중복 체크
+            </Button>
+          )}
         </Form.Item>
 
         <Form.Item
