@@ -172,7 +172,7 @@ export default function MyAccount() {
         </Descriptions.Item>
         <Descriptions.Item label="남은 연차">
           {DUMMY_USER.remaining_vacation} /{' '}
-          {POSITIONS[DUMMY_USER.position].maxVacation}
+          {POSITIONS[DUMMY_USER.position].total_vacation}
         </Descriptions.Item>
         <Descriptions.Item label="정보2">$60.00</Descriptions.Item>
 
