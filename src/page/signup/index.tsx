@@ -275,7 +275,7 @@ export default function SingUp() {
     setIsEmailCheck(false);
     setVerification(false);
     setEmailVerified(false);
-    setReSend(true);
+    setReSend(false);
   };
 
   return (
