@@ -11,36 +11,37 @@ export const MYACCOUNT_NAV_ITEMS = [
     href: '/myaccount',
   },
   {
-    label: '내 정보 수정',
-    href: '/myaccount/edit',
-  },
-  {
     label: '내 연차, 당직',
     href: '/myaccount/vacation',
   },
 ];
 
 export const POSITIONS: {
-  [key: string]: { label: string; total_vacation: number };
+  [key: string]: { label: string; total_vacation: number; color: string };
 } = {
   LEVEL1: {
     label: '레벨1',
     total_vacation: 15,
+    color: 'lime',
   },
   LEVEL2: {
     label: '레벨2',
     total_vacation: 18,
+    color: 'geekblue',
   },
   LEVEL3: {
     label: '레벨3',
     total_vacation: 21,
+    color: 'magenta',
   },
   LEVEL4: {
     label: '레벨4',
     total_vacation: 24,
+    color: 'volcano',
   },
   MANAGER: {
     label: '매니저',
     total_vacation: 27,
+    color: 'gold',
   },
 };
