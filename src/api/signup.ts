@@ -1,5 +1,4 @@
-import { BASE_API_URL } from '@/data/constants';
-import axios from 'axios';
+import axios from '@/api/axios';
 
 interface valuseType {
   confirm_password: string;
@@ -14,9 +13,6 @@ interface valuseType {
 export const signup = async (values: valuseType) => {
   const { confirm_password, ...otherData } = values;
 
-  const response = await axios.post(
-    `${BASE_API_URL}/v1/auth/signup`,
-    otherData,
-  );
+  const response = await axios.post('/v1/auth/signup', otherData);
   return response;
 };
