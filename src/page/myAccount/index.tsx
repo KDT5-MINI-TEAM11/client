@@ -13,17 +13,30 @@ import defaultProfile from '@/assets/defaultProfile.png';
 import { POSITIONS, PASSWORD_REGEX } from '@/data/constants';
 import formatPhoneNumber from '@/utils/formatPhonenumber';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Form, { RuleObject } from 'antd/es/form';
+import { getMyAccount } from '@/api/getMyAccount';
 
 export default function MyAccount() {
   const [editPhoneNumber, setEditPhoneNumber] = useState(false);
   const [editPhoneNumberInput, setEditPhonNumberInput] = useState(
     DUMMY_USER.phone_number,
   );
-
   const [isModalOpen, setIsModalOpen] = useState(false);
+  useEffect(() => {
+    const fetchMyAccountInfo = async () => {
+      try {
+        const response = await getMyAccount();
+        console.log(response);
+        console.log(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchMyAccountInfo();
+  }, []);
 
+  // 모달창제어
   const showModal = () => {
     setIsModalOpen(true);
   };
