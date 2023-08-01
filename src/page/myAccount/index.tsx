@@ -21,6 +21,7 @@ import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
 import useRefreshToken from '@/hooks/useRefreshToken';
 import { changeMyInfo } from '@/api/changeMyInfo';
 
+// 받아오는 API 데이터 타입 종류
 interface MyAccountInfoType {
   phoneNumber: string;
   position: string;
@@ -30,6 +31,7 @@ interface MyAccountInfoType {
 }
 
 export default function MyAccount() {
+  // API에서 받아온 데이터값 상태 관리
   const [myAccountInfo, setMyAccountInfo] = useState<MyAccountInfoType>({
     phoneNumber: '',
     position: '',
@@ -41,11 +43,16 @@ export default function MyAccount() {
   // antd message(화면 상단에 뜨는 메세지)기능
   const [messageApi, contextHolder] = message.useMessage();
 
+  // access토큰의 만료시간이 5분 이내로 남았을 때 새로운 토큰을 발급하는 커스텀훅
   const { refreshAccessToken } = useRefreshToken();
+  // 전화번호 상태관리
   const [editPhoneNumber, setEditPhoneNumber] = useState(false);
+  // 수정된 전화번호 상태관리
   const [editPhoneNumberInput, setEditPhonNumberInput] = useState('');
+  // 모달창 상태관리
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // recoil로 액세스토큰 가져오기
   const accessToken = useRecoilValue(AccessTokenAtom);
 
   useEffect(() => {
@@ -60,6 +67,7 @@ export default function MyAccount() {
           console.log(response);
           // 성공했을때
           const userData = response.data.response as MyAccountInfoType;
+          // API에서 가져온 response데이터 안에 필요한 부분 userData에 넣음
           setMyAccountInfo({
             phoneNumber: userData.phoneNumber,
             position: userData.position,
@@ -142,6 +150,7 @@ export default function MyAccount() {
     return Promise.resolve();
   }, []);
 
+  // 비밀번호 수정 성공 실패
   const onFinish = async (values: {
     newPassword: string;
     confirmPassword: string;
@@ -151,6 +160,7 @@ export default function MyAccount() {
         userPassword: values.newPassword,
       });
       if (response.status === 200) {
+        // 성공
         setIsModalOpen(false);
         messageApi.open({
           type: 'success',
@@ -172,6 +182,7 @@ export default function MyAccount() {
     }
   };
 
+  // 전화번호 수정 성공/실패
   const handleChangeMyInfo = async () => {
     try {
       const response = await changeMyInfo(accessToken, {
