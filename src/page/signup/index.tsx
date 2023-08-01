@@ -342,7 +342,7 @@ export default function SingUp() {
                     <Button
                       type="primary"
                       onClick={handleReSend}
-                      disabled={reSend}
+                      disabled={!reSend}
                     >
                       재발송
                     </Button>
