@@ -6,6 +6,7 @@ import {
   Space,
   Button,
   Modal,
+  message,
 } from 'antd';
 import { EditOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import defaultProfile from '@/assets/defaultProfile.png';
@@ -18,6 +19,7 @@ import { getMyAccount } from '@/api/getMyAccount';
 import { useRecoilValue } from 'recoil';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
 import useRefreshToken from '@/hooks/useRefreshToken';
+import { changeMyInfo } from '@/api/changeMyInfo';
 
 interface MyAccountInfoType {
   phoneNumber: string;
@@ -35,12 +37,13 @@ export default function MyAccount() {
     userEmail: '',
     userName: '',
   });
-  console.log(myAccountInfo);
+
+  // antd message(화면 상단에 뜨는 메세지)기능
+  const [messageApi, contextHolder] = message.useMessage();
+
   const { refreshAccessToken } = useRefreshToken();
   const [editPhoneNumber, setEditPhoneNumber] = useState(false);
-  const [editPhoneNumberInput, setEditPhonNumberInput] = useState(
-    myAccountInfo.phoneNumber,
-  );
+  const [editPhoneNumberInput, setEditPhonNumberInput] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const accessToken = useRecoilValue(AccessTokenAtom);
@@ -54,6 +57,7 @@ export default function MyAccount() {
       try {
         const response = await getMyAccount(accessToken);
         if (response.status === 200) {
+          console.log(response);
           // 성공했을때
           const userData = response.data.response as MyAccountInfoType;
           setMyAccountInfo({
@@ -63,6 +67,7 @@ export default function MyAccount() {
             userEmail: userData.userEmail,
             userName: userData.userName,
           });
+          setEditPhonNumberInput(userData.phoneNumber);
           return;
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -75,19 +80,6 @@ export default function MyAccount() {
     };
     getData();
   }, [accessToken]);
-
-  // 모달창제어
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
 
   // 비밀번호 유효성 검사
   const validatePassword = useCallback((_: RuleObject, value: string) => {
@@ -150,12 +142,71 @@ export default function MyAccount() {
     return Promise.resolve();
   }, []);
 
-  const onFinish = (values) => {
-    console.log('Success:', values);
+  const onFinish = async (values: {
+    newPassword: string;
+    confirmPassword: string;
+  }) => {
+    try {
+      const response = await changeMyInfo(accessToken, {
+        userPassword: values.newPassword,
+      });
+      if (response.status === 200) {
+        setIsModalOpen(false);
+        messageApi.open({
+          type: 'success',
+          content: '비밀번호를 수정하였습니다.',
+        });
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.log(
+        error.response.data.error.message ||
+          '사용자 정보 수정에 실패하였습니다.',
+      );
+      messageApi.open({
+        type: 'success',
+        content:
+          error.response.data.error.message ||
+          '사용자 정보 수정에 실패하였습니다.',
+      });
+    }
+  };
+
+  const handleChangeMyInfo = async () => {
+    try {
+      const response = await changeMyInfo(accessToken, {
+        phoneNumber: editPhoneNumberInput,
+      });
+      if (response.status === 200) {
+        setMyAccountInfo((prev) => ({
+          ...prev,
+          phoneNumber: editPhoneNumberInput,
+        }));
+        // 성공
+        console.log(response);
+        messageApi.open({
+          type: 'success',
+          content: '전화번호를 수정하였습니다.',
+        });
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.log(
+        error.response.data.error.message ||
+          '사용자 정보 수정에 실패하였습니다.',
+      );
+      messageApi.open({
+        type: 'error',
+        content: '전화번호를 수정실패',
+      });
+    } finally {
+      setEditPhoneNumber(false);
+    }
   };
 
   return (
     <>
+      {contextHolder}
       <Descriptions
         title="내 정보"
         bordered
@@ -203,7 +254,9 @@ export default function MyAccount() {
                   value={editPhoneNumberInput}
                   onChange={(e) => setEditPhonNumberInput(e.target.value)}
                 />
-                <Button type="primary">수정</Button>
+                <Button type="primary" onClick={handleChangeMyInfo}>
+                  수정
+                </Button>
               </Space.Compact>
             </>
           ) : (
@@ -250,7 +303,9 @@ export default function MyAccount() {
         style={{
           margin: '10px 0px',
         }}
-        onClick={showModal}
+        onClick={() => {
+          setIsModalOpen(true);
+        }}
       >
         비밀번호수정
       </Button>
@@ -258,8 +313,12 @@ export default function MyAccount() {
         footer={null}
         centered
         open={isModalOpen}
-        onOk={handleOk}
-        onCancel={handleCancel}
+        onOk={() => {
+          setIsModalOpen(false);
+        }}
+        onCancel={() => {
+          setIsModalOpen(false);
+        }}
         closeIcon={false}
       >
         <Form
@@ -271,7 +330,7 @@ export default function MyAccount() {
         >
           <Space direction="vertical" style={{ display: 'flex' }}>
             <Form.Item
-              label="신규 비밀번호"
+              label="신규 비밀번호 (영문, 숫자, 특수문자를 포함해주세요.)"
               name="newPassword"
               rules={[{ required: true, validator: validatePassword }]}
               hasFeedback
