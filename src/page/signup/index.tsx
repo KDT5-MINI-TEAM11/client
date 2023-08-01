@@ -1,11 +1,13 @@
-import { useCallback } from 'react';
-import { Button, Input, Form, Select, Card, Upload } from 'antd';
+import { useCallback, useState } from 'react';
+import { Button, Input, Form, Select, Card, Upload, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { EMAIL_REGEX, PASSWORD_REGEX, POSITIONS } from '@/data/constants';
 import { RuleObject } from 'antd/es/form';
 import { handleUpload } from '@/api/cloudinary';
-import { signUp } from '@/api/signUpApi';
+import { signup } from '@/api/signup';
+import { checkEmail } from '@/api/checkEmail';
+import { verificationEmail } from '@/api/verification';
 
 interface valuseType {
   confirm_password: string;
@@ -18,8 +20,11 @@ interface valuseType {
 }
 
 export default function SingUp() {
+  const [isEmailCehck, setIsEmailCheck] = useState(false);
+  const [verification, setVerification] = useState(false);
   const navigate = useNavigate();
   const { Option } = Select;
+  const [form] = Form.useForm();
 
   const onFinish = async (values: valuseType) => {
     const imageUrl = await getImageUrl(values);
@@ -30,9 +35,9 @@ export default function SingUp() {
     };
 
     try {
-      const res = await signUp(newValues);
-      if (res.status === 200) {
-        const data = res.data;
+      const response = await signup(newValues);
+      if (response.status === 200) {
+        const data = response.data;
         navigate('/'); // 회원가입이 성공한 경우 홈으로 이동
         return data;
       }
@@ -49,9 +54,11 @@ export default function SingUp() {
 
     try {
       if (values.profileThumbUrl && values.profileThumbUrl.length > 0) {
-        const res = await handleUpload(values.profileThumbUrl[0].originFileObj);
-        if (res?.status === 200) {
-          const data = res.data;
+        const response = await handleUpload(
+          values.profileThumbUrl[0].originFileObj,
+        );
+        if (response?.status === 200) {
+          const data = response.data;
           imageUrl = data.url; // 이미지 URL을 받아옴
         } else {
           throw new Error('이미지 업로드에 실패하였습니다.');
@@ -150,9 +157,47 @@ export default function SingUp() {
     );
   });
 
+  const handleCheckEmail = async () => {
+    try {
+      const values = await form.validateFields(['userEmail']);
+      const userEmail = values.userEmail;
+      const response = await checkEmail(userEmail);
+
+      // 이메일 중복 여부에 따라 메시지 출력
+      if (response.data.isDuplicate) {
+        message.error('이미 사용 중인 이메일입니다.');
+      } else {
+        message.success('사용 가능한 이메일입니다.');
+      }
+    } catch (error) {
+      message.error('이메일 중복 체크 중 오류가 발생했습니다.');
+    } finally {
+      setIsEmailCheck(true);
+    }
+  };
+
+  const hnadleverificationEmail = async () => {
+    try {
+      const values = await form.validateFields(['userEmail']);
+      const userEmail = values.userEmail;
+      const response = await verificationEmail(userEmail);
+
+      if (response.status === 200) {
+        message.success('인증번호를 발송했습니다.');
+      } else {
+        message.warning('이메일을 다시 확인해주세요.');
+      }
+    } catch (error) {
+      message.error('인증번호 발송에 오류가 발생했습니다.');
+    } finally {
+      setVerification(true);
+    }
+  };
+
   return (
     <Card bordered={false} style={{ margin: '0px 20px', width: 400 }}>
       <Form
+        form={form}
         layout="vertical"
         name="basic"
         wrapperCol={{ span: 30, offset: 0 }}
@@ -176,6 +221,30 @@ export default function SingUp() {
           ]}
         >
           <Input placeholder="ex) anyone123@email.com" allowClear />
+        </Form.Item>
+
+        <Form.Item>
+          {isEmailCehck ? (
+            verification ? (
+              // 인증 번호 입력 창과 제출 버튼
+              <div>
+                <Input placeholder="인증 번호를 입력해주세요." />
+                <Button type="primary" style={{ marginTop: 20 }}>
+                  제출
+                </Button>
+              </div>
+            ) : (
+              // 인증 번호 전송 버튼
+              <Button type="primary" onClick={hnadleverificationEmail}>
+                인증 번호 전송
+              </Button>
+            )
+          ) : (
+            // 이메일 중복 체크 버튼
+            <Button type="primary" onClick={handleCheckEmail}>
+              이메일 중복 체크
+            </Button>
+          )}
         </Form.Item>
 
         <Form.Item

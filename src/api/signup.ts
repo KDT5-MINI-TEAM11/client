@@ -11,17 +11,12 @@ interface valuseType {
   userName: string;
 }
 
-export const signUp = async (values: valuseType) => {
+export const signup = async (values: valuseType) => {
   const { confirm_password, ...otherData } = values;
 
-  const res = await axios.post(
+  const response = await axios.post(
     `${BASE_API_URL}/v1/auth/signup`,
-    JSON.stringify(otherData),
-    {
-      headers: {
-        'content-type': 'application/json',
-      },
-    },
+    otherData,
   );
-  return res;
+  return response;
 };
