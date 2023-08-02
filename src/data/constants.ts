@@ -36,7 +36,7 @@ export const POSITIONS: {
 };
 
 export const REQUEST_STATE = {
-  pending: { label: '심사중', color: '#f2cf50' },
-  resolve: { label: '승인', color: '#50dcf2' },
-  reject: { label: '거절', color: '#f26650' },
+  PENDING: { label: '심사중', color: '#f2cf50' },
+  RESOLVE: { label: '승인', color: '#50dcf2' },
+  REJECT: { label: '거절', color: '#f26650' },
 };

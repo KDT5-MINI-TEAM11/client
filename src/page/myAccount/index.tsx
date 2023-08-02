@@ -8,6 +8,7 @@ import {
   message,
   Upload,
   Form,
+  Badge,
 } from 'antd';
 import {
   EditOutlined,
@@ -252,7 +253,10 @@ export default function MyAccount() {
         </Descriptions.Item>
 
         <Descriptions.Item label="직급">
-          {myAccountInfo.position}
+          <Badge
+            color={POSITIONS[myAccountInfo.position].color}
+            count={myAccountInfo.position}
+          />
         </Descriptions.Item>
         <Descriptions.Item label="사용한 연차">
           {myAccountInfo.usedVacation}일

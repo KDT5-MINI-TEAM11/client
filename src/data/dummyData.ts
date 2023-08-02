@@ -1,10 +1,58 @@
-export const DUMMY_USER = {
-  id: 1,
-  user_email: 'kim@gamil.com',
-  user_password: 'qwer1234',
-  user_name: 'Kim',
-  profile_thumb_url: 'https://picsum.photos/seed/picsum/300/200',
-  position: 'LEVEL4',
-  phone_number: '01012345678',
-  remaining_vacation: '12',
-};
+import { IvacationRequest } from '@/types/IvacationRequest';
+
+export const DUMMY_VACATION_REQUESTS: IvacationRequest[] = [
+  {
+    id: '1',
+    userName: 'Kim',
+    position: 'LEVEL1',
+    type: 'VACATION',
+    start_date: '2023-08-01',
+    end_date: '2023-08-05',
+    state: 'PENDING',
+  },
+  {
+    id: '2',
+    userName: 'Li',
+    position: 'LEVEL2',
+    type: 'VACATION',
+    start_date: '2023-08-01',
+    end_date: '2023-08-05',
+    state: 'PENDING',
+  },
+  {
+    id: '3',
+    userName: 'Leo',
+    position: 'LEVEL3',
+    type: 'DUTY',
+    start_date: '2023-08-12',
+    end_date: '2023-08-13',
+    state: 'PENDING',
+  },
+  {
+    id: '4',
+    userName: 'Teddy',
+    position: 'LEVEL1',
+    type: 'VACATION',
+    start_date: '2023-08-01',
+    end_date: '2023-08-05',
+    state: 'RESOLVE',
+  },
+  {
+    id: '5',
+    userName: 'Bim',
+    position: 'LEVEL1',
+    type: 'VACATION',
+    start_date: '2023-08-06',
+    end_date: '2023-08-10',
+    state: 'RESOLVE',
+  },
+  {
+    id: '6',
+    userName: 'Aim',
+    position: 'LEVEL2',
+    type: 'VACATION',
+    start_date: '2023-08-15',
+    end_date: '2023-08-20',
+    state: 'PENDING',
+  },
+];

@@ -9,8 +9,8 @@ import Vacation from '@/page/myAccount/vacation';
 import MyAccountLayout from '@/page/myAccount/myAccoutLayout';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Signup from '@/page/signup';
-import Admin from '@/page/admin';
-import ProtectedManagerRoute from './components/ProtectedManagerRoute';
+import ProtectedManagerRoute from '@/components/ProtectedManagerRoute';
+import Admin from '@/page/myAccount/admin';
 
 export default function App() {
   const theme = {
