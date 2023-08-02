@@ -38,8 +38,8 @@ export default function SingUp() {
   // 이메일 인증 번호 발송
   const [verification, setVerification] = useState(false);
   // 이메일 인증 번호 발송 후에 제출 가능 타이머
-  const [timer, setTimer] = useState(180);
-  // 이메일 인증 번호 재발송
+  const [timer, setTimer] = useState(0);
+  // 이메일 인증 번호 재발송 ui
   const [reSend, setReSend] = useState(false);
   // 이메일 인증 과정 로딩 (중복체크, 인증번호 발송, 인증확인)
   const [isLoading, setIsLoading] = useState(false);
@@ -302,6 +302,7 @@ export default function SingUp() {
       if (response.data.success) {
         message.success('이메일 인증 성공!');
         setEmailVerified(true);
+        setTimer(0);
       } else {
         message.error('이메일 인증 실패!');
       }
@@ -382,13 +383,19 @@ export default function SingUp() {
                   <div>
                     <Space>
                       <Input placeholder="인증번호를 입력해주세요." />
-                      <Button type="primary" onClick={handleEmailAuth}>
+                      <Button
+                        type="primary"
+                        onClick={handleEmailAuth}
+                        disabled={isLoading}
+                        loading={isLoading}
+                      >
                         제출
                       </Button>
                       <Button
                         type="primary"
                         onClick={handleReSend}
-                        disabled={!reSend}
+                        disabled={reSend}
+                        loading={isLoading}
                       >
                         재발송
                       </Button>
@@ -402,6 +409,7 @@ export default function SingUp() {
                   type="primary"
                   onClick={handleVerificationEmail}
                   disabled={isLoading}
+                  loading={isLoading}
                 >
                   인증번호 전송
                 </Button>
@@ -412,6 +420,7 @@ export default function SingUp() {
                 type="primary"
                 onClick={handleCheckEmail}
                 disabled={isLoading}
+                loading={isLoading}
               >
                 이메일 중복 체크
               </Button>
