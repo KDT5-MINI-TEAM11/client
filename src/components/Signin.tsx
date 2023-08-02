@@ -2,11 +2,12 @@ import { Button, Typography, Form, Input, Space, message } from 'antd';
 import { EMAIL_REGEX } from '@/data/constants';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import setAccessTokenToCookie from '@/utils/setAccessTokenToCookie';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { AccessTokenAtom, isSignedinSelector } from '@/recoil/AccessTokkenAtom';
 import { signin } from '@/api/signin';
 import { setAccessTokenToCookie } from '@/utils/cookies';
+import getPayloadFromJWT from '@/utils/getPayloadFromJWT';
+import { IsManagerAtom } from '@/recoil/IsManagerAtom';
 
 const { Text } = Typography;
 
@@ -15,6 +16,8 @@ export default function Signin({
 }: {
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+  const setIsManager = useSetRecoilState(IsManagerAtom);
+
   // const [accessToken, setAccessToken] = useRecoilState(AccessTokenAtom); 에서 원하는 것만 분리해서 가져올 수 있음
   const setAccessToken = useSetRecoilState(AccessTokenAtom);
 
@@ -44,6 +47,12 @@ export default function Signin({
 
         // recoil에 저장
         setAccessToken(accessToken);
+
+        // 매니저인지 아닌지 확인
+        const isManager = getPayloadFromJWT(accessToken).roles[0] === 'MANAGER';
+
+        // 리코일에 매니저 여부 저장
+        setIsManager(isManager);
 
         // 안내메시지
         messageApi.open({
