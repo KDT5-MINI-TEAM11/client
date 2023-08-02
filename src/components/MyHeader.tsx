@@ -1,17 +1,20 @@
 import { getUserHeader } from '@/api/getUserHeader';
 import { signout } from '@/api/signout';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
-import deleteAccessTokenFromCookie from '@/utils/deleteAccessTokenFromCookie';
 import { Button, Skeleton, Space, message, theme } from 'antd';
 import { Header } from 'antd/es/layout/layout';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import UserInfo from '@/components/UserInfo';
 import { IuserHeaderInfo } from '@/types/IuserHeaderInfo';
 import useRefreshToken from '@/hooks/useRefreshToken';
+import { deleteAccessTokenFromCookie } from '@/utils/cookies';
+import { IsManagerAtom } from '@/recoil/IsManagerAtom';
 
 export default function MyHeader() {
+  const setIsManager = useSetRecoilState(IsManagerAtom);
+
   // access토큰의 만료시간이 5분 이내로 남았을 때 새로운 토큰을 발급하는 커스텀훅
   const { refreshAccessToken } = useRefreshToken();
 
@@ -59,6 +62,7 @@ export default function MyHeader() {
             userName: userData.userName,
             position: userData.position,
           });
+          setIsManager(userData.position === 'MANAGER');
           return;
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -114,7 +118,9 @@ export default function MyHeader() {
             justifyContent: 'space-between',
           }}
         >
-          <Link to="/">홈</Link>
+          <Link to="/" style={{ fontSize: 30 }}>
+            🏠
+          </Link>
           {accessToken ? (
             <Space size="large">
               {isMyHeaderLoading ? (

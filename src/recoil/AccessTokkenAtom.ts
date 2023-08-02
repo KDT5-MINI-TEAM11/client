@@ -1,4 +1,4 @@
-import getAccessTokenFromCookie from '@/utils/getAccessTokenFromCookie';
+import { getAccessTokenFromCookie } from '@/utils/cookies';
 import { atom, selector } from 'recoil';
 
 export const AccessTokenAtom = atom({

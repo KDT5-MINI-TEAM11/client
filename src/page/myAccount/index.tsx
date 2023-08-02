@@ -192,7 +192,7 @@ export default function MyAccount() {
   };
 
   return (
-    <>
+    <div style={{ padding: 20 }}>
       {contextHolder}
       <Descriptions
         title="내 정보"
@@ -353,6 +353,6 @@ export default function MyAccount() {
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
       />
-    </>
+    </div>
   );
 }
