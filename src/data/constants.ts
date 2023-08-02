@@ -1,4 +1,4 @@
-export const BASE_API_URL = 'http://localhost:8080/api';
+export const BASE_API_URL = 'http://54.206.244.160:8080/api';
 
 export const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 

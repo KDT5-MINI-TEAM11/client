@@ -26,7 +26,7 @@ export default function MyAccountLayout() {
     <Layout>
       <Sider
         width={200}
-        style={{ minHeight: 'calc(100vh - 64px) ', background: 'white' }}
+        style={{ minHeight: 'calc(100vh - 60px) ', background: 'white' }}
       >
         <Menu
           mode="inline"

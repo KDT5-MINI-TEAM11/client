@@ -2,14 +2,13 @@ import { getUserHeader } from '@/api/getUserHeader';
 import { signout } from '@/api/signout';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
 import deleteAccessTokenFromCookie from '@/utils/deleteAccessTokenFromCookie';
-import { Button, Space, message, theme } from 'antd';
+import { Button, Skeleton, Space, message, theme } from 'antd';
 import { Header } from 'antd/es/layout/layout';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import UserInfo from '@/components/UserInfo';
 import { IuserHeaderInfo } from '@/types/IuserHeaderInfo';
-import { PoweroffOutlined } from '@ant-design/icons';
 import useRefreshToken from '@/hooks/useRefreshToken';
 
 export default function MyHeader() {
@@ -37,8 +36,11 @@ export default function MyHeader() {
     usedVacation: '',
   });
 
+  const [isMyHeaderLoading, setIsMyHeaderLoading] = useState(false);
+
   useEffect(() => {
     // 모든 통신에는 loading이 있다. 그러면 모든 loading에는 ui가 필요함?
+    setIsMyHeaderLoading(true);
     const getData = async () => {
       try {
         // access토큰이 없으면(로그인 상태가 아니면) 통실 할 이유가 없음
@@ -65,6 +67,8 @@ export default function MyHeader() {
           error.response.data.error.message ||
             '사용자 정보를 불러오지 못했습니다.',
         );
+      } finally {
+        setIsMyHeaderLoading(false);
       }
     };
     getData();
@@ -102,9 +106,10 @@ export default function MyHeader() {
   return (
     <>
       {contextHolder}
-      <Header style={{ backgroundColor: colorPrimaryBg }}>
+      <Header style={{ backgroundColor: colorPrimaryBg, height: 60 }}>
         <div
           style={{
+            height: 60,
             display: 'flex',
             justifyContent: 'space-between',
           }}
@@ -112,14 +117,39 @@ export default function MyHeader() {
           <Link to="/">홈</Link>
           {accessToken ? (
             <Space size="large">
-              <UserInfo userHeaderInfo={userHeaderInfo} />
+              {isMyHeaderLoading ? (
+                <div
+                  style={{
+                    margin: 'auto',
+                    height: 60,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 14,
+                  }}
+                >
+                  <Skeleton.Avatar
+                    active
+                    size={32}
+                    shape="circle"
+                    style={{ display: 'block' }}
+                  />
+                  <Skeleton.Input
+                    active
+                    style={{ width: 200, display: 'block' }}
+                  />
+                </div>
+              ) : (
+                <UserInfo userHeaderInfo={userHeaderInfo} />
+              )}
+
               <Button
-                shape="circle"
+                type="primary"
+                danger
                 onClick={handleSignout}
                 loading={isSigningout}
                 disabled={isSigningout}
               >
-                <PoweroffOutlined />
+                로그아웃
               </Button>
             </Space>
           ) : (
