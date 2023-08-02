@@ -6,6 +6,7 @@ import setAccessTokenToCookie from '@/utils/setAccessTokenToCookie';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { AccessTokenAtom, isSignedinSelector } from '@/recoil/AccessTokkenAtom';
 import { signin } from '@/api/signin';
+import { setAccessTokenToCookie } from '@/utils/cookies';
 
 const { Text } = Typography;
 

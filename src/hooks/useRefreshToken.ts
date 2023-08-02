@@ -1,8 +1,8 @@
 import axios from '@/api/axios';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
+import { setAccessTokenToCookie } from '@/utils/cookies';
 import getPayloadFromJWT from '@/utils/getPayloadFromJWT';
 import { useRecoilState } from 'recoil';
-import setAccessTokenToCookie from '@/utils/setAccessTokenToCookie';
 
 // 백엔드문제인지 프론트 문제인지 모르겠으나 문제 있음.
 
@@ -34,7 +34,6 @@ export default function useRefreshToken() {
         setAccessTokenToCookie(newAccessToken);
         console.log('재발급완료');
       } catch (error) {
-        console.log(error);
         // 일단 에러인 경우 accessToken을 쿠키와 recoil에서 모두 삭제
         // setAccessToken(null);
         // deleteAccessTokenFromCookie();
