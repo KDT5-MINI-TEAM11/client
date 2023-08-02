@@ -82,7 +82,9 @@ export default function SingUp() {
         });
 
         // 회원가입이 성공한 경우 홈으로 이동
-        navigate('/');
+        setTimeout(() => {
+          navigate('/');
+        }, 2000);
 
         return;
       }
@@ -280,7 +282,7 @@ export default function SingUp() {
         () => setTimer((prevTimer) => prevTimer - 1),
         1000,
       );
-    } else {
+    } else if (timer === 0 && verification) {
       setReSend(true);
     }
     return () => {
@@ -288,7 +290,7 @@ export default function SingUp() {
         clearTimeout(exactTimer);
       }
     };
-  }, [timer]);
+  }, [timer, verification]);
 
   const handleEmailAuth = async () => {
     try {
@@ -394,7 +396,7 @@ export default function SingUp() {
                       <Button
                         type="primary"
                         onClick={handleReSend}
-                        disabled={reSend}
+                        disabled={!reSend}
                         loading={isLoading}
                       >
                         재발송
