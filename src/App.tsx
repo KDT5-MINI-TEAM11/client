@@ -7,8 +7,10 @@ import MyAccount from '@/page/myAccount';
 import MyLayout from '@/components/MyLayout';
 import Vacation from '@/page/myAccount/vacation';
 import MyAccountLayout from '@/page/myAccount/myAccoutLayout';
-import ProtectedRoute from './components/ProtectedRoute';
-import Signup from './page/signup';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import Signup from '@/page/signup';
+import ProtectedManagerRoute from '@/components/ProtectedManagerRoute';
+import Admin from '@/page/myAccount/admin';
 
 export default function App() {
   const theme = {
@@ -27,6 +29,9 @@ export default function App() {
             <Route element={<MyAccountLayout />}>
               <Route path="/myaccount" element={<MyAccount />} />
               <Route path="myaccount/vacation" element={<Vacation />} />
+              <Route element={<ProtectedManagerRoute />}>
+                <Route path="myaccount/admin" element={<Admin />} />
+              </Route>
             </Route>
           </Route>
           <Route path="*" element={<NotFound />} />
