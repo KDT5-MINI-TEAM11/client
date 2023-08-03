@@ -5,15 +5,8 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { scheduleList } from '@/api/scheduleList';
 import { getAccessTokenFromCookie } from '@/utils/cookies';
 
-/* interface itemType {
-  userNmae: string;
-  scheduleType: string;
-  startDate: string;
-  endDate: string;
-} */
-
 interface ScheduleItem {
-  userName: sting;
+  userName: string;
   scheduleType: string;
   startDate: string;
   endDate: string;
