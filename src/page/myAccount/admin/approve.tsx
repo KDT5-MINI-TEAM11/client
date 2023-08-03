@@ -1,29 +1,34 @@
-import { approveRequest, getVacationRequests } from '@/api/admin';
+import { approveRejectPending, getVacationRequests } from '@/api/admin';
 import { POSITIONS, REQUEST_STATE } from '@/data/constants';
 import useRefreshToken from '@/hooks/useRefreshToken';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
-import { Badge, Button, Space, Table, Tag } from 'antd';
+import { Badge, Button, Space, Table, Tag, message } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 
 interface VacationRequestType {
+  key: number;
   id: number;
   userName: string;
   position: 'LEVEL1' | 'LEVEL2' | 'LEVEL3' | 'LEVEL4';
   type: 'ANNUAL' | 'DUTY';
   startDate: string;
   endDate: string;
-  state: 'PENDING' | 'RESOLVE' | 'REJECT';
+  state: 'PENDING' | 'APPROVE' | 'REJECT';
 }
 
 export default function Approve() {
+  // antd message(화면 상단에 뜨는 메세지)기능
+  const [messageApi, contextHolder] = message.useMessage();
+
   const [vacationRequests, setVacationRequests] = useState<
     VacationRequestType[]
   >([]);
 
   const [isvacationRequestsLoading, setIsvacationRequestsLoading] =
     useState(false);
+  const [isAppoving, setIsApproving] = useState(false);
 
   const accessToken = useRecoilValue(AccessTokenAtom);
 
@@ -39,17 +44,21 @@ export default function Approve() {
       try {
         const response = await getVacationRequests(accessToken);
         if (response.status === 200) {
-          const vacationRequestsData = response.data.response;
+          const vacationRequestsData = response.data
+            .response as VacationRequestType[];
           // 성공했을때
-          console.log(vacationRequestsData);
-          setVacationRequests(vacationRequestsData);
+          setVacationRequests(
+            vacationRequestsData.map((el) => {
+              return { ...el, key: el.id };
+            }),
+          );
           return;
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         console.log(
           error.response.data.error.message ||
-            '사원 연가/당직 요청 데이터를 불러오지 못했습니다.',
+            '연가/당직 데이터를 불러오지 못했습니다.',
         );
       } finally {
         setIsvacationRequestsLoading(false);
@@ -58,9 +67,34 @@ export default function Approve() {
     getData();
   }, [accessToken]);
 
-  const handleApprove = async (id: number) => {
-    const response = await approveRequest(accessToken, id);
-    console.log(response);
+  // 승인
+  const handleRequest = async (
+    id: number,
+    type: 'APPROVE' | 'REJECT' | 'PENDING',
+  ) => {
+    setIsApproving(true);
+    try {
+      const response = await approveRejectPending(accessToken, id, type);
+      if (response.status === 200) {
+        setVacationRequests(
+          vacationRequests.map((request) =>
+            request.id === id ? { ...request, state: type } : request,
+          ),
+        );
+        messageApi.open({
+          type: 'success',
+          content: '서버에서 메세지 올거임', //수정
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      messageApi.open({
+        type: 'error',
+        content: '요청 실패', //수정
+      });
+    } finally {
+      setIsApproving(false);
+    }
   };
 
   const columns: ColumnsType<VacationRequestType> = [
@@ -110,10 +144,10 @@ export default function Approve() {
       dataIndex: 'tags',
       render: (_, { state }) => (
         <Tag
-          color={REQUEST_STATE[state].color}
+          color={REQUEST_STATE[state]?.color}
           style={{ width: 50, textAlign: 'center' }}
         >
-          {REQUEST_STATE[state].label}
+          {REQUEST_STATE[state]?.label}
         </Tag>
       ),
       filters: [
@@ -143,16 +177,28 @@ export default function Approve() {
               <Button
                 size="small"
                 type="primary"
-                onClick={() => handleApprove(id)}
+                onClick={() => handleRequest(id, 'APPROVE')}
+                disabled={isAppoving}
               >
                 승인
               </Button>
-              <Button size="small" danger>
+              <Button
+                type="primary"
+                size="small"
+                danger
+                disabled={isAppoving}
+                onClick={() => handleRequest(id, 'REJECT')}
+              >
                 거절
               </Button>
             </>
           ) : (
-            <Button size="small" danger>
+            <Button
+              size="small"
+              disabled={isAppoving}
+              danger
+              onClick={() => handleRequest(id, 'PENDING')}
+            >
               취소
             </Button>
           )}
@@ -162,10 +208,13 @@ export default function Approve() {
   ];
 
   return (
-    <Table
-      columns={columns}
-      dataSource={vacationRequests}
-      loading={isvacationRequestsLoading}
-    />
+    <>
+      {contextHolder}
+      <Table
+        columns={columns}
+        dataSource={vacationRequests}
+        loading={isvacationRequestsLoading}
+      />
+    </>
   );
 }
