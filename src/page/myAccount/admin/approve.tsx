@@ -195,6 +195,7 @@ export default function Approve() {
           ) : (
             <Button
               size="small"
+              style={{ marginRight: 50 }}
               disabled={isAppoving}
               danger
               onClick={() => handleRequest(id, 'PENDING')}

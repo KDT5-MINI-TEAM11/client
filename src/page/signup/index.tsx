@@ -201,13 +201,15 @@ export default function SingUp() {
   }, []);
 
   // 직급 선택 동적으로 생성
-  const selectedPositionOptions = Object.keys(POSITIONS).map((key) => {
-    return (
-      <Option key={key} value={key}>
-        {POSITIONS[key].label}
-      </Option>
-    );
-  });
+  const selectedPositionOptions = Object.keys(POSITIONS)
+    .filter((key) => key !== 'MANAGER')
+    .map((key) => {
+      return (
+        <Option key={key} value={key}>
+          {POSITIONS[key].label}
+        </Option>
+      );
+    });
 
   const handleCheckEmail = async () => {
     setIsLoading(true);
