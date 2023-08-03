@@ -19,7 +19,7 @@ import { checkEmail, checkEmailAuth } from '@/api/checkEmail';
 import { verificationEmail } from '@/api/verification';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { AccessTokenAtom, isSignedinSelector } from '@/recoil/AccessTokkenAtom';
-import setAccessTokenToCookie from '@/utils/setAccessTokenToCookie';
+import { setAccessTokenToCookie } from '@/utils/cookies';
 
 interface valuseType {
   confirm_password: string;
@@ -202,13 +202,15 @@ export default function SingUp() {
   }, []);
 
   // 직급 선택 동적으로 생성
-  const selectedPositionOptions = Object.keys(POSITIONS).map((key) => {
-    return (
-      <Option key={key} value={key}>
-        {POSITIONS[key].label}
-      </Option>
-    );
-  });
+  const selectedPositionOptions = Object.keys(POSITIONS)
+    .filter((key) => key !== 'MANAGER')
+    .map((key) => {
+      return (
+        <Option key={key} value={key}>
+          {POSITIONS[key].label}
+        </Option>
+      );
+    });
 
   const handleCheckEmail = async () => {
     setIsLoading(true);
