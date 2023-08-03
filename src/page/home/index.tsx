@@ -1,10 +1,11 @@
 import { isSignedinSelector } from '@/recoil/AccessTokkenAtom';
-import { Calendar, Layout, Modal } from 'antd';
+import { Layout, Modal } from 'antd';
 import { useRecoilValue } from 'recoil';
 import Signin from '../../components/Signin';
 import Sider from 'antd/es/layout/Sider';
 import { Content } from 'antd/es/layout/layout';
 import { useState } from 'react';
+import Calendar from './calendar';
 
 export default function Home() {
   const isSignedin = useRecoilValue(isSignedinSelector);
