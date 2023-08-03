@@ -41,6 +41,7 @@ export default function Home() {
               overflow: 'auto',
             }}
           >
+            {/* 로그인 상태를 확인하기 위해서 isSignedin를 Calendar컴포넌트에 props로 전달 */}
             <Calendar isSignedin={isSignedin} />
           </Content>
         </Layout>
