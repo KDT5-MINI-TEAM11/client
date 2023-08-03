@@ -10,7 +10,9 @@ import MyAccountLayout from '@/page/myAccount/myAccoutLayout';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Signup from '@/page/signup';
 import ProtectedManagerRoute from '@/components/ProtectedManagerRoute';
-import Admin from '@/page/myAccount/admin';
+import Approve from '@/page/myAccount/admin/approve';
+import Promote from './page/myAccount/admin/promote';
+import AdminLayout from './page/myAccount/admin/adminLayout';
 
 export default function App() {
   const theme = {
@@ -30,7 +32,10 @@ export default function App() {
               <Route path="/myaccount" element={<MyAccount />} />
               <Route path="myaccount/vacation" element={<Vacation />} />
               <Route element={<ProtectedManagerRoute />}>
-                <Route path="myaccount/admin" element={<Admin />} />
+                <Route element={<AdminLayout />}>
+                  <Route path="myaccount/approve" element={<Approve />} />
+                  <Route path="myaccount/promote" element={<Promote />} />
+                </Route>
               </Route>
             </Route>
           </Route>

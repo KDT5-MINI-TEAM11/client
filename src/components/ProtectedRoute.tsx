@@ -1,11 +1,11 @@
-import { isSignedinSelector } from '@/recoil/AccessTokkenAtom';
+import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 
 export default function ProtectedRoute() {
-  const isSignedin = useRecoilValue(isSignedinSelector);
+  const accessToken = useRecoilValue(AccessTokenAtom);
 
-  if (isSignedin) {
+  if (accessToken) {
     return <Outlet />;
   }
   return <Navigate to={'/'} replace />;

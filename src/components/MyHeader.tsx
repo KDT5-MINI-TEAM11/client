@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import UserInfo from '@/components/UserInfo';
-import { IuserHeaderInfo } from '@/types/IuserHeaderInfo';
+import { IUserHeaderInfo } from '@/types/IUserHeaderInfo';
 import useRefreshToken from '@/hooks/useRefreshToken';
 import { deleteAccessTokenFromCookie } from '@/utils/cookies';
 import { IsManagerAtom } from '@/recoil/IsManagerAtom';
@@ -32,7 +32,7 @@ export default function MyHeader() {
   const [accessToken, setAccessToken] = useRecoilState(AccessTokenAtom);
 
   // 네브바에 표시될 정보들
-  const [userHeaderInfo, setUserHeaderInfo] = useState<IuserHeaderInfo>({
+  const [userHeaderInfo, setUserHeaderInfo] = useState<IUserHeaderInfo>({
     userName: '',
     profileThumbNail: '',
     position: '',
@@ -42,15 +42,14 @@ export default function MyHeader() {
   const [isMyHeaderLoading, setIsMyHeaderLoading] = useState(false);
 
   useEffect(() => {
-    // 모든 통신에는 loading이 있다. 그러면 모든 loading에는 ui가 필요함?
     setIsMyHeaderLoading(true);
     const getData = async () => {
+      // access토큰이 없으면(로그인 상태가 아니면) 통신 할 이유가 없음
+      // 로그인 안하면 이 요청을 할 일은 애초에 없음
+      if (!accessToken) {
+        return;
+      }
       try {
-        // access토큰이 없으면(로그인 상태가 아니면) 통실 할 이유가 없음
-        // refreshAccessToken에도 accessToken이 null인 경우 처리가 있음 그런데 이렇게 위에서 미리 하는게 좋은건가? 질문
-        if (!accessToken) {
-          return;
-        }
         // access토큰 만료가 5분 미만으로 남으면 재발급함
         await refreshAccessToken();
         const response = await getUserHeader(accessToken);
@@ -62,6 +61,7 @@ export default function MyHeader() {
             userName: userData.userName,
             position: userData.position,
           });
+          // 헤더정보는 항상 노출이 되는 부분이기 때문에 관리자 여부를 여기에서 세팅해줌
           setIsManager(userData.position === 'MANAGER');
           return;
         }
@@ -84,17 +84,15 @@ export default function MyHeader() {
     setIsSigningout(true);
 
     try {
-      const response = await signout();
-      messageApi.open({
-        type: 'success',
-        content: response.data.response,
-      });
+      await signout();
     } catch (error) {
       console.log(error);
     } finally {
-      // 화면 전환없이(login input 값들이 남아있는 상태)에서 로그아웃을 하고 다시 로그인을 하려고 하면 login input 값들이 남아있기 때문에 강제 새로고침
-      // ref를 지정해서 값을 초기화 하는 방법도 있음
-      location.reload();
+      // 로그아웃은 통신이 성공하든 실패하든 상관없이 토큰을 삭제해주면 된다.
+      // 그러면 통신을 왜하냐고 물어볼 수 있는데 서버쪽에서 refresh 토큰을 삭제하기 위해서라고 함
+
+      // 쿠키에서 삭제
+      deleteAccessTokenFromCookie();
 
       // recoil 초기화
       setAccessToken(null);
@@ -102,8 +100,11 @@ export default function MyHeader() {
       // 로딩 ui종료
       setIsSigningout(false);
 
-      // 쿠키에서 삭제
-      deleteAccessTokenFromCookie();
+      // 오류가 났다고 하더라도 로그아웃 성공메세지를 보여줌
+      messageApi.open({
+        type: 'success',
+        content: '로그아웃이 완료 되었습니다.', // 서버에서 오는 성공메세지와 동일
+      });
     }
   };
 

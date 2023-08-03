@@ -1,58 +1,35 @@
-import { IvacationRequest } from '@/types/IvacationRequest';
+interface DataType {
+  key: number;
+  id: number;
+  profileThumbUrl: string;
+  userName: string;
+  position: 'LEVEL1' | 'LEVEL2' | 'LEVEL3' | 'LEVEL4';
+  createAt: string;
+}
 
-export const DUMMY_VACATION_REQUESTS: IvacationRequest[] = [
+export const DUMMY_WORKERS: DataType[] = [
   {
-    id: '1',
+    key: 1,
+    id: 1,
     userName: 'Kim',
+    profileThumbUrl: 'imageurl',
     position: 'LEVEL1',
-    type: 'VACATION',
-    start_date: '2023-08-01',
-    end_date: '2023-08-05',
-    state: 'PENDING',
+    createAt: '2021-08-03',
   },
   {
-    id: '2',
-    userName: 'Li',
+    id: 2,
+    key: 2,
+    userName: 'lee',
+    profileThumbUrl: 'imageurl',
     position: 'LEVEL2',
-    type: 'VACATION',
-    start_date: '2023-08-01',
-    end_date: '2023-08-05',
-    state: 'PENDING',
+    createAt: '2021-08-03',
   },
   {
-    id: '3',
-    userName: 'Leo',
+    id: 3,
+    key: 3,
+    userName: 'park',
+    profileThumbUrl: 'imageurl',
     position: 'LEVEL3',
-    type: 'DUTY',
-    start_date: '2023-08-12',
-    end_date: '2023-08-13',
-    state: 'PENDING',
-  },
-  {
-    id: '4',
-    userName: 'Teddy',
-    position: 'LEVEL1',
-    type: 'VACATION',
-    start_date: '2023-08-01',
-    end_date: '2023-08-05',
-    state: 'RESOLVE',
-  },
-  {
-    id: '5',
-    userName: 'Bim',
-    position: 'LEVEL1',
-    type: 'VACATION',
-    start_date: '2023-08-06',
-    end_date: '2023-08-10',
-    state: 'RESOLVE',
-  },
-  {
-    id: '6',
-    userName: 'Aim',
-    position: 'LEVEL2',
-    type: 'VACATION',
-    start_date: '2023-08-15',
-    end_date: '2023-08-20',
-    state: 'PENDING',
+    createAt: '2021-08-03',
   },
 ];

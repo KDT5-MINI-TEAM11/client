@@ -1,14 +1,20 @@
-import { isSignedinSelector } from '@/recoil/AccessTokkenAtom';
+import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
 import { Calendar, Layout, Modal } from 'antd';
 import { useRecoilValue } from 'recoil';
-import Signin from '../../components/Signin';
 import Sider from 'antd/es/layout/Sider';
 import { Content } from 'antd/es/layout/layout';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import Signin from '@/page/home/signin';
 
 export default function Home() {
-  const isSignedin = useRecoilValue(isSignedinSelector);
-  const [isModalOpen, setIsModalOpen] = useState(!isSignedin);
+  const accessToken = useRecoilValue(AccessTokenAtom);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(!accessToken);
+
+  // 로그아웃을 하면 isModalOpen이 !accessToken의 상태를 바로 반영하지 않음
+  // 따라서 useEffect로 반영이 되도록함
+  useEffect(() => {
+    setIsModalOpen(!accessToken);
+  }, [accessToken]);
 
   return (
     <>
@@ -23,7 +29,7 @@ export default function Home() {
       </Modal>
       <Layout
         style={{
-          filter: isSignedin ? '' : 'blur(5px)',
+          filter: accessToken ? '' : 'blur(5px)',
           userSelect: 'none',
           height: 'calc(100vh - 60px)',
           display: 'flex',

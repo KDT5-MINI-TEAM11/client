@@ -11,17 +11,24 @@ export default function useRefreshToken() {
   const [accessToken, setAccessToken] = useRecoilState(AccessTokenAtom);
 
   const refreshAccessToken = async () => {
+    // aceeToken이 없는 경우(로그인이 안되어있는경우, 임의로 삭제한 경우) 아무것도 실행안함
+    // 애초에 이 실행이 될 일이 없음
+    if (!accessToken) {
+      return;
+    }
     // access토큰의 만료시간을 초로 나타낸 시간
-    const expirationTime = getPayloadFromJWT(accessToken)?.exp;
+    const expirationTime = getPayloadFromJWT(accessToken).exp as number;
 
     // 현재시간을 초로 나타냄
-    const nowToSecond = Math.floor(new Date().getTime() / 1000);
+    const currentTime = Math.floor(new Date().getTime() / 1000);
 
-    // accessToken이 있고(로그인 되어있고) 만료시간이 5분 이내로 남은 경우
-    if (expirationTime && expirationTime - nowToSecond < 5 * 60) {
+    // 만료가 되었거나 만료시간이 5분 이내로 남은 경우
+    if (expirationTime - currentTime < 5 * 60) {
       try {
+        // httpOnly 쿠키에 담긴 refreshToken을 서버에 전송
+        // httpOnly 쿠키는 자바스크립트로 접근할 수 없음
         const response = await axios('/v1/auth/refresh-token', {
-          withCredentials: true, // httpOnly인 경우 설정해줘야함
+          withCredentials: true,
         });
 
         // 새로 받은 access토큰
@@ -32,19 +39,17 @@ export default function useRefreshToken() {
 
         // 쿠키에 저장
         setAccessTokenToCookie(newAccessToken);
-        console.log('재발급완료');
+
+        console.log('accessToken 재발급완료');
       } catch (error) {
+        console.log(error);
         // 일단 에러인 경우 accessToken을 쿠키와 recoil에서 모두 삭제
         // setAccessToken(null);
         // deleteAccessTokenFromCookie();
       }
-      // acessToken이 null인 경우
-    } else if (!expirationTime) {
-      console.log('로그인 하슈');
-      return;
     } else {
       console.log(
-        `만료 ${Math.floor((expirationTime - nowToSecond) / 60)}분 남았습니다.`,
+        `만료 ${Math.floor((expirationTime - currentTime) / 60)}분 남았습니다.`,
       );
     }
   };
