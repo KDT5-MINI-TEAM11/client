@@ -36,7 +36,7 @@ export default function MyAccountLayout() {
       key: 3,
       label: '관리자',
       onClick: () => {
-        navigate('/myaccount/admin');
+        navigate('/myaccount/approve');
         setSelectedMenuKey('/myaccount/admin');
       },
     },

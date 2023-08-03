@@ -1,14 +1,21 @@
-import { Button, Typography, Form, Input, Space, message } from 'antd';
+import {
+  Button,
+  Typography,
+  Form,
+  Input,
+  Space,
+  message,
+  FormInstance,
+} from 'antd';
 import { EMAIL_REGEX } from '@/data/constants';
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { AccessTokenAtom, isSignedinSelector } from '@/recoil/AccessTokkenAtom';
+import { useRef, useState } from 'react';
+import { useSetRecoilState } from 'recoil';
+import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
 import { signin } from '@/api/signin';
 import { setAccessTokenToCookie } from '@/utils/cookies';
 import getPayloadFromJWT from '@/utils/getPayloadFromJWT';
 import { IsManagerAtom } from '@/recoil/IsManagerAtom';
-
 const { Text } = Typography;
 
 export default function Signin({
@@ -16,13 +23,13 @@ export default function Signin({
 }: {
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+  // 매니저 여부를 로그인시 recoil에 저장하기 위해
   const setIsManager = useSetRecoilState(IsManagerAtom);
-
   // const [accessToken, setAccessToken] = useRecoilState(AccessTokenAtom); 에서 원하는 것만 분리해서 가져올 수 있음
   const setAccessToken = useSetRecoilState(AccessTokenAtom);
 
-  // recoil selector기능, 로그인 여부를 알려줌, 그냥 accessToken가져와도 되긴함
-  const isSignedin = useRecoilValue(isSignedinSelector);
+  // 로그인 성공 후 form초기화를 위해
+  const formRef = useRef<FormInstance>(null);
 
   // antd message(화면 상단에 뜨는 메세지)기능
   const [messageApi, contextHolder] = message.useMessage();
@@ -30,10 +37,11 @@ export default function Signin({
   // 로그인 통신 과정 로딩 ui
   const [isSigningIn, setIsSigningIn] = useState(false);
 
-  const onFinish = async (values: {
+  const handleSignin = async (values: {
     userEmail: string;
     userPassword: string;
   }) => {
+    // 로딩시작
     setIsSigningIn(true);
     try {
       const response = await signin(values);
@@ -60,9 +68,17 @@ export default function Signin({
           content: '로그인 하였습니다.',
         });
 
+        // 로그인 모달 닫기
         setIsModalOpen(false);
+
+        // 로그인 폼 초기화(로그아웃을 바로 할 경우 폼에 입력값이 남아있음)
+        // antd에서 form value값에 접근하는 법을 모르겠음.
+        if (formRef.current) {
+          formRef.current.resetFields();
+        }
         return;
       }
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       messageApi.open({
@@ -77,19 +93,14 @@ export default function Signin({
   };
 
   return (
-    <div
-      style={{
-        zIndex: 10,
-        display: isSignedin ? 'none' : 'block',
-      }}
-    >
+    <div>
       {contextHolder}
       <Form
         layout="vertical"
         name="basic"
         wrapperCol={{ span: 30, offset: 0 }}
-        onFinish={onFinish}
-        initialValues={{ userEmail: '', userPassword: '' }}
+        onFinish={handleSignin}
+        ref={formRef}
       >
         <Form.Item
           label="이메일"

@@ -17,8 +17,8 @@ import { handleUpload } from '@/api/cloudinary';
 import { signup } from '@/api/signup';
 import { checkEmail, checkEmailAuth } from '@/api/checkEmail';
 import { verificationEmail } from '@/api/verification';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { AccessTokenAtom, isSignedinSelector } from '@/recoil/AccessTokkenAtom';
+import { useSetRecoilState } from 'recoil';
+import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
 import { setAccessTokenToCookie } from '@/utils/cookies';
 
 interface valuseType {
@@ -48,7 +48,6 @@ export default function SingUp() {
   const [isSigningUp, setIsSigningUp] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   const setAccessToken = useSetRecoilState(AccessTokenAtom);
-  const isSignedin = useRecoilValue(isSignedinSelector);
   const navigate = useNavigate();
   const { Option } = Select;
   const [form] = Form.useForm();
@@ -323,197 +322,190 @@ export default function SingUp() {
   };
 
   return (
-    <div
-      style={{
-        zIndex: 10,
-        display: isSignedin ? 'none' : 'block',
-      }}
-    >
-      <Card bordered={false} style={{ margin: '0px 20px', width: 400 }}>
-        {contextHolder}
-        <Form
-          form={form}
-          layout="vertical"
-          name="basic"
-          wrapperCol={{ span: 30, offset: 0 }}
-          style={{ maxWidth: 350 }}
-          onFinish={onFinish}
-          autoComplete="off"
+    <Card bordered={false} style={{ margin: '0px 20px', width: 400 }}>
+      {contextHolder}
+      <Form
+        form={form}
+        layout="vertical"
+        name="basic"
+        wrapperCol={{ span: 30, offset: 0 }}
+        style={{ maxWidth: 350 }}
+        onFinish={onFinish}
+        autoComplete="off"
+      >
+        <Form.Item
+          label="이름"
+          name="userName"
+          rules={[{ required: true, message: '이름을 입력해주세요.' }]}
         >
-          <Form.Item
-            label="이름"
-            name="userName"
-            rules={[{ required: true, message: '이름을 입력해주세요.' }]}
-          >
-            <Input allowClear />
-          </Form.Item>
+          <Input allowClear />
+        </Form.Item>
 
-          <Form.Item
-            label="이메일"
-            name="userEmail"
-            rules={[
-              { required: true, message: '이메일을 입력해주세요.' },
-              { validator: validateEmail },
-            ]}
-          >
-            <Input placeholder="ex) anyone123@email.com" allowClear />
-          </Form.Item>
+        <Form.Item
+          label="이메일"
+          name="userEmail"
+          rules={[
+            { required: true, message: '이메일을 입력해주세요.' },
+            { validator: validateEmail },
+          ]}
+        >
+          <Input placeholder="ex) anyone123@email.com" allowClear />
+        </Form.Item>
 
-          <Form.Item
-            name="emailAuth"
-            rules={[
-              {
-                required: true,
-                validator: (_, value) => {
-                  if (!value) {
-                    return Promise.reject('필수 진행 항목입니다.');
-                  }
-                  return Promise.resolve();
-                },
+        <Form.Item
+          name="emailAuth"
+          rules={[
+            {
+              required: true,
+              validator: (_, value) => {
+                if (!value) {
+                  return Promise.reject('필수 진행 항목입니다.');
+                }
+                return Promise.resolve();
               },
-            ]}
-          >
-            {isEmailCehck ? (
-              verification ? (
-                emailVerified ? (
-                  // 인증에 성공한 경우 - 재인증 버튼 표시
-                  <div>
-                    <Button type="primary" onClick={handleReAuthentication}>
-                      재인증
-                    </Button>
-                  </div>
-                ) : (
-                  // 인증 번호 입력 창과 제출 버튼
-                  <div>
-                    <Space>
-                      <Input placeholder="인증번호를 입력해주세요." />
-                      <Button
-                        type="primary"
-                        onClick={handleEmailAuth}
-                        disabled={isLoading}
-                        loading={isLoading}
-                      >
-                        제출
-                      </Button>
-                      <Button
-                        type="primary"
-                        onClick={handleReSend}
-                        disabled={!reSend}
-                        loading={isLoading}
-                      >
-                        재발송
-                      </Button>
-                    </Space>
-                    <div>남은 시간: {timer}초</div>
-                  </div>
-                )
+            },
+          ]}
+        >
+          {isEmailCehck ? (
+            verification ? (
+              emailVerified ? (
+                // 인증에 성공한 경우 - 재인증 버튼 표시
+                <div>
+                  <Button type="primary" onClick={handleReAuthentication}>
+                    재인증
+                  </Button>
+                </div>
               ) : (
-                // 인증 번호 전송 버튼
-                <Button
-                  type="primary"
-                  onClick={handleVerificationEmail}
-                  disabled={isLoading}
-                  loading={isLoading}
-                >
-                  인증번호 전송
-                </Button>
+                // 인증 번호 입력 창과 제출 버튼
+                <div>
+                  <Space>
+                    <Input placeholder="인증번호를 입력해주세요." />
+                    <Button
+                      type="primary"
+                      onClick={handleEmailAuth}
+                      disabled={isLoading}
+                      loading={isLoading}
+                    >
+                      제출
+                    </Button>
+                    <Button
+                      type="primary"
+                      onClick={handleReSend}
+                      disabled={!reSend}
+                      loading={isLoading}
+                    >
+                      재발송
+                    </Button>
+                  </Space>
+                  <div>남은 시간: {timer}초</div>
+                </div>
               )
             ) : (
-              // 이메일 중복 체크 버튼
+              // 인증 번호 전송 버튼
               <Button
                 type="primary"
-                onClick={handleCheckEmail}
+                onClick={handleVerificationEmail}
                 disabled={isLoading}
                 loading={isLoading}
               >
-                이메일 중복 체크
+                인증번호 전송
               </Button>
-            )}
-          </Form.Item>
-
-          <Form.Item
-            label="비밀번호 (영문, 숫자, 특수문자를 포함해주세요.)"
-            name="userPassword"
-            rules={[{ required: true, validator: validatePassword }]}
-            hasFeedback
-          >
-            <Input.Password
-              placeholder="비밀번호는 8자리 이상 16자리 미만입니다."
-              allowClear
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="비밀번호 확인"
-            name="confirm_password"
-            dependencies={['userPassword']}
-            hasFeedback
-            rules={[
-              { required: true, message: '비밀번호를 입력해주세요' },
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  if (!value || getFieldValue('userPassword') === value) {
-                    return Promise.resolve();
-                  }
-                  return Promise.reject(
-                    new Error('비밀번호가 일치하지 않습니다.'),
-                  );
-                },
-              }),
-            ]}
-          >
-            <Input.Password allowClear />
-          </Form.Item>
-          <Form.Item
-            label="연락처 (ex. 01012345678)"
-            name="phoneNumber"
-            rules={[{ required: true, message: '연락처를 입력해주세요.' }]}
-          >
-            <Input
-              style={{ width: '100%' }}
-              placeholder="하이픈(-)없이 01012345678"
-              allowClear
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="프로필"
-            name="profileThumbUrl"
-            valuePropName="fileList"
-            getValueFromEvent={normFile}
-          >
-            <Upload beforeUpload={() => false}>
-              <Button>
-                <PlusOutlined /> Click to Upload
-              </Button>
-            </Upload>
-          </Form.Item>
-
-          <Form.Item
-            name="position"
-            label="직급"
-            rules={[{ required: true, message: '직급을 선택해주세요.' }]}
-          >
-            <Select
-              placeholder="-직급-"
-              style={{ width: 85, textAlign: 'center' }}
+            )
+          ) : (
+            // 이메일 중복 체크 버튼
+            <Button
+              type="primary"
+              onClick={handleCheckEmail}
+              disabled={isLoading}
+              loading={isLoading}
             >
-              {selectedPositionOptions}
-            </Select>
-          </Form.Item>
+              이메일 중복 체크
+            </Button>
+          )}
+        </Form.Item>
 
-          <Button
-            type="primary"
-            htmlType="submit"
-            size="large"
+        <Form.Item
+          label="비밀번호 (영문, 숫자, 특수문자를 포함해주세요.)"
+          name="userPassword"
+          rules={[{ required: true, validator: validatePassword }]}
+          hasFeedback
+        >
+          <Input.Password
+            placeholder="비밀번호는 8자리 이상 16자리 미만입니다."
+            allowClear
+          />
+        </Form.Item>
+
+        <Form.Item
+          label="비밀번호 확인"
+          name="confirm_password"
+          dependencies={['userPassword']}
+          hasFeedback
+          rules={[
+            { required: true, message: '비밀번호를 입력해주세요' },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (!value || getFieldValue('userPassword') === value) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(
+                  new Error('비밀번호가 일치하지 않습니다.'),
+                );
+              },
+            }),
+          ]}
+        >
+          <Input.Password allowClear />
+        </Form.Item>
+        <Form.Item
+          label="연락처 (ex. 01012345678)"
+          name="phoneNumber"
+          rules={[{ required: true, message: '연락처를 입력해주세요.' }]}
+        >
+          <Input
             style={{ width: '100%' }}
-            disabled={isSigningUp}
-            loading={isSigningUp}
+            placeholder="하이픈(-)없이 01012345678"
+            allowClear
+          />
+        </Form.Item>
+
+        <Form.Item
+          label="프로필"
+          name="profileThumbUrl"
+          valuePropName="fileList"
+          getValueFromEvent={normFile}
+        >
+          <Upload beforeUpload={() => false}>
+            <Button>
+              <PlusOutlined /> Click to Upload
+            </Button>
+          </Upload>
+        </Form.Item>
+
+        <Form.Item
+          name="position"
+          label="직급"
+          rules={[{ required: true, message: '직급을 선택해주세요.' }]}
+        >
+          <Select
+            placeholder="-직급-"
+            style={{ width: 85, textAlign: 'center' }}
           >
-            회원가입
-          </Button>
-        </Form>
-      </Card>
-    </div>
+            {selectedPositionOptions}
+          </Select>
+        </Form.Item>
+
+        <Button
+          type="primary"
+          htmlType="submit"
+          size="large"
+          style={{ width: '100%' }}
+          disabled={isSigningUp}
+          loading={isSigningUp}
+        >
+          회원가입
+        </Button>
+      </Form>
+    </Card>
   );
 }

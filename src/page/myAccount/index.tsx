@@ -18,7 +18,6 @@ import {
 import defaultProfile from '@/assets/defaultProfile.png';
 import { POSITIONS } from '@/data/constants';
 import formatPhoneNumber from '@/utils/formatPhonenumber';
-
 import { useEffect, useState } from 'react';
 import { getMyAccount } from '@/api/getMyAccount';
 import { useRecoilValue } from 'recoil';
@@ -89,7 +88,7 @@ export default function MyAccount() {
       }
     };
     getData();
-  }, [accessToken]);
+  }, []);
 
   const handleChangeMyInfo = async () => {
     await refreshAccessToken();
@@ -254,7 +253,7 @@ export default function MyAccount() {
 
         <Descriptions.Item label="직급">
           <Badge
-            color={POSITIONS[myAccountInfo.position].color}
+            color={POSITIONS[myAccountInfo.position]?.color}
             count={myAccountInfo.position}
           />
         </Descriptions.Item>
