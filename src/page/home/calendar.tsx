@@ -1,36 +1,49 @@
+import { useState, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import { scheduleList } from '@/api/scheduleList';
+
+interface itemType {
+  userNmae: string;
+  scheduleType: string;
+  startDate: string;
+  endDate: string;
+}
 
 function calendar() {
-  const event = [
-    {
-      title: '공부하기',
-      start: '2023-08-13',
-      end: '2023-08-14',
-      color: '#b1aee5',
-    },
-    {
-      title: '축구하기',
-      start: '2023-02-15',
-      end: '2023-08-19',
-      color: '#b1aee5',
-    },
-    {
-      title: '빨래하기',
-      start: '2023-08-08',
-      end: '2023-08-30',
-      color: '#2dee11',
-    },
-  ];
+  const [events, setEvents] = useState([]);
+  useEffect(() => {
+    const schedule = async () => {
+      const response = await scheduleList(2023, 8);
+
+      const events = response.data.map((item: itemType) => {
+        return {
+          title: `${item.userNmae} ${item.scheduleType}`,
+          start: item.startDate,
+          end: item.endDate,
+          color: '#b1aee5',
+        };
+      });
+      setEvents(events);
+    };
+    schedule();
+  }, []);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleDateClick = (arg: any) => {
+    console.log(arg.date.toLocaleString());
+  };
+
   return (
     <>
       <FullCalendar
-        plugins={[dayGridPlugin]}
+        plugins={[dayGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
         dayMaxEvents={true}
-        events={event}
+        events={events}
         height={'800px'}
-        editable={true}
+        dateClick={handleDateClick}
       />
     </>
   );
