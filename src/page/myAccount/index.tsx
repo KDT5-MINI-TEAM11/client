@@ -6,8 +6,15 @@ import {
   Space,
   Button,
   message,
+  Upload,
+  Form,
+  Badge,
 } from 'antd';
-import { EditOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import {
+  EditOutlined,
+  CloseCircleOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
 import defaultProfile from '@/assets/defaultProfile.png';
 import { POSITIONS } from '@/data/constants';
 import formatPhoneNumber from '@/utils/formatPhonenumber';
@@ -19,6 +26,7 @@ import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
 import useRefreshToken from '@/hooks/useRefreshToken';
 import { changeMyInfo } from '@/api/changeMyInfo';
 import PasswordChangeModal from './passwordChangeModal';
+import { handleUpload } from '@/api/cloudinary';
 
 interface MyAccountInfoType {
   phoneNumber: string;
@@ -46,6 +54,7 @@ export default function MyAccount() {
   const [editPhoneNumber, setEditPhoneNumber] = useState(false);
   const [editPhoneNumberInput, setEditPhonNumberInput] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editprofileThumbUrl, setEditProfileThumbUrl] = useState(false);
 
   const accessToken = useRecoilValue(AccessTokenAtom);
 
@@ -115,6 +124,74 @@ export default function MyAccount() {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleChangeProfileImg = async (file: any) => {
+    const imageUrl = await getImageUrl(file);
+    console.log(imageUrl);
+    await refreshAccessToken();
+    try {
+      const response = await changeMyInfo(accessToken, {
+        profileThumbUrl: imageUrl,
+      });
+      if (response.status === 200) {
+        setMyAccountInfo((prev) => ({
+          ...prev,
+          profileThumbUrl: imageUrl,
+        }));
+        // 성공
+        console.log(response);
+        messageApi.open({
+          type: 'success',
+          content: '프로필 이미지를 수정하였습니다.',
+        });
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.log(
+        error.response.data.error.message ||
+          '사용자 정보 수정에 실패하였습니다.',
+      );
+      messageApi.open({
+        type: 'error',
+        content: '프로필 이미지 수정실패',
+      });
+    } finally {
+      setEditProfileThumbUrl(false);
+    }
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const normFile = (e: any) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getImageUrl = async (file: any) => {
+    let imageUrl = null;
+
+    try {
+      if (file.profileThumbUrl && file.profileThumbUrl.length > 0) {
+        const response = await handleUpload(
+          file.profileThumbUrl[0].originFileObj,
+        );
+        if (response?.status === 200) {
+          const data = response.data;
+          imageUrl = data.url; // 이미지 URL을 받아옴
+        } else {
+          throw new Error('이미지 업로드에 실패하였습니다.');
+        }
+      }
+    } catch (error) {
+      console.error('오류 발생:', error);
+      imageUrl = null; // 오류가 발생했으므로 imageUrl을 null로 설정
+    }
+
+    return imageUrl;
+  };
+
   return (
     <div style={{ padding: 20 }}>
       {contextHolder}
@@ -176,7 +253,10 @@ export default function MyAccount() {
         </Descriptions.Item>
 
         <Descriptions.Item label="직급">
-          {myAccountInfo.position}
+          <Badge
+            color={POSITIONS[myAccountInfo.position].color}
+            count={myAccountInfo.position}
+          />
         </Descriptions.Item>
         <Descriptions.Item label="사용한 연차">
           {myAccountInfo.usedVacation}일
@@ -189,23 +269,76 @@ export default function MyAccount() {
           label={
             <>
               사진
-              <EditOutlined
-                style={{ marginLeft: 5, fontSize: 15 }}
-                className="icons"
-              />
+              {editprofileThumbUrl ? (
+                <CloseCircleOutlined
+                  className="icons"
+                  style={{ marginLeft: 5, fontSize: 15 }}
+                  onClick={() => {
+                    setEditProfileThumbUrl(false);
+                    setEditPhonNumberInput(myAccountInfo.phoneNumber);
+                  }}
+                />
+              ) : (
+                <EditOutlined
+                  onClick={() => {
+                    setEditProfileThumbUrl(true);
+                  }}
+                  style={{ marginLeft: 5, fontSize: 15 }}
+                  className="icons"
+                />
+              )}
             </>
           }
         >
-          <Image
-            placeholder={
-              <Skeleton.Image active style={{ width: 200, height: 200 }} />
-            }
-            rootClassName="profile_image"
-            width={200}
-            height={200}
-            src={myAccountInfo.profileThumbUrl}
-            fallback={defaultProfile}
-          />
+          {editprofileThumbUrl ? (
+            <>
+              <Form
+                onFinish={handleChangeProfileImg}
+                style={{
+                  width: '200px',
+                  height: '200px',
+                  display: 'flex',
+
+                  alignItems: 'center',
+                  paddingTop: '22px',
+                }}
+              >
+                <Form.Item
+                  name="profileThumbUrl"
+                  valuePropName="fileList"
+                  getValueFromEvent={normFile}
+                >
+                  <Upload
+                    beforeUpload={() => false} /* showUploadList={false} */
+                  >
+                    <Button>
+                      <PlusOutlined /> Click to Upload
+                    </Button>
+                  </Upload>
+                </Form.Item>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  style={{ margin: '0 0 24px 5px' }}
+                >
+                  수정
+                </Button>
+              </Form>
+            </>
+          ) : (
+            <>
+              <Image
+                placeholder={
+                  <Skeleton.Image active style={{ width: 200, height: 200 }} />
+                }
+                rootClassName="profile_image"
+                width={200}
+                height={200}
+                src={myAccountInfo.profileThumbUrl}
+                fallback={defaultProfile}
+              />
+            </>
+          )}
         </Descriptions.Item>
       </Descriptions>
 
