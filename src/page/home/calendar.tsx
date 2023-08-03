@@ -3,12 +3,21 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { scheduleList } from '@/api/scheduleList';
+import { getAccessTokenFromCookie } from '@/utils/cookies';
 
-interface itemType {
+/* interface itemType {
   userNmae: string;
   scheduleType: string;
   startDate: string;
   endDate: string;
+} */
+
+interface ScheduleItem {
+  userName: sting;
+  scheduleType: string;
+  startDate: string;
+  endDate: string;
+  state: string;
 }
 
 function calendar() {
@@ -16,20 +25,28 @@ function calendar() {
 
   useEffect(() => {
     const schedule = async () => {
-      const response = await scheduleList(2023, 8);
+      const accessToken = getAccessTokenFromCookie();
+      const response = await scheduleList(accessToken, 2023, 8);
 
-      const events = response.data.map((item: itemType) => {
+      const responseData = response.data.response; // 실제 응답 데이터 추출
+      const events = responseData.map((item: ScheduleItem) => {
         return {
-          title: `${item.userNmae} ${item.scheduleType}`,
+          title: item.scheduleType,
           start: item.startDate,
           end: item.endDate,
-          color: '#b1aee5',
+          color: getColorFromState(item.scheduleType),
         };
       });
       setEvents(events);
     };
     schedule();
   }, []);
+
+  const getColorFromState = (scheduleType: string) => {
+    if (scheduleType === 'ANNUAL') return '#b1aee5';
+    if (scheduleType === 'DUTY') return '#f08080';
+    return '#ffffff'; // 기본 색상
+  };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleDateClick = (arg: any) => {
