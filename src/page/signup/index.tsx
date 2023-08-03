@@ -290,7 +290,7 @@ export default function SingUp() {
 
   // 타이머 변경에 따른 리렌더링이 일어나게
   useEffect(() => {
-    //
+    // side effect를 멈추기 위해서 exactTimer라는 변수를 선언
     let exactTimer: string | number | NodeJS.Timeout | undefined;
     // 타이머가 0보다 크면 timer의 상태값이 초당 -1씩 줄어들고
     // timer가 0초이고 verification state값이 true일 때,
@@ -311,6 +311,7 @@ export default function SingUp() {
     };
   }, [timer, verification]);
 
+  // 이메일 인증번호 발송 받은 번호를 인증
   const handleEmailAuth = async () => {
     try {
       const userEmailData = await form.validateFields(['userEmail']);
@@ -332,6 +333,7 @@ export default function SingUp() {
     }
   };
 
+  // 이메일 인증을 다시 처음부터 하게 하는 재인증 기능
   const handleReAuthentication = () => {
     setIsEmailCheck(false);
     setVerification(false);
