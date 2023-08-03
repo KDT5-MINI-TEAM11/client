@@ -4,7 +4,7 @@ import { useRecoilValue } from 'recoil';
 import Signin from '../../components/Signin';
 import Sider from 'antd/es/layout/Sider';
 import { Content } from 'antd/es/layout/layout';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Calendar from './calendar';
 
 export default function Home() {
@@ -41,7 +41,7 @@ export default function Home() {
               overflow: 'auto',
             }}
           >
-            <Calendar />
+            <Calendar isSignedin={isSignedin} />
           </Content>
         </Layout>
       </Layout>

@@ -13,7 +13,11 @@ interface ScheduleItem {
   state: string;
 }
 
-function calendar() {
+interface propsType {
+  isSignedin: boolean;
+}
+
+function calendar({ isSignedin }: propsType) {
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
@@ -33,7 +37,7 @@ function calendar() {
       setEvents(events);
     };
     schedule();
-  }, []);
+  }, [isSignedin]);
 
   const getColorFromState = (scheduleType: string) => {
     if (scheduleType === 'ANNUAL') return '#b1aee5';
