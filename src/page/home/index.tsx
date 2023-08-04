@@ -1,10 +1,11 @@
 import { isSignedinSelector } from '@/recoil/AccessTokkenAtom';
-import { Calendar, Layout, Modal } from 'antd';
+import { Layout, Modal } from 'antd';
 import { useRecoilValue } from 'recoil';
 import Signin from '../../components/Signin';
 import Sider from 'antd/es/layout/Sider';
 import { Content } from 'antd/es/layout/layout';
 import { useState } from 'react';
+import Calendar from './calendar';
 
 export default function Home() {
   const isSignedin = useRecoilValue(isSignedinSelector);
@@ -40,7 +41,8 @@ export default function Home() {
               overflow: 'auto',
             }}
           >
-            <Calendar />
+            {/* 로그인 상태를 확인하기 위해서 isSignedin를 Calendar컴포넌트에 props로 전달 */}
+            <Calendar isSignedin={isSignedin} />
           </Content>
         </Layout>
       </Layout>
