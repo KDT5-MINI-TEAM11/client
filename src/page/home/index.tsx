@@ -143,7 +143,7 @@ export default function Home() {
               overflow: 'auto',
             }}
           >
-            {/* 로그인 상태를 확인하기 위해서 isSignedin를 Calendar컴포넌트에 props로 전달 */}
+            {/* 로그인 상태를 확인하기 위해서 accessToken을 boolean 데이터 형식으로 변환해서 Calendar컴포넌트에 props로 전달 */}
             <Calendar isSignedin={!!accessToken} />
           </Content>
         </Layout>
