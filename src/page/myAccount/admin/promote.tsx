@@ -90,6 +90,9 @@ export default function Promote() {
       key: 'createAt',
       dataIndex: 'createAt',
       align: 'center',
+      sorter: (a, b) =>
+        Number(a.createAt.replaceAll('-', '')) -
+        Number(b.createAt.replaceAll('-', '')),
     },
     {
       title: 'Action',
@@ -117,6 +120,7 @@ export default function Promote() {
   return (
     <>
       <Table
+        size="small"
         columns={columns}
         dataSource={workers}
         loading={isWorkerListLoading}

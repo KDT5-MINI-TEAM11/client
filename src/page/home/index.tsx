@@ -1,10 +1,24 @@
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
-import { Calendar, Layout, Modal } from 'antd';
+import {
+  DatePicker,
+  Calendar,
+  Layout,
+  Modal,
+  Button,
+  Space,
+  Select,
+  Divider,
+} from 'antd';
 import { useRecoilValue } from 'recoil';
 import Sider from 'antd/es/layout/Sider';
 import { Content } from 'antd/es/layout/layout';
 import { useEffect, useState } from 'react';
+import dayjs from 'dayjs';
+
+const { RangePicker } = DatePicker;
+
 import Signin from '@/page/home/signin';
+import { DatePickerProps, RangePickerProps } from 'antd/es/date-picker';
 
 export default function Home() {
   const accessToken = useRecoilValue(AccessTokenAtom);
@@ -15,6 +29,45 @@ export default function Home() {
   useEffect(() => {
     setIsModalOpen(!accessToken);
   }, [accessToken]);
+
+  const [schedule, setSchedule] = useState<{
+    scheduleType: string;
+    startDate: string;
+    endDate: string;
+  }>({
+    scheduleType: '',
+    startDate: '',
+    endDate: '',
+  });
+
+  const handleSelect = (value: string) => {
+    setSchedule({
+      startDate: '',
+      endDate: '',
+      scheduleType: value,
+    });
+  };
+
+  const handleRangePicker = (value: RangePickerProps['value']) => {
+    const startDate = value && value[0];
+    const endDate = value && value[1];
+    setSchedule((prev) => ({
+      ...prev,
+      startDate: dayjs(startDate).format('YYYY-MM-DD'),
+      endDate: dayjs(endDate).format('YYYY-MM-DD'),
+    }));
+  };
+
+  const handleDatePicker = (value: DatePickerProps['value']) => {
+    const startDate = dayjs(value).format('YYYY-MM-DD');
+    setSchedule((prev) => ({
+      ...prev,
+      startDate: dayjs(startDate).format('YYYY-MM-DD'),
+      endDate: '',
+    }));
+  };
+
+  const handleSubmitSchedule = () => {};
 
   return (
     <>
@@ -36,7 +89,52 @@ export default function Home() {
           flexDirection: 'row',
         }}
       >
-        <Sider width={300} style={{ background: 'white' }}></Sider>
+        <Sider
+          width={300}
+          style={{
+            background: 'white',
+          }}
+        >
+          <Divider orientation="left" plain>
+            승인대기
+          </Divider>
+          <Divider orientation="left" plain>
+            승인확정
+          </Divider>
+          <Space direction="vertical" style={{ margin: '40px 20px' }}>
+            <Select
+              defaultValue="DEFAULT"
+              style={{ width: '100%' }}
+              onChange={handleSelect}
+              options={[
+                { value: 'DEFAULT', label: '선택' },
+                { value: 'ANNUAL', label: '연차' },
+                { value: 'DUTY', label: '당직' },
+              ]}
+            />
+            {schedule.scheduleType === 'ANNUAL' ? (
+              <RangePicker
+                onChange={handleRangePicker}
+                style={{ width: '100%' }}
+                disabled={schedule.scheduleType !== 'ANNUAL'}
+              />
+            ) : (
+              <DatePicker
+                onChange={handleDatePicker}
+                style={{ width: '100%' }}
+                disabled={schedule.scheduleType !== 'DUTY'}
+              />
+            )}
+
+            <Button
+              type="primary"
+              style={{ width: '100%' }}
+              onClick={handleSubmitSchedule}
+            >
+              신청
+            </Button>
+          </Space>
+        </Sider>
         <Layout style={{ padding: '0 15px', flex: 1, height: '100%' }}>
           <Content
             style={{

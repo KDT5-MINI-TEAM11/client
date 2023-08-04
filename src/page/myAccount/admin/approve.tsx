@@ -212,6 +212,7 @@ export default function Approve() {
     <>
       {contextHolder}
       <Table
+        size="small"
         columns={columns}
         dataSource={vacationRequests}
         loading={isvacationRequestsLoading}

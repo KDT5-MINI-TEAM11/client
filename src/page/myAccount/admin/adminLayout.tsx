@@ -3,7 +3,7 @@ import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
-const App: React.FC = () => {
+export default function AdminLayout() {
   const navigate = useNavigate();
 
   const { pathname } = useLocation();
@@ -29,6 +29,4 @@ const App: React.FC = () => {
       <Outlet />
     </>
   );
-};
-
-export default App;
+}

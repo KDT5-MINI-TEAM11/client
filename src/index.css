@@ -10,3 +10,9 @@
 .icons:hover {
   scale: 1.2;
 }
+
+.ant-layout-sider-children {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
