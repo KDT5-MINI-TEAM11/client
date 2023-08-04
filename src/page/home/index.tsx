@@ -1,7 +1,6 @@
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
 import {
   DatePicker,
-  Calendar,
   Layout,
   Modal,
   Button,
@@ -14,11 +13,11 @@ import Sider from 'antd/es/layout/Sider';
 import { Content } from 'antd/es/layout/layout';
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
-
-const { RangePicker } = DatePicker;
-
+import Calendar from './calendar';
 import Signin from '@/page/home/signin';
 import { DatePickerProps, RangePickerProps } from 'antd/es/date-picker';
+
+const { RangePicker } = DatePicker;
 
 export default function Home() {
   const accessToken = useRecoilValue(AccessTokenAtom);
@@ -144,7 +143,8 @@ export default function Home() {
               overflow: 'auto',
             }}
           >
-            <Calendar />
+            {/* 로그인 상태를 확인하기 위해서 isSignedin를 Calendar컴포넌트에 props로 전달 */}
+            <Calendar isSignedin={!!accessToken} />
           </Content>
         </Layout>
       </Layout>

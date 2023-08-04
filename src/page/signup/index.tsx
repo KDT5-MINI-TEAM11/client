@@ -45,16 +45,23 @@ export default function SingUp() {
   const [isLoading, setIsLoading] = useState(false);
   // 이메일 인증번호 확인
   const [emailVerified, setEmailVerified] = useState(false);
+  // 회원가입 통신 과정 로딩 ui
   const [isSigningUp, setIsSigningUp] = useState(false);
+  // antd message(화면 상단에 뜨는 메세지)기능
   const [messageApi, contextHolder] = message.useMessage();
+
   const setAccessToken = useSetRecoilState(AccessTokenAtom);
   const navigate = useNavigate();
   const { Option } = Select;
   const [form] = Form.useForm();
 
   const onFinish = async (values: valuseType) => {
+    // 클라우디너리로 전송한 이미지 url 가져옴
     const imageUrl = await getImageUrl(values);
 
+    // 가져온 이미지 url만 profileThumbUrl에 전달하기 위해서
+    // values객체를 전개연산자를 이용해서 newValues에 모든 속성을 복사하고,
+    // profileThumbUrl: imageUrl을 마지막에 사용해서 덮어 씌움
     const newValues = {
       ...values,
       profileThumbUrl: imageUrl,
@@ -100,6 +107,7 @@ export default function SingUp() {
     }
   };
 
+  // cloudinary를 이용해서 이미지url이 없으면 null, 있으면 이미지url을 반환
   const getImageUrl = async (values: valuseType) => {
     let imageUrl = null;
 
@@ -200,7 +208,8 @@ export default function SingUp() {
     return Promise.resolve();
   }, []);
 
-  // 직급 선택 동적으로 생성
+  // 직급 선택 동적으로 생성 + 매니저 선택 옵션이 생기지 않게 filter를 이용해서 제거
+  // key가 MANAGER가 아니면 통과
   const selectedPositionOptions = Object.keys(POSITIONS)
     .filter((key) => key !== 'MANAGER')
     .map((key) => {
@@ -211,11 +220,15 @@ export default function SingUp() {
       );
     });
 
+  // 이메일 중복체크
   const handleCheckEmail = async () => {
     setIsLoading(true);
     try {
+      // userEmail form을 찾아서
       const values = await form.validateFields(['userEmail']);
+      // userEmail을 가져옴
       const userEmail = values.userEmail;
+      // checkEmail에 userEmail을 매개변수로 전달달
       const response = await checkEmail(userEmail);
 
       if (response.data.success) {
@@ -224,21 +237,18 @@ export default function SingUp() {
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      if (
-        error.response &&
-        error.response.data.error.message === '이미 가입 된 이메일 입니다.'
-      ) {
-        setIsEmailCheck(false); // 중복된 이메일일 경우
-        message.error('이미 사용 중인 이메일입니다.');
-        form.setFieldsValue({ emailAuth: null });
-      } else {
-        message.error('이메일 중복 체크 중 오류가 발생했습니다.');
-      }
+      messageApi.open({
+        type: 'error',
+        content:
+          error.response.data.error.message ||
+          '이메일 중복체크에 실패하였습니다. 관리자에게 문의하세요.',
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
+  // 이메일 인증번호 발송
   const handleVerificationEmail = async () => {
     setIsLoading(true);
     try {
@@ -248,6 +258,7 @@ export default function SingUp() {
 
       if (response.status === 200) {
         message.success('인증번호를 발송했습니다.');
+        // 인증번호 발생이 정상적으로 이루어졌으면 타이머가 180으로 상태값 변경
         setTimer(180);
       } else {
         message.warning('이메일을 다시 확인해주세요.');
@@ -276,8 +287,13 @@ export default function SingUp() {
     }
   };
 
+  // 타이머 변경에 따른 리렌더링이 일어나게
   useEffect(() => {
+    // side effect를 멈추기 위해서 exactTimer라는 변수를 선언
     let exactTimer: string | number | NodeJS.Timeout | undefined;
+    // 타이머가 0보다 크면 timer의 상태값이 초당 -1씩 줄어들고
+    // timer가 0초이고 verification state값이 true일 때,
+    // reSend state값이 true가 되어서 재발송 버튼을 클릭 할 수 있다.
     if (timer > 0) {
       exactTimer = setTimeout(
         () => setTimer((prevTimer) => prevTimer - 1),
@@ -286,6 +302,7 @@ export default function SingUp() {
     } else if (timer === 0 && verification) {
       setReSend(true);
     }
+    // 위의 동작들이 실행되면 타이머가 멈춘다.
     return () => {
       if (exactTimer) {
         clearTimeout(exactTimer);
@@ -293,6 +310,7 @@ export default function SingUp() {
     };
   }, [timer, verification]);
 
+  // 이메일 인증번호 발송 받은 번호를 인증
   const handleEmailAuth = async () => {
     try {
       const userEmailData = await form.validateFields(['userEmail']);
@@ -314,6 +332,7 @@ export default function SingUp() {
     }
   };
 
+  // 이메일 인증을 다시 처음부터 하게 하는 재인증 기능
   const handleReAuthentication = () => {
     setIsEmailCheck(false);
     setVerification(false);
