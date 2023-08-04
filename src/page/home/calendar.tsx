@@ -57,9 +57,9 @@ function calendar({ isSignedin }: propsType) {
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const renderDayCellContent = (ko: any) => {
+  const renderDayCellContent = (args: any) => {
     // '일' 문자 제거
-    return ko.date.getDate();
+    return args.date.getDate();
   };
 
   return (
