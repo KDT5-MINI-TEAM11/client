@@ -42,24 +42,21 @@ export default function Calendar({ isSignedin }: propsType) {
       // getAccessTokenFromCookie를 이용해서 쿠키에 저장된 accessToken을 가져옴
       const accessToken = getAccessTokenFromCookie();
 
-      let listResponse;
-      let infoResponse;
-      if (isAllChecked) {
-        listResponse = await scheduleList(accessToken, year, month);
-      } else {
-        listResponse = await scheduleList(accessToken, year, month);
-        infoResponse = await getMyAccount(accessToken);
-      }
+      const listResponse = await scheduleList(accessToken, year, month);
+      const infoResponse = await getMyAccount(accessToken);
 
       // 실제 응답 데이터 추출
       const listResponseData = listResponse.data.response;
-      const infoResponseData = infoResponse?.data.response;
+      const infoResponseData = infoResponse.data.response;
+      console.log(infoResponseData.userName);
+
       // response data를 가져오는데 그 내부에 있는 response라는 배열 데이터를 각각의 요소를
       // 아래의 형태의 객체로 변환해서 events 변수에 저장, setEvents에 전달
       const events = listResponseData
-        .filter((item: ScheduleItem) => {
-          isAllChecked || item.userName === infoResponseData.userName;
-        })
+        .filter(
+          (item: ScheduleItem) =>
+            isAllChecked || item.userName === infoResponseData.userName,
+        )
         .map((item: ScheduleItem) => {
           return {
             title: item.userName,
@@ -71,7 +68,7 @@ export default function Calendar({ isSignedin }: propsType) {
       setEvents(events);
     };
     schedule();
-  }, [isSignedin, year, month]);
+  }, [isSignedin, year, month, isAllChecked]);
 
   /*   useEffect(() => {
     clearEvents();
