@@ -1,11 +1,14 @@
-import { useState, useEffect, useRef, LegacyRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { scheduleList } from '@/api/scheduleList';
 import { getAccessTokenFromCookie } from '@/utils/cookies';
+import { Switch } from 'antd';
+import { getMyAccount } from '@/api/getMyAccount';
 
 interface ScheduleItem {
+  userName: string;
   scheduleType: string;
   startDate: string;
   endDate: string;
@@ -24,6 +27,8 @@ export default function Calendar({ isSignedin }: propsType) {
   const [year, setYear] = useState(new Date().getFullYear());
   // 달력의 현재 월 상태관리
   const [month, setMonth] = useState(new Date().getMonth() + 1);
+  // switch 체크 상태관리
+  const [isAllChecked, setIsAllChecked] = useState(true);
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const calendarRef = useRef(null);
@@ -36,24 +41,34 @@ export default function Calendar({ isSignedin }: propsType) {
     const schedule = async () => {
       // getAccessTokenFromCookie를 이용해서 쿠키에 저장된 accessToken을 가져옴
       const accessToken = getAccessTokenFromCookie();
-      // accessToken, 년월 매개변수로 전달 (년월 전달하는 방식은 추후에 변경)
-      const response = await scheduleList(accessToken, year, month);
+
+      const listResponse = await scheduleList(accessToken, year, month);
+      const infoResponse = await getMyAccount(accessToken);
+
       // 실제 응답 데이터 추출
-      const responseData = response.data.response;
+      const listResponseData = listResponse.data.response;
+      const infoResponseData = infoResponse.data.response;
+      console.log(infoResponseData.userName);
+
       // response data를 가져오는데 그 내부에 있는 response라는 배열 데이터를 각각의 요소를
       // 아래의 형태의 객체로 변환해서 events 변수에 저장, setEvents에 전달
-      const events = responseData.map((item: ScheduleItem) => {
-        return {
-          title: item.scheduleType,
-          start: item.startDate,
-          end: item.endDate,
-          color: getColorFromState(item.scheduleType),
-        };
-      });
+      const events = listResponseData
+        .filter(
+          (item: ScheduleItem) =>
+            isAllChecked || item.userName === infoResponseData.userName,
+        )
+        .map((item: ScheduleItem) => {
+          return {
+            title: item.userName,
+            start: item.startDate,
+            end: item.endDate,
+            color: getColorFromState(item.scheduleType),
+          };
+        });
       setEvents(events);
     };
     schedule();
-  }, [isSignedin, year, month]);
+  }, [isSignedin, year, month, isAllChecked]);
 
   /*   useEffect(() => {
     clearEvents();
@@ -86,6 +101,13 @@ export default function Calendar({ isSignedin }: propsType) {
 
   return (
     <>
+      <Switch
+        checkedChildren="All"
+        unCheckedChildren="My"
+        defaultChecked
+        checked={isAllChecked}
+        onChange={(check) => setIsAllChecked(check)}
+      />
       <FullCalendar
         plugins={[dayGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
