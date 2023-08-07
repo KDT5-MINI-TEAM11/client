@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Dispatch } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -6,6 +6,7 @@ import { scheduleList } from '@/api/home/scheduleList';
 import { Switch } from 'antd';
 import { getMyAccount } from '@/api/myAccount/getMyAccount';
 import { getAccessTokenFromCookie } from '@/utils/cookies';
+import { DUTY_ANNUAL } from '@/data/constants';
 
 interface ScheduleItem {
   userName: string;
@@ -17,21 +18,26 @@ interface ScheduleItem {
 
 interface propsType {
   isSignedin: boolean;
+  year: number;
+  setYear: Dispatch<React.SetStateAction<number>>;
 }
 
-export default function Calendar({ isSignedin }: propsType) {
+export default function Calendar({ isSignedin, year, setYear }: propsType) {
   // 데이터로 받아올 events를 상태관리
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [events, setEvents] = useState([]);
   // 달력의 현재 년도 상태관리
-  const [year, setYear] = useState(new Date().getFullYear());
+
   // 달력의 현재 월 상태관리
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   // switch 체크 상태관리
   const [isAllChecked, setIsAllChecked] = useState(true);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const calendarRef = useRef(null);
+
   /*   // 로그아웃 시에 이벤트를 비워서 리렌더링 시키기 위해 사용
   const clearEvents = () => setEvents([]); */
 
@@ -45,7 +51,10 @@ export default function Calendar({ isSignedin }: propsType) {
       if (!accessToken) {
         return;
       }
-      const listResponse = await scheduleList(year, month);
+
+      setIsLoading(true);
+
+      const listResponse = await scheduleList(year);
       const infoResponse = await getMyAccount();
 
       // 실제 응답 데이터 추출
@@ -64,24 +73,21 @@ export default function Calendar({ isSignedin }: propsType) {
             title: item.userName,
             start: item.startDate,
             end: item.endDate,
-            color: getColorFromState(item.scheduleType),
+            color: DUTY_ANNUAL[item.scheduleType].color,
           };
         });
       setEvents(events);
+      setIsLoading(false);
     };
     schedule();
   }, [isSignedin, year, month, isAllChecked]);
 
+  // 로그아웃 상태면 달력에 이벤트 렌더링 x
   /*   useEffect(() => {
     clearEvents();
   }, [isSignedin]); */
 
   // scheduleType에 따른 색상 변환
-  const getColorFromState = (scheduleType: string) => {
-    if (scheduleType === 'ANNUAL') return '#b1aee5';
-    if (scheduleType === 'DUTY') return '#f08080';
-    return '#ffffff'; // 기본 색상
-  };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleDateClick = (arg: any) => {
@@ -109,6 +115,7 @@ export default function Calendar({ isSignedin }: propsType) {
         defaultChecked
         checked={isAllChecked}
         onChange={(check) => setIsAllChecked(check)}
+        loading={isLoading}
       />
       <FullCalendar
         plugins={[dayGridPlugin, interactionPlugin]}

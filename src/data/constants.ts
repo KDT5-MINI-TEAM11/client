@@ -40,7 +40,9 @@ export const REQUEST_STATE = {
   APPROVE: { label: '승인', color: '#50dcf2' },
   REJECT: { label: '거절', color: '#f26650' },
 };
-export const DUTY_ANNUAL = {
-  DUTY: { label: '당직', color: '#27f55e' },
-  ANNUAL: { label: '연차', color: '#eb16fa' },
+export const DUTY_ANNUAL: {
+  [key: string]: { label: string; color: string };
+} = {
+  DUTY: { label: '당직', color: '#f08080' },
+  ANNUAL: { label: '연차', color: '#b1aee5' },
 };
