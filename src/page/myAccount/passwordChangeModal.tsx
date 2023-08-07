@@ -1,6 +1,5 @@
-import { changeMyInfo } from '@/api/changeMyInfo';
+import { changeMyInfo } from '@/api/myAccount/changeMyInfo';
 import { PASSWORD_REGEX } from '@/data/constants';
-import useRefreshToken from '@/hooks/useRefreshToken';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
 import { Button, Form, Input, Modal, Space, message } from 'antd';
 import { FormInstance, RuleObject } from 'antd/es/form';
@@ -20,8 +19,6 @@ export default function PasswordChangeModal({
 
   // antd message(화면 상단에 뜨는 메세지)기능
   const [messageApi, contextHolder] = message.useMessage();
-
-  const { refreshAccessToken } = useRefreshToken();
 
   const accessToken = useRecoilValue(AccessTokenAtom);
 
@@ -82,9 +79,11 @@ export default function PasswordChangeModal({
     newPassword: string;
     confirmPassword: string;
   }) => {
-    await refreshAccessToken();
     try {
-      const response = await changeMyInfo(accessToken, {
+      if (!accessToken) {
+        return;
+      }
+      const response = await changeMyInfo({
         userPassword: values.newPassword,
       });
       if (response.status === 200) {

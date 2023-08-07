@@ -12,7 +12,7 @@ import { Link } from 'react-router-dom';
 import { useRef, useState } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
-import { signin } from '@/api/signin';
+import { signin } from '@/api/auth/signin';
 import { setAccessTokenToCookie } from '@/utils/cookies';
 import getPayloadFromJWT from '@/utils/getPayloadFromJWT';
 import { IsManagerAtom } from '@/recoil/IsManagerAtom';
@@ -45,20 +45,20 @@ export default function Signin({
     setIsSigningIn(true);
     try {
       const response = await signin(values);
-
       // 로그인 성공
       if (response.status === 200) {
-        const { accessToken } = response.data.response;
+        const { accessToken, refreshToken } = response.data.response;
 
-        // 쿠키에 저장
+        // accessToken 쿠키에 저장
         setAccessTokenToCookie(accessToken);
-
         // recoil에 저장
         setAccessToken(accessToken);
 
+        // refreshToken 로컬저장소에 저장(쿠키 httpOnlt되기 전에 임시방편)
+        localStorage.setItem('refreshToken', refreshToken);
+
         // 매니저인지 아닌지 확인
         const isManager = getPayloadFromJWT(accessToken).roles[0] === 'MANAGER';
-
         // 리코일에 매니저 여부 저장
         setIsManager(isManager);
 
@@ -116,7 +116,6 @@ export default function Signin({
               },
             },
           ]}
-          // hasFeedback
         >
           <Input size="large" />
         </Form.Item>

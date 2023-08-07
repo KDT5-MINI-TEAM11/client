@@ -1,8 +1,11 @@
-import { approveRejectPending, getVacationRequests } from '@/api/admin';
-import { POSITIONS, REQUEST_STATE } from '@/data/constants';
-import useRefreshToken from '@/hooks/useRefreshToken';
+import {
+  approveRejectPending,
+  getVacationRequests,
+} from '@/api/myAccount/admin';
+import RequesTag from '@/components/RequesTag';
+import { DUTY_ANNUAL, POSITIONS } from '@/data/constants';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
-import { Badge, Button, Space, Table, Tag, message } from 'antd';
+import { Badge, Button, Space, Table, message } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
@@ -32,17 +35,14 @@ export default function Approve() {
 
   const accessToken = useRecoilValue(AccessTokenAtom);
 
-  const { refreshAccessToken } = useRefreshToken();
-
   useEffect(() => {
     setIsvacationRequestsLoading(true);
     const getData = async () => {
       if (!accessToken) {
         return;
       }
-      await refreshAccessToken();
       try {
-        const response = await getVacationRequests(accessToken);
+        const response = await getVacationRequests();
         if (response.status === 200) {
           const vacationRequestsData = response.data
             .response as VacationRequestType[];
@@ -74,7 +74,7 @@ export default function Approve() {
   ) => {
     setIsApproving(true);
     try {
-      const response = await approveRejectPending(accessToken, id, type);
+      const response = await approveRejectPending(id, type);
       if (response.status === 200) {
         setVacationRequests(
           vacationRequests.map((request) =>
@@ -118,7 +118,7 @@ export default function Approve() {
       title: '연차/당직',
       dataIndex: 'type',
       key: 'type',
-      render: (_, { type }) => <>{type === 'DUTY' ? '당직' : '연차'}</>,
+      render: (_, { type }) => <>{DUTY_ANNUAL[type].label}</>,
     },
     {
       title: '시작일',
@@ -142,14 +142,7 @@ export default function Approve() {
       title: '승인여부',
       key: 'tags',
       dataIndex: 'tags',
-      render: (_, { state }) => (
-        <Tag
-          color={REQUEST_STATE[state]?.color}
-          style={{ width: 50, textAlign: 'center' }}
-        >
-          {REQUEST_STATE[state]?.label}
-        </Tag>
-      ),
+      render: (_, { state }) => <RequesTag state={state} />,
       filters: [
         {
           text: '심사중',

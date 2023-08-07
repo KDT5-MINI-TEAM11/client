@@ -1,9 +1,8 @@
-import { changePosition } from '@/api/admin';
+import { changePosition } from '@/api/myAccount/admin';
 import { POSITIONS } from '@/data/constants';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
-import { Badge, Modal, Select, Space, message } from 'antd';
-import { Typography } from 'antd';
-import { RefObject, useRef, useState } from 'react';
+import { Badge, Modal, Select, Space, message, Typography } from 'antd';
+import { useState } from 'react';
 import { useRecoilValue } from 'recoil';
 
 const { Title } = Typography;
@@ -38,12 +37,14 @@ export default function PromotionModal({
   >('변경');
 
   const handleChangePosition = async () => {
+    if (!accessToken) {
+      return;
+    }
     if (selectedPosition === '변경') {
       return;
     }
     try {
       const response = await changePosition(
-        accessToken,
         selectedWorker?.id as number,
         selectedPosition as 'LEVEL1' | 'LEVEL2' | 'LEVEL3' | 'LEVEL4',
       );

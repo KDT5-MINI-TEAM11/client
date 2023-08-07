@@ -1,5 +1,4 @@
-import { getUserHeader } from '@/api/getUserHeader';
-import { signout } from '@/api/signout';
+import { signout } from '@/api/auth/signout';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
 import { Button, Skeleton, Space, message, theme } from 'antd';
 import { Header } from 'antd/es/layout/layout';
@@ -7,16 +6,14 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import UserInfo from '@/components/UserInfo';
-import { IUserHeaderInfo } from '@/types/IUserHeaderInfo';
-import useRefreshToken from '@/hooks/useRefreshToken';
 import { deleteAccessTokenFromCookie } from '@/utils/cookies';
 import { IsManagerAtom } from '@/recoil/IsManagerAtom';
+import { getUserHeader } from '@/api/home/getUserHeader';
 
 export default function MyHeader() {
   const setIsManager = useSetRecoilState(IsManagerAtom);
 
   // access토큰의 만료시간이 5분 이내로 남았을 때 새로운 토큰을 발급하는 커스텀훅
-  const { refreshAccessToken } = useRefreshToken();
 
   const {
     token: { colorPrimaryBg },
@@ -32,7 +29,7 @@ export default function MyHeader() {
   const [accessToken, setAccessToken] = useRecoilState(AccessTokenAtom);
 
   // 네브바에 표시될 정보들
-  const [userHeaderInfo, setUserHeaderInfo] = useState<IUserHeaderInfo>({
+  const [userHeaderInfo, setUserHeaderInfo] = useState({
     userName: '',
     profileThumbNail: '',
     position: '',
@@ -51,8 +48,7 @@ export default function MyHeader() {
       }
       try {
         // access토큰 만료가 5분 미만으로 남으면 재발급함
-        await refreshAccessToken();
-        const response = await getUserHeader(accessToken);
+        const response = await getUserHeader();
         if (response.status === 200) {
           const userData = response.data.response;
           setUserHeaderInfo({

@@ -5,8 +5,7 @@ import PromotionModal from './promotionModal';
 import { useEffect, useState } from 'react';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
 import { useRecoilValue } from 'recoil';
-import useRefreshToken from '@/hooks/useRefreshToken';
-import { getWorkers } from '@/api/admin';
+import { getWorkers } from '@/api/myAccount/admin';
 
 interface WorkerType {
   id: number;
@@ -19,7 +18,6 @@ interface WorkerType {
 
 export default function Promote() {
   const accessToken = useRecoilValue(AccessTokenAtom);
-  const { refreshAccessToken } = useRefreshToken();
   const [isWorkerListLoading, setIsWorkerListLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [workers, setWorkers] = useState<WorkerType[]>([]);
@@ -35,9 +33,8 @@ export default function Promote() {
       if (!accessToken) {
         return;
       }
-      await refreshAccessToken();
       try {
-        const response = await getWorkers(accessToken);
+        const response = await getWorkers();
         if (response.status === 200) {
           const workersData = response.data.response as WorkerType[];
           // 성공했을때

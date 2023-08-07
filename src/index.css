@@ -11,12 +11,6 @@
   scale: 1.2;
 }
 
-.ant-layout-sider-children {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
 /* 달력 평일, 토요일, 일요일 색상 변경 */
 .fc-day-sun a {
   color: red;
@@ -36,4 +30,8 @@
 
 .fc-day {
   font-weight: bold;
+}
+
+.myScheduleRow {
+  font-size: 10px;
 }
