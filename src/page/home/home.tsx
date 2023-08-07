@@ -16,7 +16,7 @@ import dayjs from 'dayjs';
 import Calendar from './calendar';
 import Signin from '@/page/home/signin';
 import { DatePickerProps, RangePickerProps } from 'antd/es/date-picker';
-import { addScheduleRequest, getMySchedule } from '@/api/home/mySchedule';
+import { addScheduleRequest, getMySchedule } from '@/api/mySchedule';
 import MySchedule from '@/page/home/mySchedule';
 import { IMySchedule } from '@/types/IMySchdule';
 import { DUTY_ANNUAL } from '@/data/constants';

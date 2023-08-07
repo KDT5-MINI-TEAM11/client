@@ -5,6 +5,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { scheduleList } from '@/api/home/scheduleList';
 import { Switch } from 'antd';
 import { getMyAccount } from '@/api/myAccount/getMyAccount';
+import { getAccessTokenFromCookie } from '@/utils/cookies';
 
 interface ScheduleItem {
   userName: string;
@@ -38,6 +39,12 @@ export default function Calendar({ isSignedin }: propsType) {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     const schedule = async () => {
+      // getAccessTokenFromCookie를 이용해서 쿠키에 저장된 accessToken을 가져옴
+      const accessToken = getAccessTokenFromCookie();
+      // 엑세스 토큰이 없으면 서버에 요청하지 않음
+      if (!accessToken) {
+        return;
+      }
       const listResponse = await scheduleList(year, month);
       const infoResponse = await getMyAccount();
 
