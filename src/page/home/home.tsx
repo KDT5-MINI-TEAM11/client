@@ -1,5 +1,13 @@
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
-import { DatePicker, Layout, Modal, Button, Select } from 'antd';
+import {
+  DatePicker,
+  Layout,
+  Modal,
+  Button,
+  Select,
+  Space,
+  message,
+} from 'antd';
 import { useRecoilValue } from 'recoil';
 import Sider from 'antd/es/layout/Sider';
 import { Content } from 'antd/es/layout/layout';
@@ -8,13 +16,19 @@ import dayjs from 'dayjs';
 import Calendar from './calendar';
 import Signin from '@/page/home/signin';
 import { DatePickerProps, RangePickerProps } from 'antd/es/date-picker';
-import { getMySchedule } from '@/api/home/mySchedule';
+import { addScheduleRequest, getMySchedule } from '@/api/home/mySchedule';
 import MySchedule from '@/page/home/mySchedule';
 import { IMySchedule } from '@/types/IMySchdule';
+import { DUTY_ANNUAL } from '@/data/constants';
 
 const { RangePicker } = DatePicker;
 
 export default function Home() {
+  // antd message(화면 상단에 뜨는 메세지)기능
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const [toggleRequest, setToggleRequest] = useState(false);
+
   // const {
   //   token: { colorTextLabel },
   // } = theme.useToken();
@@ -43,12 +57,12 @@ export default function Home() {
   const [isMyScheduleLoading, setIsMyScheduleLoading] = useState(false);
 
   useEffect(() => {
-    setIsMyScheduleLoading(true);
     const getData = async () => {
       if (!accessToken) {
         return;
       }
       try {
+        setIsMyScheduleLoading(true);
         const response = await getMySchedule();
         if (response.status === 200) {
           const myScheduleData = response.data.response as IMySchedule[];
@@ -64,15 +78,15 @@ export default function Home() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         console.log(
-          // error.response.data.error.message ||
-          '내 당직연차 데이터를 불러오지 못했습니다.',
+          error.response.data.error.message ||
+            '내 당직연차 데이터를 불러오지 못했습니다.',
         );
       } finally {
         setIsMyScheduleLoading(false);
       }
     };
     getData();
-  }, [accessToken]);
+  }, [accessToken, toggleRequest]);
 
   const myPendingSchedule = useMemo(
     () => mySchedule?.filter((schedule) => schedule.state === 'PENDING'),
@@ -106,14 +120,47 @@ export default function Home() {
     setScheduleInput((prev) => ({
       ...prev,
       startDate: dayjs(startDate).format('YYYY-MM-DD'),
-      endDate: '',
+      endDate: dayjs(startDate).format('YYYY-MM-DD'),
     }));
   };
 
-  const handleSubmitSchedule = () => {};
+  const [isAddingRequest, setIsAddingRequest] = useState(false);
+
+  const handleSubmitSchedule = async () => {
+    if (!accessToken) {
+      return;
+    }
+
+    try {
+      setIsAddingRequest(true);
+      const response = await addScheduleRequest(scheduleInput);
+      if (response.status === 200) {
+        messageApi.open({
+          type: 'success',
+          content: `${
+            DUTY_ANNUAL[
+              response.data.response.scheduleType as 'ANNUAL' | 'DUTY'
+            ]?.label
+          } 신청 완료`,
+        });
+      }
+      setToggleRequest((prev) => !prev);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      messageApi.open({
+        type: 'error',
+        content:
+          error.response.data.error.message ||
+          '연차, 당직 신청 등록 중 오류가 발생하였습니다.',
+      });
+    } finally {
+      setIsAddingRequest(false);
+    }
+  };
 
   return (
     <>
+      {contextHolder}
       <Modal
         title="로그인"
         centered
@@ -162,7 +209,7 @@ export default function Home() {
                 caption="요청결과"
               />
             </div>
-            <div>
+            <Space direction="vertical" style={{ width: '100%' }}>
               <Select
                 defaultValue="DEFAULT"
                 style={{ width: '100%' }}
@@ -191,10 +238,20 @@ export default function Home() {
                 type="primary"
                 style={{ width: '100%' }}
                 onClick={handleSubmitSchedule}
+                loading={isAddingRequest}
+                disabled={
+                  isAddingRequest ||
+                  scheduleInput.scheduleType === '' ||
+                  scheduleInput.scheduleType === 'DEFAULT' ||
+                  scheduleInput.startDate === '' ||
+                  scheduleInput.startDate === 'Invalid Date' ||
+                  scheduleInput.endDate === '' ||
+                  scheduleInput.endDate === 'Invalid Date'
+                }
               >
                 신청
               </Button>
-            </div>
+            </Space>
           </div>
         </Sider>
         <Layout style={{ padding: '0 15px', flex: 1, height: '100%' }}>

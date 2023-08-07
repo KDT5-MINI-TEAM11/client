@@ -69,7 +69,7 @@ export default function MySchedule({
     <Table
       caption={caption}
       rowClassName="myScheduleRow"
-      pagination={false}
+      pagination={{ defaultPageSize: 5 }}
       columns={columns}
       dataSource={schedule}
       size="small"

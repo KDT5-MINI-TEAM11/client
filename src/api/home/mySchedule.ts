@@ -1,7 +1,7 @@
 import { customAxios } from '@/api/customAxios';
 
 export const addScheduleRequest = async (scheduleData: {
-  scheduleType: 'ANNUAL' | 'DUTY';
+  scheduleType: string;
   startDate: string;
   endDate: string;
 }) => {
@@ -18,8 +18,8 @@ export const cancelScheduleRequest = async (id: number) => {
 };
 
 export const getMySchedule = async () => {
-  const response = await customAxios('/dummy/user/schedule', {
-    // 현재 더미임
+  const response = await customAxios('/v1/user/schedule?year=2023', {
+    // 년도 동적으로 변해야 함
   });
   return response;
 };
