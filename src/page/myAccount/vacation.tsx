@@ -10,7 +10,7 @@ import { useRecoilValue } from 'recoil';
 interface CheckedVacationRequestType {
   key: number;
   id: number;
-  type: 'ANNUAL' | 'DUTY';
+  scheduleType: 'ANNUAL' | 'DUTY';
   startDate: string;
   endDate: string;
   state: 'PENDING' | 'APPROVE' | 'REJECT';
@@ -90,11 +90,11 @@ export default function Vaction() {
   const columns: ColumnsType<CheckedVacationRequestType> = [
     {
       title: '연차/당직',
-      dataIndex: 'type',
-      key: 'type',
-      render: (_, { type }) => (
+      dataIndex: 'scheduleType',
+      key: 'scheduleType',
+      render: (_, { scheduleType }) => (
         <div style={{ marginRight: 5 }}>
-          {type === 'DUTY' ? '당직' : '연차'}
+          {scheduleType === 'DUTY' ? '당직' : '연차'}
         </div>
       ),
       filters: [
@@ -108,7 +108,7 @@ export default function Vaction() {
         },
       ],
       onFilter: (value: string | number | boolean, record) =>
-        record.type.includes(value as string),
+        record.scheduleType.includes(value as string),
     },
     {
       title: '시작일',
