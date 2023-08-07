@@ -90,11 +90,6 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
   // scheduleType에 따른 색상 변환
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleDateClick = (arg: any) => {
-    console.log(arg.date.toLocaleString());
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderDayCellContent = (args: any) => {
     // '일' 문자 제거
     return args.date.getDate();
@@ -105,6 +100,22 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
     const date = info.view.currentStart;
     setYear(date.getFullYear());
     setMonth(date.getMonth() + 1);
+  };
+
+  /* 
+  const formatDateToKorean = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; 
+    const day = date.getDate();
+
+    return `${year}년 ${month}월 ${day}일`;
+  }; */
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleEventClick = (info: any) => {
+    console.log(info.event.title);
+    console.log(info.event.start);
+    console.log(info.event.end);
   };
 
   return (
@@ -124,10 +135,10 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
         events={events} // 연차 당직 달력에 표시
         height={'800px'}
         datesSet={handleDateSet}
-        dateClick={handleDateClick} // 누르면 당일 날짜 콘솔에 찍힘
         locale={'ko'} // 지역
         dayCellContent={renderDayCellContent} // '일' 문자 렌더링 변경
         ref={calendarRef}
+        eventClick={handleEventClick}
       />
     </>
   );
