@@ -1,16 +1,15 @@
 import { getMySchedule } from '@/api/mySchedule';
 import { REQUEST_STATE } from '@/data/constants';
+import { cancelScheduleRequest } from '@/api/mySchedule';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
 import { Select, Button, Space, Table, Tag, message } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 
-interface VacationRequestType {
+interface CheckedVacationRequestType {
   key: number;
   id: number;
-  userName: string;
-  position: 'LEVEL1' | 'LEVEL2' | 'LEVEL3' | 'LEVEL4';
   type: 'ANNUAL' | 'DUTY';
   startDate: string;
   endDate: string;
@@ -21,14 +20,18 @@ export default function Vaction() {
   // antd message(화면 상단에 뜨는 메세지)기능
   const [messageApi, contextHolder] = message.useMessage();
 
-  const [vacationRequests, setVacationRequests] = useState<
-    VacationRequestType[]
+  const [checkedVacationRequests, setCheckedVacationRequests] = useState<
+    CheckedVacationRequestType[]
   >([]);
 
   const [isvacationRequestsLoading, setIsvacationRequestsLoading] =
     useState(false);
 
-  const [isModifying, setIsModifying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const currentYear = new Date().getFullYear();
+
+  const [year, setYear] = useState(currentYear);
 
   const accessToken = useRecoilValue(AccessTokenAtom);
 
@@ -41,17 +44,16 @@ export default function Vaction() {
         return;
       }
       try {
-        const response = await getMySchedule();
+        const response = await getMySchedule(year);
         if (response.status === 200) {
-          const vacationRequestsData = response.data
-            .response as VacationRequestType[];
+          const CheckedVacationRequestsData = response.data
+            .response as CheckedVacationRequestType[];
           // 성공했을때
-          setVacationRequests(
-            vacationRequestsData.map((el) => {
+          setCheckedVacationRequests(
+            CheckedVacationRequestsData.map((el) => {
               return { ...el, key: el.id };
             }),
           );
-          console.log(setVacationRequests);
           return;
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -65,19 +67,26 @@ export default function Vaction() {
       }
     };
     getData();
-  }, [accessToken]);
+  }, [accessToken, year]);
 
-  /*   const handleModify = async (id: number) => {
-    setIsModifying(true)
+  const handleCancelSchedule = async (id: number) => {
+    setIsLoading(true);
     try {
-      const response =  await modifyScheduleRequest(accessToken, id)
-      if(response.status === 200) {
-
+      const response = await cancelScheduleRequest(id);
+      if (response.status === 200) {
       }
+    } catch (error) {
+      console.log(error);
+      messageApi.open({
+        type: 'error',
+        content: '요청 실패', //수정
+      });
+    } finally {
+      setIsLoading(false);
     }
-  }; */
+  };
 
-  const columns: ColumnsType<VacationRequestType> = [
+  const columns: ColumnsType<CheckedVacationRequestType> = [
     {
       title: '연차/당직',
       dataIndex: 'type',
@@ -157,17 +166,17 @@ export default function Vaction() {
               <Button
                 size="small"
                 type="primary"
-                /* onClick={() => handleRequest(id, 'APPROVE')} */
-                disabled={isModifying}
+                onClick={() => handleCancelSchedule(id)}
+                disabled={isLoading}
               >
-                승인
+                삭제
               </Button>
             </>
           ) : (
             <Button
               size="small"
               style={{ marginRight: 50 }}
-              disabled={isModifying}
+              disabled={isLoading}
               danger
               /* onClick={() => handleRequest(id, 'PENDING')} */
             >
@@ -178,8 +187,6 @@ export default function Vaction() {
       ),
     },
   ];
-
-  const currentYear = new Date().getFullYear();
 
   const selectedYearsOptions = [];
   for (let i = 0; i <= 5; i++) {
@@ -194,13 +201,18 @@ export default function Vaction() {
   return (
     <>
       {contextHolder}
-      <Select style={{ width: 100 }} defaultValue={currentYear}>
+      <Select
+        style={{ width: 100 }}
+        defaultValue={currentYear}
+        value={year}
+        onChange={(value) => setYear(value)}
+      >
         {selectedYearsOptions}
       </Select>
       <Table
         size="small"
         columns={columns}
-        dataSource={vacationRequests}
+        dataSource={checkedVacationRequests}
         loading={isvacationRequestsLoading}
       />
     </>

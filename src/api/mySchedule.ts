@@ -17,8 +17,8 @@ export const cancelScheduleRequest = async (id: number) => {
   return response;
 };
 
-export const getMySchedule = async () => {
-  const response = await customAxios('/v1/user/schedule?year=2023', {
+export const getMySchedule = async (year: number) => {
+  const response = await customAxios(`/v1/user/schedule?year=${year}`, {
     // 년도 동적으로 변해야 함
   });
   return response;
