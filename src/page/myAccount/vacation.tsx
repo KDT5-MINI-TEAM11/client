@@ -37,36 +37,35 @@ export default function Vaction() {
 
   const { Option } = Select;
 
+  const fetchData = async () => {
+    if (!accessToken) {
+      return;
+    }
+    try {
+      const response = await getMySchedule(year);
+      if (response.status === 200) {
+        const CheckedVacationRequestsData = response.data
+          .response as CheckedVacationRequestType[];
+        // 성공했을때
+        setCheckedVacationRequests(
+          CheckedVacationRequestsData.map((el) => {
+            return { ...el, key: el.id };
+          }),
+        );
+      }
+    } catch (error: any) {
+      console.log(
+        error.response.data.error.message ||
+          '연가/당직 데이터를 불러오지 못했습니다.',
+      );
+    } finally {
+      setIsvacationRequestsLoading(false);
+    }
+  };
+
   useEffect(() => {
     setIsvacationRequestsLoading(true);
-    const getData = async () => {
-      if (!accessToken) {
-        return;
-      }
-      try {
-        const response = await getMySchedule(year);
-        if (response.status === 200) {
-          const CheckedVacationRequestsData = response.data
-            .response as CheckedVacationRequestType[];
-          // 성공했을때
-          setCheckedVacationRequests(
-            CheckedVacationRequestsData.map((el) => {
-              return { ...el, key: el.id };
-            }),
-          );
-          return;
-        }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (error: any) {
-        console.log(
-          error.response.data.error.message ||
-            '연가/당직 데이터를 불러오지 못했습니다.',
-        );
-      } finally {
-        setIsvacationRequestsLoading(false);
-      }
-    };
-    getData();
+    fetchData();
   }, [accessToken, year]);
 
   const handleCancelSchedule = async (id: number) => {
@@ -74,12 +73,14 @@ export default function Vaction() {
     try {
       const response = await cancelScheduleRequest(id);
       if (response.status === 200) {
+        // 삭제가 성공하면 데이터 다시 불러오기
+        fetchData();
       }
     } catch (error) {
       console.log(error);
       messageApi.open({
         type: 'error',
-        content: '요청 실패', //수정
+        content: '요청 실패',
       });
     } finally {
       setIsLoading(false);
@@ -159,30 +160,17 @@ export default function Vaction() {
     {
       title: 'Action',
       key: 'action',
-      render: (_, { id, state }) => (
+      render: (_, { id }) => (
         <Space size="small">
-          {state === 'PENDING' ? (
-            <>
-              <Button
-                size="small"
-                type="primary"
-                onClick={() => handleCancelSchedule(id)}
-                disabled={isLoading}
-              >
-                삭제
-              </Button>
-            </>
-          ) : (
-            <Button
-              size="small"
-              style={{ marginRight: 50 }}
-              disabled={isLoading}
-              danger
-              /* onClick={() => handleRequest(id, 'PENDING')} */
-            >
-              취소
-            </Button>
-          )}
+          <Button
+            size="small"
+            style={{ marginRight: 50 }}
+            disabled={isLoading}
+            danger
+            onClick={() => handleCancelSchedule(id)}
+          >
+            삭제
+          </Button>
         </Space>
       ),
     },
@@ -193,7 +181,7 @@ export default function Vaction() {
     const year = currentYear - i;
     selectedYearsOptions.push(
       <Option key={year} value={year}>
-        {year}
+        {year}년
       </Option>,
     );
   }
