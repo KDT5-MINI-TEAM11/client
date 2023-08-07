@@ -35,7 +35,7 @@ export const modifyScheduleRequest = async (
   accessToken: string | null,
   id: number,
 ) => {
-  const response = await axios.post(
+  const response = await axios.patch(
     '/v1/user/schedule/modify',
     { id },
     {

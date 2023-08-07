@@ -41,6 +41,10 @@ export default function Calendar({ isSignedin }: propsType) {
     const schedule = async () => {
       // getAccessTokenFromCookie를 이용해서 쿠키에 저장된 accessToken을 가져옴
       const accessToken = getAccessTokenFromCookie();
+      // 엑세스 토큰이 없으면 서버에 요청하지 않음
+      if (!accessToken) {
+        return;
+      }
 
       const listResponse = await scheduleList(accessToken, year, month);
       const infoResponse = await getMyAccount(accessToken);
