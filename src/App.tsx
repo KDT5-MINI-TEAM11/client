@@ -1,18 +1,18 @@
 import { ConfigProvider } from 'antd';
 import { Route, Routes } from 'react-router-dom';
-import NotFound from '@/page/notFound';
-import Home from '@/page/home';
 import koKR from 'antd/locale/ko_KR';
-import MyAccount from '@/page/myAccount';
 import MyLayout from '@/components/MyLayout';
-import Vacation from '@/page/myAccount/vacation';
-import MyAccountLayout from '@/page/myAccount/myAccoutLayout';
+import Home from '@/page/home/home';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import Signup from '@/page/signup';
+import MyAccountLayout from '@/page/myAccount/myAccoutLayout';
+import MyAccount from '@/page/myAccount/myAccount';
+import Vacation from '@/page/myAccount/vacation';
 import ProtectedManagerRoute from '@/components/ProtectedManagerRoute';
+import AdminLayout from '@/page/myAccount/admin/adminLayout';
 import Approve from '@/page/myAccount/admin/approve';
-import Promote from './page/myAccount/admin/promote';
-import AdminLayout from './page/myAccount/admin/adminLayout';
+import Promote from '@/page/myAccount/admin/promote';
+import NotFound from '@/page/notFound/notFountd';
+import Signup from '@/page/signup/signUp';
 
 export default function App() {
   const theme = {

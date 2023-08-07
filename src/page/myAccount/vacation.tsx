@@ -1,7 +1,5 @@
-import { MySchedule } from '@/api/mySchedule';
-import { modifyScheduleRequest } from '@/api/schedule';
+import { getMySchedule } from '@/api/mySchedule';
 import { REQUEST_STATE } from '@/data/constants';
-import useRefreshToken from '@/hooks/useRefreshToken';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
 import { Select, Button, Space, Table, Tag, message } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -34,8 +32,6 @@ export default function Vaction() {
 
   const accessToken = useRecoilValue(AccessTokenAtom);
 
-  const { refreshAccessToken } = useRefreshToken();
-
   const { Option } = Select;
 
   useEffect(() => {
@@ -44,9 +40,8 @@ export default function Vaction() {
       if (!accessToken) {
         return;
       }
-      await refreshAccessToken();
       try {
-        const response = await MySchedule(accessToken);
+        const response = await getMySchedule();
         if (response.status === 200) {
           const vacationRequestsData = response.data
             .response as VacationRequestType[];

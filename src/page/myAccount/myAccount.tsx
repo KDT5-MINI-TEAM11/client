@@ -19,13 +19,12 @@ import defaultProfile from '@/assets/defaultProfile.png';
 import { POSITIONS } from '@/data/constants';
 import formatPhoneNumber from '@/utils/formatPhonenumber';
 import { useEffect, useState } from 'react';
-import { getMyAccount } from '@/api/getMyAccount';
+import { getMyAccount } from '@/api/myAccount/getMyAccount';
 import { useRecoilValue } from 'recoil';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
-import useRefreshToken from '@/hooks/useRefreshToken';
-import { changeMyInfo } from '@/api/changeMyInfo';
-import PasswordChangeModal from './passwordChangeModal';
-import { handleUpload } from '@/api/cloudinary';
+import { changeMyInfo } from '@/api/myAccount/changeMyInfo';
+import PasswordChangeModal from '@/page/myAccount/passwordChangeModal';
+import { handleUpload } from '@/api/auth/cloudinary';
 
 interface MyAccountInfoType {
   phoneNumber: string;
@@ -49,7 +48,6 @@ export default function MyAccount() {
   // antd message(화면 상단에 뜨는 메세지)기능
   const [messageApi, contextHolder] = message.useMessage();
 
-  const { refreshAccessToken } = useRefreshToken();
   const [editPhoneNumber, setEditPhoneNumber] = useState(false);
   const [editPhoneNumberInput, setEditPhonNumberInput] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -62,9 +60,8 @@ export default function MyAccount() {
       if (!accessToken) {
         return;
       }
-      await refreshAccessToken();
       try {
-        const response = await getMyAccount(accessToken);
+        const response = await getMyAccount();
         if (response.status === 200) {
           // 성공했을때
           const userData = response.data.response as MyAccountInfoType;
@@ -91,9 +88,8 @@ export default function MyAccount() {
   }, []);
 
   const handleChangeMyInfo = async () => {
-    await refreshAccessToken();
     try {
-      const response = await changeMyInfo(accessToken, {
+      const response = await changeMyInfo({
         phoneNumber: editPhoneNumberInput,
       });
       if (response.status === 200) {
@@ -127,9 +123,8 @@ export default function MyAccount() {
   const handleChangeProfileImg = async (file: any) => {
     const imageUrl = await getImageUrl(file);
     console.log(imageUrl);
-    await refreshAccessToken();
     try {
-      const response = await changeMyInfo(accessToken, {
+      const response = await changeMyInfo({
         profileThumbUrl: imageUrl,
       });
       if (response.status === 200) {

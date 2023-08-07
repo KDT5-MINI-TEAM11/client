@@ -33,3 +33,26 @@ export const DUMMY_WORKERS: DataType[] = [
     createAt: '2021-08-03',
   },
 ];
+
+export const DUMMY_MY_SCHEDULES = [
+  {
+    scheduleType: 'ANNUAL',
+    state: 'REJECT',
+    startDate: '2023-08-01',
+    endDate: '2023-08-05',
+  },
+
+  {
+    scheduleType: 'ANNUAL',
+    state: 'PENDING',
+    startDate: '2023-08-03',
+    endDate: '2023-08-05',
+  },
+
+  {
+    scheduleType: 'DUTY',
+    state: 'APPROVE',
+    startDate: '2023-08-01',
+    endDate: '2023-08-01',
+  },
+];

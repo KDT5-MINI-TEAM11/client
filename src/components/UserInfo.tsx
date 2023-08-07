@@ -1,6 +1,5 @@
 import { Badge, Typography, Avatar } from 'antd';
 import { Link } from 'react-router-dom';
-import { IUserHeaderInfo } from '@/types/IUserHeaderInfo';
 import { POSITIONS } from '@/data/constants';
 
 const { Text } = Typography;
@@ -8,7 +7,12 @@ const { Text } = Typography;
 export default function UserInfo({
   userHeaderInfo,
 }: {
-  userHeaderInfo: IUserHeaderInfo;
+  userHeaderInfo: {
+    userName: string;
+    profileThumbNail: string;
+    position: string;
+    usedVacation: string;
+  };
 }) {
   return (
     <div

@@ -13,10 +13,10 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { EMAIL_REGEX, PASSWORD_REGEX, POSITIONS } from '@/data/constants';
 import { RuleObject } from 'antd/es/form';
-import { handleUpload } from '@/api/cloudinary';
-import { signup } from '@/api/signup';
-import { checkEmail, checkEmailAuth } from '@/api/checkEmail';
-import { verificationEmail } from '@/api/verification';
+import { handleUpload } from '@/api/auth/cloudinary';
+import { signup } from '@/api/auth/signup';
+import { checkEmail, checkEmailAuth } from '@/api/auth/checkEmail';
+import { verificationEmail } from '@/api/auth/verification';
 import { useSetRecoilState } from 'recoil';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
 import { setAccessTokenToCookie } from '@/utils/cookies';
@@ -32,7 +32,7 @@ interface valuseType {
   userName: string;
 }
 
-export default function SingUp() {
+export default function Signup() {
   // 이메일 중복 체크
   const [isEmailCehck, setIsEmailCheck] = useState(false);
   // 이메일 인증 번호 발송

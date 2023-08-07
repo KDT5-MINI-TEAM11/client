@@ -2,10 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { scheduleList } from '@/api/scheduleList';
-import { getAccessTokenFromCookie } from '@/utils/cookies';
+import { scheduleList } from '@/api/home/scheduleList';
 import { Switch } from 'antd';
-import { getMyAccount } from '@/api/getMyAccount';
+import { getMyAccount } from '@/api/myAccount/getMyAccount';
+import { getAccessTokenFromCookie } from '@/utils/cookies';
 
 interface ScheduleItem {
   userName: string;
@@ -45,14 +45,12 @@ export default function Calendar({ isSignedin }: propsType) {
       if (!accessToken) {
         return;
       }
-
-      const listResponse = await scheduleList(accessToken, year, month);
-      const infoResponse = await getMyAccount(accessToken);
+      const listResponse = await scheduleList(year, month);
+      const infoResponse = await getMyAccount();
 
       // 실제 응답 데이터 추출
       const listResponseData = listResponse.data.response;
       const infoResponseData = infoResponse.data.response;
-      console.log(infoResponseData.userName);
 
       // response data를 가져오는데 그 내부에 있는 response라는 배열 데이터를 각각의 요소를
       // 아래의 형태의 객체로 변환해서 events 변수에 저장, setEvents에 전달
@@ -98,7 +96,7 @@ export default function Calendar({ isSignedin }: propsType) {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleDateSet = (info: any) => {
-    let date = info.view.currentStart;
+    const date = info.view.currentStart;
     setYear(date.getFullYear());
     setMonth(date.getMonth() + 1);
   };
