@@ -29,6 +29,7 @@ export default function Home() {
 
   const [toggleRequest, setToggleRequest] = useState(false);
 
+  const [year, setYear] = useState(new Date().getFullYear());
   // const {
   //   token: { colorTextLabel },
   // } = theme.useToken();
@@ -63,7 +64,7 @@ export default function Home() {
       }
       try {
         setIsMyScheduleLoading(true);
-        const response = await getMySchedule();
+        const response = await getMySchedule(year);
         if (response.status === 200) {
           const myScheduleData = response.data.response as IMySchedule[];
           // 성공했을때
@@ -86,7 +87,7 @@ export default function Home() {
       }
     };
     getData();
-  }, [accessToken, toggleRequest]);
+  }, [accessToken, toggleRequest, year]);
 
   const myPendingSchedule = useMemo(
     () => mySchedule?.filter((schedule) => schedule.state === 'PENDING'),
@@ -264,7 +265,11 @@ export default function Home() {
             }}
           >
             {/* 로그인 상태를 확인하기 위해서 accessToken을 boolean 데이터 형식으로 변환해서 Calendar컴포넌트에 props로 전달 */}
-            <Calendar isSignedin={!!accessToken} />
+            <Calendar
+              isSignedin={!!accessToken}
+              year={year}
+              setYear={setYear}
+            />
           </Content>
         </Layout>
       </Layout>

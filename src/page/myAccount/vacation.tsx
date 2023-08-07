@@ -2,7 +2,7 @@ import { getMySchedule } from '@/api/mySchedule';
 import { REQUEST_STATE } from '@/data/constants';
 import { cancelScheduleRequest } from '@/api/mySchedule';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
-import { Select, Button, Space, Table, Tag, message } from 'antd';
+import { Select, Button, Table, Tag, message, Popconfirm } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
@@ -161,17 +161,22 @@ export default function Vaction() {
       title: 'Action',
       key: 'action',
       render: (_, { id }) => (
-        <Space size="small">
+        <Popconfirm
+          title="목록 삭제"
+          description="삭제하시겠습니까?"
+          onConfirm={() => handleCancelSchedule(id)}
+          okText="Yes"
+          cancelText="No"
+        >
           <Button
             size="small"
             style={{ marginRight: 50 }}
             disabled={isLoading}
             danger
-            onClick={() => handleCancelSchedule(id)}
           >
             삭제
           </Button>
-        </Space>
+        </Popconfirm>
       ),
     },
   ];
