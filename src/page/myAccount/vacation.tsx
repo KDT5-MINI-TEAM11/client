@@ -92,10 +92,9 @@ export default function Vaction() {
       title: '연차/당직',
       dataIndex: 'scheduleType',
       key: 'scheduleType',
+      align: 'center',
       render: (_, { scheduleType }) => (
-        <div style={{ marginRight: 5 }}>
-          {scheduleType === 'DUTY' ? '당직' : '연차'}
-        </div>
+        <div>{scheduleType === 'DUTY' ? '당직' : '연차'}</div>
       ),
       filters: [
         {
@@ -114,6 +113,7 @@ export default function Vaction() {
       title: '시작일',
       dataIndex: 'startDate',
       key: 'startDate',
+      align: 'center',
       sorter: (a, b) =>
         Number(a.startDate.replaceAll('-', '')) -
         Number(b.startDate.replaceAll('-', '')),
@@ -123,6 +123,7 @@ export default function Vaction() {
       title: '종료일',
       dataIndex: 'endDate',
       key: 'endDate',
+      align: 'center',
       sorter: (a, b) =>
         Number(a.endDate.replaceAll('-', '')) -
         Number(b.endDate.replaceAll('-', '')),
@@ -132,10 +133,11 @@ export default function Vaction() {
       title: '승인여부',
       key: 'tags',
       dataIndex: 'tags',
+      align: 'center',
       render: (_, { state }) => (
         <Tag
           color={REQUEST_STATE[state]?.color}
-          style={{ width: 50, textAlign: 'center' }}
+          style={{ width: 50, textAlign: 'center', margin: 0 }}
         >
           {REQUEST_STATE[state]?.label}
         </Tag>
@@ -160,6 +162,7 @@ export default function Vaction() {
     {
       title: 'Action',
       key: 'action',
+      align: 'center',
       render: (_, { id }) => (
         <Popconfirm
           title="목록 삭제"
@@ -168,12 +171,7 @@ export default function Vaction() {
           okText="Yes"
           cancelText="No"
         >
-          <Button
-            size="small"
-            style={{ marginRight: 50 }}
-            disabled={isLoading}
-            danger
-          >
+          <Button size="small" disabled={isLoading} danger>
             삭제
           </Button>
         </Popconfirm>
@@ -195,7 +193,7 @@ export default function Vaction() {
     <>
       {contextHolder}
       <Select
-        style={{ width: 100 }}
+        style={{ width: 100, padding: 5 }}
         defaultValue={currentYear}
         value={year}
         onChange={(value) => setYear(value)}

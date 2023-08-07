@@ -118,12 +118,14 @@ export default function Approve() {
       title: '연차/당직',
       dataIndex: 'type',
       key: 'type',
+      align: 'center',
       render: (_, { type }) => <>{DUTY_ANNUAL[type].label}</>,
     },
     {
       title: '시작일',
       dataIndex: 'startDate',
       key: 'startDate',
+      align: 'center',
       sorter: (a, b) =>
         Number(a.startDate.replaceAll('-', '')) -
         Number(b.startDate.replaceAll('-', '')),
@@ -133,6 +135,7 @@ export default function Approve() {
       title: '종료일',
       dataIndex: 'endDate',
       key: 'endDate',
+      align: 'center',
       sorter: (a, b) =>
         Number(a.endDate.replaceAll('-', '')) -
         Number(b.endDate.replaceAll('-', '')),
@@ -142,6 +145,7 @@ export default function Approve() {
       title: '승인여부',
       key: 'tags',
       dataIndex: 'tags',
+      align: 'center',
       render: (_, { state }) => <RequesTag state={state} />,
       filters: [
         {
@@ -163,6 +167,7 @@ export default function Approve() {
     {
       title: 'Action',
       key: 'action',
+      align: 'center',
       render: (_, { id, state }) => (
         <Space size="small">
           {state === 'PENDING' ? (
@@ -188,7 +193,6 @@ export default function Approve() {
           ) : (
             <Button
               size="small"
-              style={{ marginRight: 50 }}
               disabled={isAppoving}
               danger
               onClick={() => handleRequest(id, 'PENDING')}
