@@ -1,19 +1,23 @@
 import { ConfigProvider } from 'antd';
 import { Route, Routes } from 'react-router-dom';
-import NotFound from '@/page/notFound';
-import Home from '@/page/home';
 import koKR from 'antd/locale/ko_KR';
-import MyAccount from '@/page/myAccount';
 import MyLayout from '@/components/MyLayout';
-import Vacation from '@/page/myAccount/vacation';
+import Home from '@/page/home/home';
+import ProtectedRoute from '@/components/ProtectedRoute';
 import MyAccountLayout from '@/page/myAccount/myAccoutLayout';
-import ProtectedRoute from './components/ProtectedRoute';
-import Signup from './page/signup';
+import MyAccount from '@/page/myAccount/myAccount';
+import Vacation from '@/page/myAccount/vacation';
+import ProtectedManagerRoute from '@/components/ProtectedManagerRoute';
+import AdminLayout from '@/page/myAccount/admin/adminLayout';
+import Approve from '@/page/myAccount/admin/approve';
+import Promote from '@/page/myAccount/admin/promote';
+import NotFound from '@/page/notFound/notFountd';
+import Signup from '@/page/signup/signUp';
 
 export default function App() {
   const theme = {
     token: {
-      colorPrimary: '#ffc400',
+      colorPrimary: '#03bafc',
     },
   };
 
@@ -27,6 +31,12 @@ export default function App() {
             <Route element={<MyAccountLayout />}>
               <Route path="/myaccount" element={<MyAccount />} />
               <Route path="myaccount/vacation" element={<Vacation />} />
+              <Route element={<ProtectedManagerRoute />}>
+                <Route element={<AdminLayout />}>
+                  <Route path="myaccount/approve" element={<Approve />} />
+                  <Route path="myaccount/promote" element={<Promote />} />
+                </Route>
+              </Route>
             </Route>
           </Route>
           <Route path="*" element={<NotFound />} />

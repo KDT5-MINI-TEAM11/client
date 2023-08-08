@@ -1,20 +1,9 @@
-export const BASE_API_URL = 'http://localhost:8080/api';
+export const BASE_API_URL = 'http://54.206.244.160:8080/api';
 
 export const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 export const PASSWORD_REGEX =
   /^(?=.*\d)(?=.*[!@#$%^&*()-+=])(?=.*[a-zA-Z]).{8,16}$/;
-
-export const MYACCOUNT_NAV_ITEMS = [
-  {
-    label: '내 정보',
-    href: '/myaccount',
-  },
-  {
-    label: '내 연차, 당직',
-    href: '/myaccount/vacation',
-  },
-];
 
 export const POSITIONS: {
   [key: string]: { label: string; total_vacation: number; color: string };
@@ -44,4 +33,16 @@ export const POSITIONS: {
     total_vacation: 27,
     color: 'gold',
   },
+};
+
+export const REQUEST_STATE = {
+  PENDING: { label: '심사중', color: '#f2cf50' },
+  APPROVE: { label: '승인', color: '#50dcf2' },
+  REJECT: { label: '거절', color: '#f26650' },
+};
+export const DUTY_ANNUAL: {
+  [key: string]: { label: string; color: string };
+} = {
+  DUTY: { label: '당직', color: '#f08080' },
+  ANNUAL: { label: '연차', color: '#b1aee5' },
 };
