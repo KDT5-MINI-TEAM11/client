@@ -68,7 +68,9 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
       const events = listResponseData
         .filter(
           (item: ScheduleItem) =>
-            isAllChecked || item.userName === infoResponseData.userName,
+            (isAllChecked && item.state === 'APPROVE') ||
+            (item.userName === infoResponseData.userName &&
+              item.state === 'APPROVE'),
         )
         .map((item: ScheduleItem) => {
           return {
