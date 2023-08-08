@@ -159,6 +159,11 @@ export default function Home() {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const pastDates = (current: any) => {
+    return current < dayjs().startOf('day');
+  };
+
   return (
     <>
       {contextHolder}
@@ -227,12 +232,14 @@ export default function Home() {
                   onChange={handleRangePicker}
                   style={{ width: '100%' }}
                   disabled={scheduleInput.scheduleType !== 'ANNUAL'}
+                  disabledDate={pastDates}
                 />
               ) : (
                 <DatePicker
                   onChange={handleDatePicker}
                   style={{ width: '100%' }}
                   disabled={scheduleInput.scheduleType !== 'DUTY'}
+                  disabledDate={pastDates}
                 />
               )}
 
