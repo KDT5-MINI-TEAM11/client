@@ -22,7 +22,7 @@ export default function MySchedule({
 }: MyScheduleProps) {
   const handleCancleSchedule = async (key: number) => {
     try {
-      const response = await cancelScheduleRequest(key);
+      await cancelScheduleRequest(key);
     } catch (error) {
       console.log(error);
     }

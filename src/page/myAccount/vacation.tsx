@@ -1,9 +1,8 @@
 import { getMySchedule } from '@/api/mySchedule';
 import RequesTag from '@/components/RequesTag';
-import { REQUEST_STATE } from '@/data/constants';
 import { cancelScheduleRequest } from '@/api/mySchedule';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
-import { Select, Button, Table, Tag, message, Popconfirm } from 'antd';
+import { Select, Button, Table, message, Popconfirm } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
@@ -54,6 +53,7 @@ export default function Vaction() {
           }),
         );
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.log(
         error.response.data.error.message ||
