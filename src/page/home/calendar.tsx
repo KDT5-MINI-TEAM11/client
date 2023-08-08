@@ -38,9 +38,6 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const calendarRef = useRef(null);
 
-  /*   // 로그아웃 시에 이벤트를 비워서 리렌더링 시키기 위해 사용
-  const clearEvents = () => setEvents([]); */
-
   // 데이터 변경시에 화면 리렌더링 되게
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
@@ -82,13 +79,6 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
     schedule();
   }, [isSignedin, year, month, isAllChecked]);
 
-  // 로그아웃 상태면 달력에 이벤트 렌더링 x
-  /*   useEffect(() => {
-    clearEvents();
-  }, [isSignedin]); */
-
-  // scheduleType에 따른 색상 변환
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderDayCellContent = (args: any) => {
     // '일' 문자 제거
@@ -100,22 +90,6 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
     const date = info.view.currentStart;
     setYear(date.getFullYear());
     setMonth(date.getMonth() + 1);
-  };
-
-  /* 
-  const formatDateToKorean = (date: Date) => {
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1; 
-    const day = date.getDate();
-
-    return `${year}년 ${month}월 ${day}일`;
-  }; */
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleEventClick = (info: any) => {
-    console.log(info.event.title);
-    console.log(info.event.start);
-    console.log(info.event.end);
   };
 
   return (
@@ -138,7 +112,6 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
         locale={'ko'} // 지역
         dayCellContent={renderDayCellContent} // '일' 문자 렌더링 변경
         ref={calendarRef}
-        eventClick={handleEventClick}
       />
     </>
   );
