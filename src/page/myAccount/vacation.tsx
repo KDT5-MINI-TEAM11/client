@@ -1,5 +1,4 @@
 import { getMySchedule } from '@/api/mySchedule';
-import RequesTag from '@/components/RequesTag';
 import { REQUEST_STATE } from '@/data/constants';
 import { cancelScheduleRequest } from '@/api/mySchedule';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
@@ -134,18 +133,14 @@ export default function Vaction() {
       title: '승인여부',
       key: 'tags',
       dataIndex: 'tags',
-      align: 'center',
       render: (_, { state }) => (
         <Tag
           color={REQUEST_STATE[state]?.color}
-          style={{ width: 50, textAlign: 'center', margin: 0 }}
+          style={{ width: 50, textAlign: 'center' }}
         >
           {REQUEST_STATE[state]?.label}
         </Tag>
       ),
-
-      render: (_, { state }) => <RequesTag state={state} />,
-
       filters: [
         {
           text: '심사중',
