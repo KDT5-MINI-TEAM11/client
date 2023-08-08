@@ -1,5 +1,4 @@
 import { getMySchedule } from '@/api/mySchedule';
-import RequesTag from '@/components/RequesTag';
 import { REQUEST_STATE } from '@/data/constants';
 import { cancelScheduleRequest } from '@/api/mySchedule';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
@@ -93,10 +92,9 @@ export default function Vaction() {
       title: '연차/당직',
       dataIndex: 'scheduleType',
       key: 'scheduleType',
+      align: 'center',
       render: (_, { scheduleType }) => (
-        <div style={{ marginRight: 5 }}>
-          {scheduleType === 'DUTY' ? '당직' : '연차'}
-        </div>
+        <div>{scheduleType === 'DUTY' ? '당직' : '연차'}</div>
       ),
       filters: [
         {
@@ -115,6 +113,7 @@ export default function Vaction() {
       title: '시작일',
       dataIndex: 'startDate',
       key: 'startDate',
+      align: 'center',
       sorter: (a, b) =>
         Number(a.startDate.replaceAll('-', '')) -
         Number(b.startDate.replaceAll('-', '')),
@@ -124,6 +123,7 @@ export default function Vaction() {
       title: '종료일',
       dataIndex: 'endDate',
       key: 'endDate',
+      align: 'center',
       sorter: (a, b) =>
         Number(a.endDate.replaceAll('-', '')) -
         Number(b.endDate.replaceAll('-', '')),
@@ -133,7 +133,14 @@ export default function Vaction() {
       title: '승인여부',
       key: 'tags',
       dataIndex: 'tags',
-      render: (_, { state }) => <RequesTag state={state} />,
+      render: (_, { state }) => (
+        <Tag
+          color={REQUEST_STATE[state]?.color}
+          style={{ width: 50, textAlign: 'center' }}
+        >
+          {REQUEST_STATE[state]?.label}
+        </Tag>
+      ),
       filters: [
         {
           text: '심사중',
@@ -154,6 +161,7 @@ export default function Vaction() {
     {
       title: 'Action',
       key: 'action',
+      align: 'center',
       render: (_, { id }) => (
         <Popconfirm
           title="목록 삭제"
@@ -162,12 +170,7 @@ export default function Vaction() {
           okText="Yes"
           cancelText="No"
         >
-          <Button
-            size="small"
-            style={{ marginRight: 50 }}
-            disabled={isLoading}
-            danger
-          >
+          <Button size="small" disabled={isLoading} danger>
             삭제
           </Button>
         </Popconfirm>
@@ -189,7 +192,7 @@ export default function Vaction() {
     <>
       {contextHolder}
       <Select
-        style={{ width: 100 }}
+        style={{ width: 100, padding: 5 }}
         defaultValue={currentYear}
         value={year}
         onChange={(value) => setYear(value)}
