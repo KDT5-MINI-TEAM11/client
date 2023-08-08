@@ -1,4 +1,5 @@
 import { getMySchedule } from '@/api/mySchedule';
+import RequesTag from '@/components/RequesTag';
 import { REQUEST_STATE } from '@/data/constants';
 import { cancelScheduleRequest } from '@/api/mySchedule';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
@@ -142,6 +143,9 @@ export default function Vaction() {
           {REQUEST_STATE[state]?.label}
         </Tag>
       ),
+
+      render: (_, { state }) => <RequesTag state={state} />,
+
       filters: [
         {
           text: '심사중',
