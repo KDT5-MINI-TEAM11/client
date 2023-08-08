@@ -96,6 +96,9 @@ export default function MyHeader() {
       // 로딩 ui종료
       setIsSigningout(false);
 
+      // 로컬저장소에서 리프레시토큰 삭제
+      localStorage.removeItem('refreshToken');
+
       // 오류가 났다고 하더라도 로그아웃 성공메세지를 보여줌
       messageApi.open({
         type: 'success',

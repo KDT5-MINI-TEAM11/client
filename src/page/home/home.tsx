@@ -198,6 +198,7 @@ export default function Home() {
           >
             <div style={{ width: '100%' }}>
               <MySchedule
+                isPending
                 schedule={myPendingSchedule}
                 loading={isMyScheduleLoading}
                 caption="요청대기"
