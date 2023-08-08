@@ -81,9 +81,10 @@ export default function Approve() {
             request.id === id ? { ...request, state: type } : request,
           ),
         );
+        console.log(response);
         messageApi.open({
           type: 'success',
-          content: '서버에서 메세지 올거임', //수정
+          content: response.data.response, // 취소시에 왜 메세지 null임!!
         });
       }
     } catch (error) {

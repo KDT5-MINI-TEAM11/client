@@ -123,17 +123,17 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
   };
 
   const goPrev = () => {
-    let calendarApi = calendarRef.current?.getApi();
+    const calendarApi = calendarRef.current?.getApi();
     calendarApi?.prev();
   };
 
   const goNext = () => {
-    let calendarApi = calendarRef.current?.getApi();
+    const calendarApi = calendarRef.current?.getApi();
     calendarApi?.next();
   };
 
   const goToday = () => {
-    let calendarApi = calendarRef.current?.getApi();
+    const calendarApi = calendarRef.current?.getApi();
     calendarApi?.today();
   };
 

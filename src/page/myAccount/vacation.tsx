@@ -1,11 +1,12 @@
 import { getMySchedule } from '@/api/mySchedule';
-import { REQUEST_STATE } from '@/data/constants';
+import { DUTY_ANNUAL } from '@/data/constants';
 import { cancelScheduleRequest } from '@/api/mySchedule';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
-import { Select, Button, Table, Tag, message, Popconfirm } from 'antd';
+import { Select, Button, Table, message, Popconfirm } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
+import RequesTag from '@/components/RequesTag';
 
 interface CheckedVacationRequestType {
   key: number;
@@ -53,6 +54,7 @@ export default function Vaction() {
           }),
         );
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.log(
         error.response.data.error.message ||
@@ -94,7 +96,11 @@ export default function Vaction() {
       key: 'scheduleType',
       align: 'center',
       render: (_, { scheduleType }) => (
-        <div>{scheduleType === 'DUTY' ? '당직' : '연차'}</div>
+        <span
+          style={{ color: DUTY_ANNUAL[scheduleType].color, fontWeight: 700 }}
+        >
+          {DUTY_ANNUAL[scheduleType].label}
+        </span>
       ),
       filters: [
         {
@@ -133,14 +139,7 @@ export default function Vaction() {
       title: '승인여부',
       key: 'tags',
       dataIndex: 'tags',
-      render: (_, { state }) => (
-        <Tag
-          color={REQUEST_STATE[state]?.color}
-          style={{ width: 50, textAlign: 'center' }}
-        >
-          {REQUEST_STATE[state]?.label}
-        </Tag>
-      ),
+      render: (_, { state }) => <RequesTag state={state} />,
       filters: [
         {
           text: '심사중',
@@ -157,6 +156,7 @@ export default function Vaction() {
       ],
       onFilter: (value: string | number | boolean, record) =>
         record.state.includes(value as string),
+      align: 'center',
     },
     {
       title: 'Action',
