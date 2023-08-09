@@ -1,16 +1,17 @@
 import { getMySchedule } from '@/api/mySchedule';
-import { REQUEST_STATE } from '@/data/constants';
+import { DUTY_ANNUAL } from '@/data/constants';
 import { cancelScheduleRequest } from '@/api/mySchedule';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
-import { Select, Button, Table, Tag, message, Popconfirm } from 'antd';
+import { Select, Button, Table, message, Popconfirm } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
+import RequesTag from '@/components/RequesTag';
 
 interface CheckedVacationRequestType {
   key: number;
   id: number;
-  type: 'ANNUAL' | 'DUTY';
+  scheduleType: 'ANNUAL' | 'DUTY';
   startDate: string;
   endDate: string;
   state: 'PENDING' | 'APPROVE' | 'REJECT';
@@ -53,6 +54,7 @@ export default function Vaction() {
           }),
         );
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.log(
         error.response.data.error.message ||
@@ -90,12 +92,15 @@ export default function Vaction() {
   const columns: ColumnsType<CheckedVacationRequestType> = [
     {
       title: '연차/당직',
-      dataIndex: 'type',
-      key: 'type',
-      render: (_, { type }) => (
-        <div style={{ marginRight: 5 }}>
-          {type === 'DUTY' ? '당직' : '연차'}
-        </div>
+      dataIndex: 'scheduleType',
+      key: 'scheduleType',
+      align: 'center',
+      render: (_, { scheduleType }) => (
+        <span
+          style={{ color: DUTY_ANNUAL[scheduleType].color, fontWeight: 700 }}
+        >
+          {DUTY_ANNUAL[scheduleType].label}
+        </span>
       ),
       filters: [
         {
@@ -108,12 +113,13 @@ export default function Vaction() {
         },
       ],
       onFilter: (value: string | number | boolean, record) =>
-        record.type.includes(value as string),
+        record.scheduleType.includes(value as string),
     },
     {
       title: '시작일',
       dataIndex: 'startDate',
       key: 'startDate',
+      align: 'center',
       sorter: (a, b) =>
         Number(a.startDate.replaceAll('-', '')) -
         Number(b.startDate.replaceAll('-', '')),
@@ -123,6 +129,7 @@ export default function Vaction() {
       title: '종료일',
       dataIndex: 'endDate',
       key: 'endDate',
+      align: 'center',
       sorter: (a, b) =>
         Number(a.endDate.replaceAll('-', '')) -
         Number(b.endDate.replaceAll('-', '')),
@@ -132,14 +139,7 @@ export default function Vaction() {
       title: '승인여부',
       key: 'tags',
       dataIndex: 'tags',
-      render: (_, { state }) => (
-        <Tag
-          color={REQUEST_STATE[state]?.color}
-          style={{ width: 50, textAlign: 'center' }}
-        >
-          {REQUEST_STATE[state]?.label}
-        </Tag>
-      ),
+      render: (_, { state }) => <RequesTag state={state} />,
       filters: [
         {
           text: '심사중',
@@ -156,10 +156,12 @@ export default function Vaction() {
       ],
       onFilter: (value: string | number | boolean, record) =>
         record.state.includes(value as string),
+      align: 'center',
     },
     {
       title: 'Action',
       key: 'action',
+      align: 'center',
       render: (_, { id }) => (
         <Popconfirm
           title="목록 삭제"
@@ -168,12 +170,7 @@ export default function Vaction() {
           okText="Yes"
           cancelText="No"
         >
-          <Button
-            size="small"
-            style={{ marginRight: 50 }}
-            disabled={isLoading}
-            danger
-          >
+          <Button size="small" disabled={isLoading} danger>
             삭제
           </Button>
         </Popconfirm>
@@ -195,7 +192,7 @@ export default function Vaction() {
     <>
       {contextHolder}
       <Select
-        style={{ width: 100 }}
+        style={{ width: 100, padding: 5 }}
         defaultValue={currentYear}
         value={year}
         onChange={(value) => setYear(value)}

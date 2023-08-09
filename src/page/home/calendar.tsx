@@ -3,7 +3,7 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { scheduleList } from '@/api/home/scheduleList';
-import { Switch } from 'antd';
+import { Switch, Button, Space, Typography, Tooltip } from 'antd';
 import { getMyAccount } from '@/api/myAccount/getMyAccount';
 import { getAccessTokenFromCookie } from '@/utils/cookies';
 import { DUTY_ANNUAL } from '@/data/constants';
@@ -26,7 +26,6 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
   // 데이터로 받아올 events를 상태관리
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [events, setEvents] = useState([]);
-  // 달력의 현재 년도 상태관리
 
   // 달력의 현재 월 상태관리
   const [month, setMonth] = useState(new Date().getMonth() + 1);
@@ -36,7 +35,9 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
   const [isLoading, setIsLoading] = useState(false);
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const calendarRef = useRef(null);
+  const calendarRef = useRef<FullCalendar | null>(null);
+
+  const { Title } = Typography;
 
   // 데이터 변경시에 화면 리렌더링 되게
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -63,7 +64,9 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
       const events = listResponseData
         .filter(
           (item: ScheduleItem) =>
-            isAllChecked || item.userName === infoResponseData.userName,
+            (isAllChecked && item.state === 'APPROVE') ||
+            (item.userName === infoResponseData.userName &&
+              item.state === 'APPROVE'),
         )
         .map((item: ScheduleItem) => {
           return {
@@ -92,16 +95,68 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
     setMonth(date.getMonth() + 1);
   };
 
+  const goPrev = () => {
+    const calendarApi = calendarRef.current?.getApi();
+    calendarApi?.prev();
+  };
+
+  const goNext = () => {
+    const calendarApi = calendarRef.current?.getApi();
+    calendarApi?.next();
+  };
+
+  const goToday = () => {
+    const calendarApi = calendarRef.current?.getApi();
+    calendarApi?.today();
+  };
+
   return (
     <>
-      <Switch
-        checkedChildren="All"
-        unCheckedChildren="My"
-        defaultChecked
-        checked={isAllChecked}
-        onChange={(check) => setIsAllChecked(check)}
-        loading={isLoading}
-      />
+      <div
+        style={{
+          padding: '0 40px',
+          backgroundColor: 'rgb(229 229 229)',
+          borderRadius: '20px 20px 0px 0px',
+          display: 'flex',
+          width: '100%',
+          alignItems: 'center',
+          height: '100px',
+        }}
+      >
+        <div style={{ flex: 1 }}>
+          <Tooltip title="모든 일정 또는 나의 일정 확인 가능">
+            <Switch
+              checkedChildren="All"
+              unCheckedChildren="My"
+              defaultChecked
+              checked={isAllChecked}
+              onChange={(check) => setIsAllChecked(check)}
+              loading={isLoading}
+            />
+          </Tooltip>
+        </div>
+
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            flex: 1,
+            alignItems: 'center',
+          }}
+        >
+          <Space>
+            <Button onClick={goPrev}>&lt;</Button>
+            <Tooltip title="오늘로 이동하려면 클릭하세요.">
+              <Title style={{ margin: 0, cursor: 'pointer' }} onClick={goToday}>
+                {year}년{month}월
+              </Title>
+            </Tooltip>
+            <Button onClick={goNext}> &gt;</Button>
+          </Space>
+        </div>
+
+        <div style={{ flex: 1 }}></div>
+      </div>
       <FullCalendar
         plugins={[dayGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
@@ -112,6 +167,7 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
         locale={'ko'} // 지역
         dayCellContent={renderDayCellContent} // '일' 문자 렌더링 변경
         ref={calendarRef}
+        headerToolbar={false}
       />
     </>
   );
