@@ -47,7 +47,7 @@ export default function Signin({
       const response = await signin(values);
       // 로그인 성공
       if (response.status === 200) {
-        const { accessToken, refreshToken } = response.data.response;
+        const { accessToken } = response.data.response;
 
         // accessToken 쿠키에 저장
         setAccessTokenToCookie(accessToken);
