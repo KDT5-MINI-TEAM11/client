@@ -22,7 +22,7 @@ customAxios.interceptors.request.use(
     // 로그인 요청, 회원가입 등... 을 제외한 모든 요청은 accessToken을 필요로함
     req.headers.Authorization = `Bearer ${accessToken}`;
 
-    // 요청단계에서 accessToken의 만료시간을 확인해서 5분 이하로 남았을 경우 요청을 보내기 전에 accessToken을 재발급 받는 로직
+    /* // 요청단계에서 accessToken의 만료시간을 확인해서 5분 이하로 남았을 경우 요청을 보내기 전에 accessToken을 재발급 받는 로직
 
     // access토큰의 만료시간을 초로 나타낸 시간
     const expirationTime = getPayloadFromJWT(accessToken).exp as number;
@@ -55,7 +55,7 @@ customAxios.interceptors.request.use(
     console.log('토큰 재발급!');
 
     // 모든 access토큰이 필요한 요청에서 bearer를 새롭게 받은 access토큰으로 설정
-    req.headers.Authorization = `Bearer ${response.data.response.accessToken}`;
+    req.headers.Authorization = `Bearer ${response.data.response.accessToken}`; */
     return req;
   },
   (error) => {
@@ -68,12 +68,10 @@ customAxios.interceptors.response.use(
     return response;
   },
 
-  // 에러인 경우 intercept
+  // 에러 응답인 경우 intercept
   async (error) => {
-    const status = error.response ? error.response.status : null;
+    const status = error.response.data.error.status;
 
-    // accessToken이 만료가 되어서 401에러를 응답으로 받는경우 refreshToken을 통해 accessToken을 재발급 받는 로직
-    // 위에서 5분 이하 or 만료가 된 경우 이미 accessToken을 재발급받는 로직이 있으므로 아래 식이 실행될 일은 없음
     if (status === 401) {
       const refreshToken = localStorage.getItem('refreshToken')
         ? localStorage.getItem('refreshToken')

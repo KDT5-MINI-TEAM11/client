@@ -6,6 +6,8 @@ import { Typography } from 'antd';
 import { DUTY_ANNUAL } from '@/data/constants';
 import { cancelScheduleRequest } from '@/api/mySchedule';
 import { useState } from 'react';
+import { useSetRecoilState } from 'recoil';
+import { ReRenderStateAtom } from '@/recoil/ReRenderStateAtom';
 
 const { Text } = Typography;
 
@@ -25,11 +27,14 @@ export default function MySchedule({
 }: MyScheduleProps) {
   const [isDeletingRequest, setIsDeletingRequest] = useState(false);
 
+  const setReRender = useSetRecoilState(ReRenderStateAtom);
+
   const handleCancleSchedule = async (key: number) => {
     try {
       setIsDeletingRequest(true);
       await cancelScheduleRequest(key);
       setToggleRequest((prev) => !prev);
+      setReRender((prev) => !prev);
     } catch (error) {
       console.log(error);
     } finally {

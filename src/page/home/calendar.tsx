@@ -120,7 +120,7 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
           display: 'flex',
           width: '100%',
           alignItems: 'center',
-          height: '100px',
+          height: '80px',
         }}
       >
         <div style={{ flex: 1 }}>
@@ -147,8 +147,12 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
           <Space>
             <Button onClick={goPrev}>&lt;</Button>
             <Tooltip title="오늘로 이동하려면 클릭하세요.">
-              <Title style={{ margin: 0, cursor: 'pointer' }} onClick={goToday}>
-                {year}년{month}월
+              <Title
+                level={3}
+                style={{ margin: 0, cursor: 'pointer' }}
+                onClick={goToday}
+              >
+                {year}년 {month}월
               </Title>
             </Tooltip>
             <Button onClick={goNext}> &gt;</Button>
