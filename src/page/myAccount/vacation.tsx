@@ -1,5 +1,6 @@
 import { getMySchedule } from '@/api/mySchedule';
 import RequesTag from '@/components/RequesTag';
+import { DUTY_ANNUAL } from '@/data/constants';
 import { cancelScheduleRequest } from '@/api/mySchedule';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
 import { Select, Button, Table, message, Popconfirm } from 'antd';
@@ -93,10 +94,13 @@ export default function Vaction() {
       title: '연차/당직',
       dataIndex: 'scheduleType',
       key: 'scheduleType',
+      align: 'center',
       render: (_, { scheduleType }) => (
-        <div style={{ marginRight: 5 }}>
-          {scheduleType === 'DUTY' ? '당직' : '연차'}
-        </div>
+        <span
+          style={{ color: DUTY_ANNUAL[scheduleType].color, fontWeight: 700 }}
+        >
+          {DUTY_ANNUAL[scheduleType].label}
+        </span>
       ),
       filters: [
         {
@@ -115,6 +119,7 @@ export default function Vaction() {
       title: '시작일',
       dataIndex: 'startDate',
       key: 'startDate',
+      align: 'center',
       sorter: (a, b) =>
         Number(a.startDate.replaceAll('-', '')) -
         Number(b.startDate.replaceAll('-', '')),
@@ -124,6 +129,7 @@ export default function Vaction() {
       title: '종료일',
       dataIndex: 'endDate',
       key: 'endDate',
+      align: 'center',
       sorter: (a, b) =>
         Number(a.endDate.replaceAll('-', '')) -
         Number(b.endDate.replaceAll('-', '')),
@@ -150,10 +156,12 @@ export default function Vaction() {
       ],
       onFilter: (value: string | number | boolean, record) =>
         record.state.includes(value as string),
+      align: 'center',
     },
     {
       title: 'Action',
       key: 'action',
+      align: 'center',
       render: (_, { id }) => (
         <Popconfirm
           title="목록 삭제"
@@ -162,12 +170,7 @@ export default function Vaction() {
           okText="Yes"
           cancelText="No"
         >
-          <Button
-            size="small"
-            style={{ marginRight: 50 }}
-            disabled={isLoading}
-            danger
-          >
+          <Button size="small" disabled={isLoading} danger>
             삭제
           </Button>
         </Popconfirm>
@@ -189,7 +192,7 @@ export default function Vaction() {
     <>
       {contextHolder}
       <Select
-        style={{ width: 100 }}
+        style={{ width: 100, padding: 5 }}
         defaultValue={currentYear}
         value={year}
         onChange={(value) => setYear(value)}

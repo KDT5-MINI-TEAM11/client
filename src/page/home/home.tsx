@@ -67,11 +67,12 @@ export default function Home() {
         const response = await getMySchedule(year);
         if (response.status === 200) {
           const myScheduleData = response.data.response as IMySchedule[];
+
           // 성공했을때
           setMyschedule(
             myScheduleData.map((schedule) => ({
               ...schedule,
-              key: Math.random(), // 서버에서 받아야함
+              key: schedule.id,
             })),
           );
           return;
@@ -131,7 +132,6 @@ export default function Home() {
     if (!accessToken) {
       return;
     }
-
     try {
       setIsAddingRequest(true);
       const response = await addScheduleRequest(scheduleInput);
@@ -144,8 +144,8 @@ export default function Home() {
             ]?.label
           } 신청 완료`,
         });
+        setToggleRequest((prev) => !prev);
       }
-      setToggleRequest((prev) => !prev);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       messageApi.open({
@@ -157,6 +157,10 @@ export default function Home() {
     } finally {
       setIsAddingRequest(false);
     }
+  };
+
+  const pastDates = (current: dayjs.Dayjs) => {
+    return current < dayjs().startOf('day');
   };
 
   return (
@@ -184,7 +188,6 @@ export default function Home() {
           width={300}
           style={{
             background: 'white',
-            padding: 10,
           }}
         >
           <div
@@ -199,6 +202,7 @@ export default function Home() {
             <div style={{ width: '100%' }}>
               <MySchedule
                 isPending
+                setToggleRequest={setToggleRequest}
                 schedule={myPendingSchedule}
                 loading={isMyScheduleLoading}
                 caption="요청대기"
@@ -206,12 +210,13 @@ export default function Home() {
             </div>
             <div style={{ width: '100%' }}>
               <MySchedule
+                setToggleRequest={setToggleRequest}
                 schedule={approvedRejectdSchedule}
                 loading={isMyScheduleLoading}
                 caption="요청결과"
               />
             </div>
-            <Space direction="vertical" style={{ width: '100%' }}>
+            <Space direction="vertical" style={{ width: '100%', padding: 20 }}>
               <Select
                 defaultValue="DEFAULT"
                 style={{ width: '100%' }}
@@ -227,12 +232,14 @@ export default function Home() {
                   onChange={handleRangePicker}
                   style={{ width: '100%' }}
                   disabled={scheduleInput.scheduleType !== 'ANNUAL'}
+                  disabledDate={pastDates}
                 />
               ) : (
                 <DatePicker
                   onChange={handleDatePicker}
                   style={{ width: '100%' }}
                   disabled={scheduleInput.scheduleType !== 'DUTY'}
+                  disabledDate={pastDates}
                 />
               )}
 

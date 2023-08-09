@@ -5,6 +5,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { Typography } from 'antd';
 import { DUTY_ANNUAL } from '@/data/constants';
 import { cancelScheduleRequest } from '@/api/mySchedule';
+import { useState } from 'react';
 
 const { Text } = Typography;
 
@@ -13,18 +14,30 @@ interface MyScheduleProps {
   loading: boolean;
   caption: string;
   isPending?: boolean;
+  setToggleRequest: React.Dispatch<React.SetStateAction<boolean>>;
 }
 export default function MySchedule({
   isPending,
   schedule,
   loading,
   caption,
+  setToggleRequest,
 }: MyScheduleProps) {
+  const [isDeletingRequest, setIsDeletingRequest] = useState(false);
+
   const handleCancleSchedule = async (key: number) => {
     try {
+<<<<<<< HEAD
       await cancelScheduleRequest(key);
+=======
+      setIsDeletingRequest(true);
+      await cancelScheduleRequest(key);
+      setToggleRequest((prev) => !prev);
+>>>>>>> dev
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsDeletingRequest(false);
     }
   };
 
@@ -38,7 +51,13 @@ export default function MySchedule({
       dataIndex: 'scheduleType',
       key: 'scheduleType',
       align: 'center',
-      render: (_, { scheduleType }) => <>{DUTY_ANNUAL[scheduleType].label}</>,
+      render: (_, { scheduleType }) => (
+        <span
+          style={{ color: DUTY_ANNUAL[scheduleType].color, fontWeight: 700 }}
+        >
+          {DUTY_ANNUAL[scheduleType].label}
+        </span>
+      ),
     },
 
     {
@@ -50,7 +69,7 @@ export default function MySchedule({
       dataIndex: 'startDate',
       key: 'startDate',
       align: 'center',
-      render: (_, { startDate }) => <>{startDate.slice(5)}</>,
+      render: (_, { startDate }) => <>{startDate.slice(5, 10)}</>,
     },
     {
       title: (
@@ -61,7 +80,7 @@ export default function MySchedule({
       dataIndex: 'endDate',
       key: 'endDate',
       align: 'center',
-      render: (_, { endDate }) => <>{endDate.slice(5)}</>,
+      render: (_, { endDate }) => <>{endDate.slice(5, 10)}</>,
     },
     {
       title: (
@@ -74,6 +93,8 @@ export default function MySchedule({
       render: (_, { state, key }) => {
         return isPending ? (
           <Button
+            loading={isDeletingRequest}
+            disabled={isDeletingRequest}
             size="small"
             style={{ fontSize: 9 }}
             danger
