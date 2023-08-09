@@ -72,8 +72,7 @@ customAxios.interceptors.response.use(
       const refreshToken = localStorage.getItem('refreshToken');
 
       if (!refreshToken) {
-        Promise.reject(error);
-        return;
+        return Promise.reject(error);
       }
       try {
         const newAccessToken = await refreshAccessToken(refreshToken);
@@ -83,10 +82,10 @@ customAxios.interceptors.response.use(
         config.headers.Authorization = `Bearer ${newAccessToken}`;
         return axios(config);
       } catch (error) {
-        Promise.reject(error);
+        return Promise.reject(error);
       }
     } else {
-      Promise.reject(error);
+      return Promise.reject(error);
     }
   },
 );
