@@ -12,7 +12,7 @@ import AdminLayout from '@/page/myAccount/admin/adminLayout';
 import Approve from '@/page/myAccount/admin/approve';
 import Promote from '@/page/myAccount/admin/promote';
 import NotFound from '@/page/notFound/notFountd';
-import Signup from '@/page/signup/signUp';
+import Signup from '@/page/signup/signup';
 
 export default function App() {
   const theme = {

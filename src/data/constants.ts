@@ -1,4 +1,4 @@
-export const BASE_API_URL = 'https://54.206.244.160:8080/api';
+export const BASE_API_URL = 'https://prettyawesome.duckdns.org:8080/api';
 
 export const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 

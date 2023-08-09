@@ -1,4 +1,5 @@
 import { getMySchedule } from '@/api/mySchedule';
+import RequesTag from '@/components/RequesTag';
 import { DUTY_ANNUAL } from '@/data/constants';
 import { cancelScheduleRequest } from '@/api/mySchedule';
 import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
@@ -6,7 +7,6 @@ import { Select, Button, Table, message, Popconfirm } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
-import RequesTag from '@/components/RequesTag';
 
 interface CheckedVacationRequestType {
   key: number;
