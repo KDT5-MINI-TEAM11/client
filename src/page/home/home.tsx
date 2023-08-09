@@ -268,7 +268,6 @@ export default function Home() {
         <Layout style={{ padding: '0 15px', flex: 1, height: '100%' }}>
           <Content
             style={{
-              padding: '0 10px',
               background: 'white',
               height: '100%',
               overflow: 'auto',

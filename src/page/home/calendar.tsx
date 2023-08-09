@@ -116,7 +116,6 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
         style={{
           padding: '0 40px',
           backgroundColor: 'rgb(229 229 229)',
-          borderRadius: '20px 20px 0px 0px',
           display: 'flex',
           width: '100%',
           alignItems: 'center',
