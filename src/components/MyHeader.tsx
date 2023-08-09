@@ -47,7 +47,6 @@ export default function MyHeader() {
         return;
       }
       try {
-        // access토큰 만료가 5분 미만으로 남으면 재발급함
         const response = await getUserHeader();
         if (response.status === 200) {
           const userData = response.data.response;
@@ -63,10 +62,7 @@ export default function MyHeader() {
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
-        console.log(
-          error.response.data.error.message ||
-            '사용자 정보를 불러오지 못했습니다.',
-        );
+        console.log('헤더 유저정보 로딩 중 에러 발생:', error);
       } finally {
         setIsMyHeaderLoading(false);
       }
@@ -82,7 +78,7 @@ export default function MyHeader() {
     try {
       await signout();
     } catch (error) {
-      console.log(error);
+      console.log('로그아웃 중 에러발생 : ', error);
     } finally {
       // 로그아웃은 통신이 성공하든 실패하든 상관없이 토큰을 삭제해주면 된다.
       // 그러면 통신을 왜하냐고 물어볼 수 있는데 서버쪽에서 refresh 토큰을 삭제하기 위해서라고 함

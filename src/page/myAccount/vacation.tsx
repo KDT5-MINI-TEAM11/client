@@ -56,10 +56,7 @@ export default function Vaction() {
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      console.log(
-        error.response.data.error.message ||
-          '연가/당직 데이터를 불러오지 못했습니다.',
-      );
+      console.log('연가/당직 데이터를 불러오지 못했습니다. : ', error);
     } finally {
       setIsvacationRequestsLoading(false);
     }

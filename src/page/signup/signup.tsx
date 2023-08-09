@@ -99,7 +99,7 @@ export default function Signup() {
       messageApi.open({
         type: 'error',
         content:
-          error.response.data.error.message ||
+          error.response?.data.error.message ||
           '회원가입에 실패하였습니다. 관리자에게 문의하세요.',
       });
     } finally {
@@ -124,7 +124,7 @@ export default function Signup() {
         }
       }
     } catch (error) {
-      console.error('오류 발생:', error);
+      console.error('이미지 업로드중 오류 발생:', error);
       imageUrl = null; // 오류가 발생했으므로 imageUrl을 null로 설정
     }
 
@@ -240,7 +240,7 @@ export default function Signup() {
       messageApi.open({
         type: 'error',
         content:
-          error.response.data.error.message ||
+          error.response?.data.error.message ||
           '이메일 중복체크에 실패하였습니다. 관리자에게 문의하세요.',
       });
     } finally {

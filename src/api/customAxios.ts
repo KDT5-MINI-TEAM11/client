@@ -1,14 +1,12 @@
 import { BASE_API_URL } from '@/data/constants';
-import {
-  getAccessTokenFromCookie,
-  setAccessTokenToCookie,
-} from '@/utils/cookies';
+import { getAccessTokenFromCookie } from '@/utils/cookies';
 import getPayloadFromJWT from '@/utils/getPayloadFromJWT';
 import axios from 'axios';
+import refreshAccessToken from './auth/refreshTokens';
 
 export const customAxios = axios.create({
   baseURL: BASE_API_URL,
-  timeout: 2000, // 2초간 아무 응답이 없으면 취소
+  timeout: 5000, // 5초간 아무 응답이 없으면 취소
 });
 
 customAxios.interceptors.request.use(
@@ -32,30 +30,30 @@ customAxios.interceptors.request.use(
     const expirationLeft = expirationTime - currentTime;
     console.log(`만료 ${Math.floor(expirationLeft / 60)}분 남았습니다.`);
     // 만료시간이 여유 있으면 그냥 req를 return
-    if (expirationLeft > 5 * 60) return req;
+    // if (expirationLeft > 5 * 60) return req;
 
-    //// 만료시간 <= 5분 인 경우
+    // //// 만료시간 <= 5분 인 경우
 
-    // Bearer 토큰 없어도 된다. 있어도 되긴함
-    req.headers.Authorization = null;
+    // // Bearer 토큰 없어도 된다. 있어도 되긴함
+    // req.headers.Authorization = null;
 
-    const refreshToken = localStorage.getItem('refreshToken')
-      ? localStorage.getItem('refreshToken')
-      : null;
+    // const refreshToken = localStorage.getItem('refreshToken')
+    //   ? localStorage.getItem('refreshToken')
+    //   : null;
 
-    // 이 요청은 axios instance에서 하면 안된다.
-    const response = await axios.post(`${BASE_API_URL}/v2/auth/refresh-token`, {
-      refreshToken,
-    });
+    // // 이 요청은 axios instance에서 하면 안된다.
+    // const response = await axios.post(`${BASE_API_URL}/v2/auth/refresh-token`, {
+    //   refreshToken,
+    // });
 
-    // 새롭게 받은 refesh토큰 로컬저장소에 저장
-    localStorage.setItem('refreshToken', response.data.response.refreshToken);
-    // 새롭게 받은 access토큰 쿠키에 저장
-    setAccessTokenToCookie(response.data.response.accessToken);
-    console.log('토큰 재발급!');
+    // // 새롭게 받은 refesh토큰 로컬저장소에 저장
+    // localStorage.setItem('refreshToken', response.data.response.refreshToken);
+    // // 새롭게 받은 access토큰 쿠키에 저장
+    // setAccessTokenToCookie(response.data.response.accessToken);
+    // console.log('토큰 재발급!');
 
-    // 모든 access토큰이 필요한 요청에서 bearer를 새롭게 받은 access토큰으로 설정
-    req.headers.Authorization = `Bearer ${response.data.response.accessToken}`;
+    // // 모든 access토큰이 필요한 요청에서 bearer를 새롭게 받은 access토큰으로 설정
+    // req.headers.Authorization = `Bearer ${response.data.response.accessToken}`;
     return req;
   },
   (error) => {
@@ -67,33 +65,28 @@ customAxios.interceptors.response.use(
   (response) => {
     return response;
   },
-
-  // 에러인 경우 intercept
   async (error) => {
-    const status = error.response ? error.response.status : null;
+    const status = error.response?.data?.error?.status;
 
-    // accessToken이 만료가 되어서 401에러를 응답으로 받는경우 refreshToken을 통해 accessToken을 재발급 받는 로직
-    // 위에서 5분 이하 or 만료가 된 경우 이미 accessToken을 재발급받는 로직이 있으므로 아래 식이 실행될 일은 없음
     if (status === 401) {
-      const refreshToken = localStorage.getItem('refreshToken')
-        ? localStorage.getItem('refreshToken')
-        : null;
+      const refreshToken = localStorage.getItem('refreshToken');
 
-      // 이 요청은 axios instance에서 하면 안된다.
-      const response = await axios.post(
-        `${BASE_API_URL}/v2/auth/refresh-token`,
-        {
-          refreshToken,
-        },
-      );
+      if (!refreshToken) {
+        Promise.reject(error);
+        return;
+      }
+      try {
+        const newAccessToken = await refreshAccessToken(refreshToken);
 
-      // 새롭게 받은 refesh토큰 로컬저장소에 저장
-      localStorage.setItem('refreshToken', response.data.response.refreshToken);
-      // 새롭게 받은 access토큰 쿠키에 저장
-      setAccessTokenToCookie(response.data.response.accessToken);
-      console.log('토큰 재발급!');
+        // 기존의 요청들
+        const config = error.config;
+        config.headers.Authorization = `Bearer ${newAccessToken}`;
+        return axios(config);
+      } catch (error) {
+        Promise.reject(error);
+      }
+    } else {
+      Promise.reject(error);
     }
-
-    return Promise.reject(error);
   },
 );

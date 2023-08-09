@@ -78,14 +78,11 @@ export default function MyAccount() {
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
-        console.log(
-          error.response.data.error.message ||
-            '사용자 정보를 불러오지 못했습니다.',
-        );
+        console.log('내 계정 데이터 로딩 실패 :', error);
       }
     };
     getData();
-  }, []);
+  }, [accessToken]);
 
   const handleChangeMyInfo = async () => {
     try {
@@ -98,7 +95,6 @@ export default function MyAccount() {
           phoneNumber: editPhoneNumberInput,
         }));
         // 성공
-        console.log(response);
         messageApi.open({
           type: 'success',
           content: '전화번호를 수정하였습니다.',
@@ -106,13 +102,9 @@ export default function MyAccount() {
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      console.log(
-        error.response.data.error.message ||
-          '사용자 정보 수정에 실패하였습니다.',
-      );
       messageApi.open({
         type: 'error',
-        content: '전화번호를 수정실패',
+        content: error.response?.data.error.message || '전화번호를 수정실패',
       });
     } finally {
       setEditPhoneNumber(false);
@@ -133,7 +125,6 @@ export default function MyAccount() {
           profileThumbUrl: imageUrl,
         }));
         // 성공
-        console.log(response);
         messageApi.open({
           type: 'success',
           content: '프로필 이미지를 수정하였습니다.',
@@ -141,13 +132,9 @@ export default function MyAccount() {
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      console.log(
-        error.response.data.error.message ||
-          '사용자 정보 수정에 실패하였습니다.',
-      );
       messageApi.open({
         type: 'error',
-        content: '프로필 이미지 수정실패',
+        content: error.response?.data.error.message || '프로필 이미지 수정실패',
       });
     } finally {
       setEditProfileThumbUrl(false);
@@ -178,8 +165,13 @@ export default function MyAccount() {
           throw new Error('이미지 업로드에 실패하였습니다.');
         }
       }
-    } catch (error) {
-      console.error('오류 발생:', error);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error('이미지 업로드중 오류 :', error);
+      messageApi.open({
+        type: 'error',
+        content: error.response?.data.error.message || '프로필 이미지 수정실패',
+      });
       imageUrl = null; // 오류가 발생했으므로 imageUrl을 null로 설정
     }
 

@@ -84,7 +84,7 @@ export default function Signin({
       messageApi.open({
         type: 'error',
         content:
-          error.response.data.error.message ||
+          error.response?.data.error.message ||
           '로그인에 실패하였습니다. 관리자에게 문의하세요.',
       });
     } finally {
