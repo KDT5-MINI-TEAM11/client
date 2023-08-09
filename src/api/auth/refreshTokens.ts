@@ -7,7 +7,7 @@ import axios from 'axios';
 
 export default async function refreshAccessToken() {
   try {
-    const response = await axios(`${BASE_API_URL}/v2/auth/refresh-token`, {
+    const response = await axios(`${BASE_API_URL}/v1/auth/refresh-token`, {
       // refreshToken,
     });
     if (response.status === 200) {
