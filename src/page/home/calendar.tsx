@@ -26,7 +26,6 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
   // 데이터로 받아올 events를 상태관리
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [events, setEvents] = useState([]);
-  // 달력의 현재 년도 상태관리
 
   // 달력의 현재 월 상태관리
   const [month, setMonth] = useState(new Date().getMonth() + 1);
@@ -39,9 +38,6 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
   const calendarRef = useRef<FullCalendar | null>(null);
 
   const { Title } = Typography;
-
-  /*   // 로그아웃 시에 이벤트를 비워서 리렌더링 시키기 위해 사용
-  const clearEvents = () => setEvents([]); */
 
   // 데이터 변경시에 화면 리렌더링 되게
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -86,13 +82,6 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
     schedule();
   }, [isSignedin, year, month, isAllChecked]);
 
-  // 로그아웃 상태면 달력에 이벤트 렌더링 x
-  /*   useEffect(() => {
-    clearEvents();
-  }, [isSignedin]); */
-
-  // scheduleType에 따른 색상 변환
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderDayCellContent = (args: any) => {
     // '일' 문자 제거
@@ -104,22 +93,6 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
     const date = info.view.currentStart;
     setYear(date.getFullYear());
     setMonth(date.getMonth() + 1);
-  };
-
-  /* 
-  const formatDateToKorean = (date: Date) => {
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1; 
-    const day = date.getDate();
-
-    return `${year}년 ${month}월 ${day}일`;
-  }; */
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleEventClick = (info: any) => {
-    console.log(info.event.title);
-    console.log(info.event.start);
-    console.log(info.event.end);
   };
 
   const goPrev = () => {
@@ -143,11 +116,10 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
         style={{
           padding: '0 40px',
           backgroundColor: 'rgb(229 229 229)',
-          borderRadius: '20px 20px 0px 0px',
           display: 'flex',
           width: '100%',
           alignItems: 'center',
-          height: '100px',
+          height: '80px',
         }}
       >
         <div style={{ flex: 1 }}>
@@ -174,8 +146,12 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
           <Space>
             <Button onClick={goPrev}>&lt;</Button>
             <Tooltip title="오늘로 이동하려면 클릭하세요.">
-              <Title style={{ margin: 0, cursor: 'pointer' }} onClick={goToday}>
-                {year}년{month}월
+              <Title
+                level={3}
+                style={{ margin: 0, cursor: 'pointer' }}
+                onClick={goToday}
+              >
+                {year}년 {month}월
               </Title>
             </Tooltip>
             <Button onClick={goNext}> &gt;</Button>
@@ -194,7 +170,6 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
         locale={'ko'} // 지역
         dayCellContent={renderDayCellContent} // '일' 문자 렌더링 변경
         ref={calendarRef}
-        eventClick={handleEventClick}
         headerToolbar={false}
       />
     </>

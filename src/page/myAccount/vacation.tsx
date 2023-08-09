@@ -6,7 +6,9 @@ import { AccessTokenAtom } from '@/recoil/AccessTokkenAtom';
 import { Select, Button, Table, message, Popconfirm } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { ReRenderStateAtom } from '@/recoil/ReRenderStateAtom';
+import dayjs from 'dayjs';
 
 interface CheckedVacationRequestType {
   key: number;
@@ -35,6 +37,8 @@ export default function Vaction() {
   const [year, setYear] = useState(currentYear);
 
   const accessToken = useRecoilValue(AccessTokenAtom);
+
+  const setReRender = useSetRecoilState(ReRenderStateAtom);
 
   const { Option } = Select;
 
@@ -74,6 +78,11 @@ export default function Vaction() {
       if (response.status === 200) {
         // 삭제가 성공하면 데이터 다시 불러오기
         fetchData();
+        messageApi.open({
+          type: 'success',
+          content: '삭제되었습니다.',
+        });
+        setReRender((prev) => !prev);
       }
     } catch (error) {
       console.log(error);
@@ -84,6 +93,10 @@ export default function Vaction() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const pastDates = (current: dayjs.Dayjs) => {
+    return current < dayjs().startOf('day');
   };
 
   const columns: ColumnsType<CheckedVacationRequestType> = [
@@ -117,6 +130,7 @@ export default function Vaction() {
       dataIndex: 'startDate',
       key: 'startDate',
       align: 'center',
+      defaultSortOrder: 'descend',
       sorter: (a, b) =>
         Number(a.startDate.replaceAll('-', '')) -
         Number(b.startDate.replaceAll('-', '')),
@@ -159,15 +173,20 @@ export default function Vaction() {
       title: 'Action',
       key: 'action',
       align: 'center',
-      render: (_, { id }) => (
+      render: (_, { id, endDate }) => (
         <Popconfirm
           title="목록 삭제"
           description="삭제하시겠습니까?"
           onConfirm={() => handleCancelSchedule(id)}
           okText="Yes"
           cancelText="No"
+          disabled={pastDates(dayjs(endDate))}
         >
-          <Button size="small" disabled={isLoading} danger>
+          <Button
+            size="small"
+            disabled={isLoading || pastDates(dayjs(endDate))}
+            danger
+          >
             삭제
           </Button>
         </Popconfirm>

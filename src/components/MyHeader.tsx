@@ -4,11 +4,12 @@ import { Button, Skeleton, Space, message, theme } from 'antd';
 import { Header } from 'antd/es/layout/layout';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState, useRecoilValue } from 'recoil';
 import UserInfo from '@/components/UserInfo';
 import { deleteAccessTokenFromCookie } from '@/utils/cookies';
 import { IsManagerAtom } from '@/recoil/IsManagerAtom';
 import { getUserHeader } from '@/api/home/getUserHeader';
+import { ReRenderStateAtom } from '@/recoil/ReRenderStateAtom';
 
 export default function MyHeader() {
   const setIsManager = useSetRecoilState(IsManagerAtom);
@@ -37,6 +38,8 @@ export default function MyHeader() {
   });
 
   const [isMyHeaderLoading, setIsMyHeaderLoading] = useState(false);
+
+  const reRender = useRecoilValue(ReRenderStateAtom);
 
   useEffect(() => {
     setIsMyHeaderLoading(true);
@@ -69,7 +72,7 @@ export default function MyHeader() {
     };
     getData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accessToken]);
+  }, [accessToken, reRender]);
 
   const handleSignout = async () => {
     // 로그아웃하는 시간동안 ui를 위해

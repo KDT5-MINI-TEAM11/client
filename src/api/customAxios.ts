@@ -1,8 +1,8 @@
 import { BASE_API_URL } from '@/data/constants';
 import { getAccessTokenFromCookie } from '@/utils/cookies';
-import getPayloadFromJWT from '@/utils/getPayloadFromJWT';
 import axios from 'axios';
 import refreshAccessToken from './auth/refreshTokens';
+import getPayloadFromJWT from '@/utils/getPayloadFromJWT';
 
 export const customAxios = axios.create({
   baseURL: BASE_API_URL,
@@ -52,7 +52,7 @@ customAxios.interceptors.request.use(
     // setAccessTokenToCookie(response.data.response.accessToken);
     // console.log('토큰 재발급!');
 
-    // // 모든 access토큰이 필요한 요청에서 bearer를 새롭게 받은 access토큰으로 설정
+    // 모든 access토큰이 필요한 요청에서 bearer를 새롭게 받은 access토큰으로 설정
     // req.headers.Authorization = `Bearer ${response.data.response.accessToken}`;
     return req;
   },

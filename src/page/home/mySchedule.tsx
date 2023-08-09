@@ -6,6 +6,8 @@ import { Typography } from 'antd';
 import { DUTY_ANNUAL } from '@/data/constants';
 import { cancelScheduleRequest } from '@/api/mySchedule';
 import { useState } from 'react';
+import { useSetRecoilState } from 'recoil';
+import { ReRenderStateAtom } from '@/recoil/ReRenderStateAtom';
 
 const { Text } = Typography;
 
@@ -24,6 +26,9 @@ export default function MySchedule({
   setToggleRequest,
 }: MyScheduleProps) {
   const [isDeletingRequest, setIsDeletingRequest] = useState(false);
+
+  const setReRender = useSetRecoilState(ReRenderStateAtom);
+
   // antd message(화면 상단에 뜨는 메세지)기능
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -37,14 +42,13 @@ export default function MySchedule({
           content: response.data.response,
         });
         setToggleRequest((prev) => !prev);
+        setReRender((prev) => !prev);
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       messageApi.open({
         type: 'error',
-        content:
-          error.response?.data.error.message ||
-          '연차, 당직 요청 취소 중 오류가 발생하였습니다.',
+        content: error.response?.data.error.message || '취소에 실패하였습니다.',
       });
     } finally {
       setIsDeletingRequest(false);
@@ -119,7 +123,11 @@ export default function MySchedule({
       align: 'center',
     },
   ];
-
+  const sortedData = schedule.sort(
+    (a, b) =>
+      Number(b.startDate.replaceAll('-', '')) -
+      Number(a.startDate.replaceAll('-', '')),
+  );
   return (
     <>
       {contextHolder}
@@ -128,7 +136,7 @@ export default function MySchedule({
         rowClassName="myScheduleRow"
         pagination={{ defaultPageSize: 5 }}
         columns={columns}
-        dataSource={schedule}
+        dataSource={sortedData}
         size="small"
         loading={loading}
       />
