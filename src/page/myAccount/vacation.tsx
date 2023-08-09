@@ -133,6 +133,7 @@ export default function Vaction() {
       dataIndex: 'startDate',
       key: 'startDate',
       align: 'center',
+      defaultSortOrder: 'descend',
       sorter: (a, b) =>
         Number(a.startDate.replaceAll('-', '')) -
         Number(b.startDate.replaceAll('-', '')),

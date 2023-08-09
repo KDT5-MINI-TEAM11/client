@@ -110,14 +110,18 @@ export default function MySchedule({
       align: 'center',
     },
   ];
-
+  const sortedData = schedule.sort(
+    (a, b) =>
+      Number(b.startDate.replaceAll('-', '')) -
+      Number(a.startDate.replaceAll('-', '')),
+  );
   return (
     <Table
       caption={caption}
       rowClassName="myScheduleRow"
       pagination={{ defaultPageSize: 5 }}
       columns={columns}
-      dataSource={schedule}
+      dataSource={sortedData}
       size="small"
       loading={loading}
     />
