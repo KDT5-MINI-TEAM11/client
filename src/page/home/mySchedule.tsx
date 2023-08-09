@@ -27,13 +27,9 @@ export default function MySchedule({
 
   const handleCancleSchedule = async (key: number) => {
     try {
-<<<<<<< HEAD
-      await cancelScheduleRequest(key);
-=======
       setIsDeletingRequest(true);
       await cancelScheduleRequest(key);
       setToggleRequest((prev) => !prev);
->>>>>>> dev
     } catch (error) {
       console.log(error);
     } finally {
