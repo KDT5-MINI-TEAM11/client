@@ -56,10 +56,7 @@ export default function Approve() {
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
-        console.log(
-          error.response.data.error.message ||
-            '연가/당직 데이터를 불러오지 못했습니다.',
-        );
+        console.log('연가/당직 데이터를 불러오는 중 에러발생 : ', error);
       } finally {
         setIsvacationRequestsLoading(false);
       }
@@ -81,17 +78,19 @@ export default function Approve() {
             request.id === id ? { ...request, state: type } : request,
           ),
         );
-        console.log(response);
         messageApi.open({
           type: 'success',
-          content: response.data.response, // 취소시에 왜 메세지 null임!!
+          content: response.data.response,
         });
       }
-    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       console.log(error);
       messageApi.open({
         type: 'error',
-        content: '요청 실패', //수정
+        content:
+          error.response?.data.error.message ||
+          '연차/당직 승인, 거절, 취소 실패',
       });
     } finally {
       setIsApproving(false);
@@ -130,6 +129,7 @@ export default function Approve() {
       sorter: (a, b) =>
         Number(a.startDate.replaceAll('-', '')) -
         Number(b.startDate.replaceAll('-', '')),
+      render: (_, { startDate }) => <>{startDate.slice(0, 10)}</>,
     },
 
     {
@@ -140,6 +140,7 @@ export default function Approve() {
       sorter: (a, b) =>
         Number(a.endDate.replaceAll('-', '')) -
         Number(b.endDate.replaceAll('-', '')),
+      render: (_, { endDate }) => <>{endDate.slice(0, 10)}</>,
     },
 
     {

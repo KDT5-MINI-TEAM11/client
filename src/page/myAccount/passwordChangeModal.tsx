@@ -98,10 +98,6 @@ export default function PasswordChangeModal({
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      console.log(
-        error.response.data.error.message ||
-          '사용자 정보 수정에 실패하였습니다.',
-      );
       messageApi.open({
         type: 'success',
         content:

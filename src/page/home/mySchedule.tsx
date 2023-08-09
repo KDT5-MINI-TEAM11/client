@@ -1,6 +1,6 @@
 import RequesTag from '@/components/RequesTag';
 import { IMySchedule } from '@/types/IMySchdule';
-import { Button, Table } from 'antd';
+import { Button, Table, message } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { Typography } from 'antd';
 import { DUTY_ANNUAL } from '@/data/constants';
@@ -29,14 +29,27 @@ export default function MySchedule({
 
   const setReRender = useSetRecoilState(ReRenderStateAtom);
 
+  // antd message(화면 상단에 뜨는 메세지)기능
+  const [messageApi, contextHolder] = message.useMessage();
+
   const handleCancleSchedule = async (key: number) => {
     try {
       setIsDeletingRequest(true);
-      await cancelScheduleRequest(key);
-      setToggleRequest((prev) => !prev);
-      setReRender((prev) => !prev);
-    } catch (error) {
-      console.log(error);
+      const response = await cancelScheduleRequest(key);
+      if (response.status === 200) {
+        messageApi.open({
+          type: 'success',
+          content: response.data.response,
+        });
+        setToggleRequest((prev) => !prev);
+        setReRender((prev) => !prev);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      messageApi.open({
+        type: 'error',
+        content: error.response?.data.error.message || '취소에 실패하였습니다.',
+      });
     } finally {
       setIsDeletingRequest(false);
     }
@@ -116,14 +129,17 @@ export default function MySchedule({
       Number(a.startDate.replaceAll('-', '')),
   );
   return (
-    <Table
-      caption={caption}
-      rowClassName="myScheduleRow"
-      pagination={{ defaultPageSize: 5 }}
-      columns={columns}
-      dataSource={sortedData}
-      size="small"
-      loading={loading}
-    />
+    <>
+      {contextHolder}
+      <Table
+        caption={caption}
+        rowClassName="myScheduleRow"
+        pagination={{ defaultPageSize: 5 }}
+        columns={columns}
+        dataSource={sortedData}
+        size="small"
+        loading={loading}
+      />
+    </>
   );
 }

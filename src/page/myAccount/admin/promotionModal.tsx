@@ -51,7 +51,7 @@ export default function PromotionModal({
       if (response.status === 200) {
         messageApi.open({
           type: 'success',
-          content: '서버에서 메세지 올거임', //수정
+          content: response.data.response,
         });
         setSelectedWorker(
           (prev) =>
@@ -63,10 +63,12 @@ export default function PromotionModal({
         setSelectedPosition('변경');
         return;
       }
-    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       messageApi.open({
         type: 'error',
-        content: '서버에서 메세지 올거임??', //수정
+        content:
+          error.response?.data.error.message || '직책 변경에 실패하였습니다.',
       });
     }
   };

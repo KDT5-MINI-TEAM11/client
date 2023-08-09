@@ -80,10 +80,7 @@ export default function Home() {
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
-        console.log(
-          error.response.data.error.message ||
-            '내 당직연차 데이터를 불러오지 못했습니다.',
-        );
+        console.log('내 스케쥴 정보 로딩 중 에러발생 : ', error);
       } finally {
         setIsMyScheduleLoading(false);
       }
@@ -153,7 +150,7 @@ export default function Home() {
       messageApi.open({
         type: 'error',
         content:
-          error.response.data.error.message ||
+          error.response?.data.error.message ||
           '연차, 당직 신청 등록 중 오류가 발생하였습니다.',
       });
     } finally {
