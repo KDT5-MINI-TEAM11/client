@@ -69,13 +69,13 @@ customAxios.interceptors.response.use(
     const status = error.response?.data?.error?.status;
 
     if (status === 401) {
-      const refreshToken = localStorage.getItem('refreshToken');
+      // const refreshToken = localStorage.getItem('refreshToken');
 
-      if (!refreshToken) {
-        return Promise.reject(error);
-      }
+      // if (!refreshToken) {
+      //   return Promise.reject(error);
+      // }
       try {
-        const newAccessToken = await refreshAccessToken(refreshToken);
+        const newAccessToken = await refreshAccessToken();
 
         // 기존의 요청들
         const config = error.config;
