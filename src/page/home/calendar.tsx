@@ -7,6 +7,7 @@ import { Switch, Button, Space, Typography, Tooltip } from 'antd';
 import { getMyAccount } from '@/api/myAccount/getMyAccount';
 import { getAccessTokenFromCookie } from '@/utils/cookies';
 import { DUTY_ANNUAL } from '@/data/constants';
+import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 
 interface ScheduleItem {
   userName: string;
@@ -80,7 +81,7 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
       setIsLoading(false);
     };
     schedule();
-  }, [isSignedin, year, month, isAllChecked]);
+  }, [isSignedin, year, isAllChecked]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderDayCellContent = (args: any) => {
@@ -114,17 +115,17 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
     <>
       <div
         style={{
-          padding: '0 40px',
-          backgroundColor: 'rgb(229 229 229)',
+          padding: '0 20px',
           display: 'flex',
           width: '100%',
           alignItems: 'center',
-          height: '80px',
+          height: '60px',
         }}
       >
         <div style={{ flex: 1 }}>
           <Tooltip title="모든 일정 또는 나의 일정 확인 가능">
             <Switch
+              style={{ marginRight: 10 }}
               checkedChildren="All"
               unCheckedChildren="My"
               defaultChecked
@@ -144,34 +145,44 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
           }}
         >
           <Space>
-            <Button onClick={goPrev}>&lt;</Button>
+            <Button onClick={goPrev} shape="circle">
+              <LeftOutlined />
+            </Button>
             <Tooltip title="오늘로 이동하려면 클릭하세요.">
               <Title
-                level={3}
-                style={{ margin: 0, cursor: 'pointer' }}
+                level={5}
+                style={{
+                  width: 150,
+                  margin: '0 auto',
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                }}
                 onClick={goToday}
               >
                 {year}년 {month}월
               </Title>
             </Tooltip>
-            <Button onClick={goNext}> &gt;</Button>
+            <Button onClick={goNext} shape="circle">
+              <RightOutlined />
+            </Button>
           </Space>
         </div>
-
         <div style={{ flex: 1 }}></div>
       </div>
-      <FullCalendar
-        plugins={[dayGridPlugin, interactionPlugin]}
-        initialView="dayGridMonth"
-        dayMaxEvents={true}
-        events={events} // 연차 당직 달력에 표시
-        height={'800px'}
-        datesSet={handleDateSet}
-        locale={'ko'} // 지역
-        dayCellContent={renderDayCellContent} // '일' 문자 렌더링 변경
-        ref={calendarRef}
-        headerToolbar={false}
-      />
+      <div style={{ padding: '0 20px 20px 20px' }}>
+        <FullCalendar
+          plugins={[dayGridPlugin, interactionPlugin]}
+          initialView="dayGridMonth"
+          dayMaxEvents={true}
+          events={events} // 연차 당직 달력에 표시
+          height={'calc(100vh - 140px)'}
+          datesSet={handleDateSet}
+          locale={'ko'} // 지역
+          dayCellContent={renderDayCellContent} // '일' 문자 렌더링 변경
+          ref={calendarRef}
+          headerToolbar={false}
+        />
+      </div>
     </>
   );
 }

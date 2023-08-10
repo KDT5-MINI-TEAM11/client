@@ -215,6 +215,7 @@ export default function Approve() {
         columns={columns}
         dataSource={vacationRequests}
         loading={isvacationRequestsLoading}
+        pagination={{ style: { marginRight: 20 }, defaultPageSize: 15 }}
       />
     </>
   );

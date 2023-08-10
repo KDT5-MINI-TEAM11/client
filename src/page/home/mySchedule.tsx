@@ -134,7 +134,7 @@ export default function MySchedule({
       <Table
         caption={caption}
         rowClassName="myScheduleRow"
-        pagination={{ defaultPageSize: 5 }}
+        pagination={{ defaultPageSize: 5, style: { paddingRight: 10 } }}
         columns={columns}
         dataSource={sortedData}
         size="small"
