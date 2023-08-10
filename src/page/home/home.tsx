@@ -44,8 +44,6 @@ export default function Home() {
 
   const [messageApi, contextHolder] = message.useMessage();
 
-  const [toggleRequest, setToggleRequest] = useState(false);
-
   const [year, setYear] = useState(new Date().getFullYear());
   // const {
   //   token: { colorTextLabel },
@@ -223,7 +221,6 @@ export default function Home() {
             ]?.label
           } 신청 완료`,
         });
-        setToggleRequest((prev) => !prev);
         setReRender((prev) => !prev);
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -275,7 +272,7 @@ export default function Home() {
             background: 'white',
             paddingTop: 20,
           }}
-          className="sider"
+          className="booh"
         >
           <div
             style={{
@@ -288,9 +285,8 @@ export default function Home() {
           >
             <div style={{ width: '100%' }}>
               <MySchedule
-                isPending
                 setMyPendingScheduleList={setMyPendingScheduleList}
-                setToggleRequest={setToggleRequest}
+                isPending
                 schedule={myPendingScheduleList}
                 loading={pendingLoading}
                 caption="요청대기"
@@ -298,7 +294,7 @@ export default function Home() {
             </div>
             <div style={{ width: '100%' }}>
               <MySchedule
-                setToggleRequest={setToggleRequest}
+                setMyPendingScheduleList={setMyPendingScheduleList}
                 schedule={sideMySchedule}
                 loading={userYearlySchedulesLoading}
                 caption="요청결과"

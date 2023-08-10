@@ -16,7 +16,6 @@ interface MyScheduleProps {
   loading: boolean;
   caption: string;
   isPending?: boolean;
-  setToggleRequest: React.Dispatch<React.SetStateAction<boolean>>;
   setMyPendingScheduleList: React.Dispatch<
     React.SetStateAction<
       {
@@ -35,7 +34,6 @@ export default function MySchedule({
   schedule,
   loading,
   caption,
-  setToggleRequest,
   setMyPendingScheduleList,
 }: MyScheduleProps) {
   const [isDeletingRequest, setIsDeletingRequest] = useState(false);
@@ -54,7 +52,6 @@ export default function MySchedule({
           type: 'success',
           content: response.data.response,
         });
-        setToggleRequest((prev) => !prev);
         if (scheduleType === 'ANNUAL') {
           setReRender((prev) => !prev);
         }
