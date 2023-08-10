@@ -165,6 +165,8 @@ export default function Home() {
   return (
     <>
       {contextHolder}
+
+      {/* 로그인 창 */}
       <Modal
         title="로그인"
         centered
@@ -174,6 +176,7 @@ export default function Home() {
       >
         <Signin setIsModalOpen={setIsModalOpen} />
       </Modal>
+
       <Layout
         style={{
           filter: accessToken ? '' : 'blur(5px)',
@@ -187,7 +190,9 @@ export default function Home() {
           width={300}
           style={{
             background: 'white',
+            paddingTop: 20,
           }}
+          className="sider"
         >
           <div
             style={{
@@ -262,7 +267,7 @@ export default function Home() {
             </Space>
           </div>
         </Sider>
-        <Layout style={{ padding: '0 15px', flex: 1, height: '100%' }}>
+        <Layout style={{ paddingLeft: 10, flex: 1, height: '100%' }}>
           <Content
             style={{
               background: 'white',

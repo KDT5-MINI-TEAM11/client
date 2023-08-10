@@ -107,7 +107,6 @@ export default function MySchedule({
       render: (_, { state, key }) => {
         return isPending ? (
           <Button
-            loading={isDeletingRequest}
             disabled={isDeletingRequest}
             size="small"
             style={{ fontSize: 9 }}
@@ -134,7 +133,7 @@ export default function MySchedule({
       <Table
         caption={caption}
         rowClassName="myScheduleRow"
-        pagination={{ defaultPageSize: 5 }}
+        pagination={{ defaultPageSize: 5, style: { paddingRight: 10 } }}
         columns={columns}
         dataSource={sortedData}
         size="small"

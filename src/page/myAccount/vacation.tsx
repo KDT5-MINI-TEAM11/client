@@ -222,6 +222,7 @@ export default function Vaction() {
         columns={columns}
         dataSource={checkedVacationRequests}
         loading={isvacationRequestsLoading}
+        pagination={{ style: { marginRight: 20 }, defaultPageSize: 15 }}
       />
     </>
   );

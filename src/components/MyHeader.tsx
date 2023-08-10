@@ -12,10 +12,7 @@ import { getUserHeader } from '@/api/home/getUserHeader';
 import { ReRenderStateAtom } from '@/recoil/ReRenderStateAtom';
 
 export default function MyHeader() {
-  const setIsManager = useSetRecoilState(IsManagerAtom);
-
-  // access토큰의 만료시간이 5분 이내로 남았을 때 새로운 토큰을 발급하는 커스텀훅
-
+  // antd theme
   const {
     token: { colorPrimaryBg },
   } = theme.useToken();
@@ -23,13 +20,13 @@ export default function MyHeader() {
   // antd message(화면 상단에 뜨는 메세지)기능
   const [messageApi, contextHolder] = message.useMessage();
 
-  // 로그아웃 통신 로딩 ui
-  const [isSigningout, setIsSigningout] = useState(false);
-
   // 리코일 전역 access토큰
   const [accessToken, setAccessToken] = useRecoilState(AccessTokenAtom);
 
-  // 네브바에 표시될 정보들
+  const reRender = useRecoilValue(ReRenderStateAtom);
+
+  // **네브바에 있는 유저 정보 GET요청**
+  // 네브바에 표시될 유저 정보들
   const [userHeaderInfo, setUserHeaderInfo] = useState({
     userName: '',
     profileThumbNail: '',
@@ -37,19 +34,19 @@ export default function MyHeader() {
     usedVacation: '',
   });
 
+  // 매니저여부 set하는 함수
+  const setIsManager = useSetRecoilState(IsManagerAtom);
+
+  // 통신 loading
   const [isMyHeaderLoading, setIsMyHeaderLoading] = useState(false);
 
-  const reRender = useRecoilValue(ReRenderStateAtom);
-
   useEffect(() => {
-    setIsMyHeaderLoading(true);
     const getData = async () => {
-      // access토큰이 없으면(로그인 상태가 아니면) 통신 할 이유가 없음
-      // 로그인 안하면 이 요청을 할 일은 애초에 없음
       if (!accessToken) {
         return;
       }
       try {
+        setIsMyHeaderLoading(true);
         const response = await getUserHeader();
         if (response.status === 200) {
           const userData = response.data.response;
@@ -74,11 +71,12 @@ export default function MyHeader() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, reRender]);
 
-  const handleSignout = async () => {
-    // 로그아웃하는 시간동안 ui를 위해
-    setIsSigningout(true);
+  // 로그아웃 통신 로딩 ui
+  const [isSigningout, setIsSigningout] = useState(false);
 
+  const handleSignout = async () => {
     try {
+      setIsSigningout(true);
       await signout();
     } catch (error) {
       console.log('로그아웃 중 에러발생 : ', error);
@@ -109,7 +107,13 @@ export default function MyHeader() {
   return (
     <>
       {contextHolder}
-      <Header style={{ backgroundColor: colorPrimaryBg, height: 60 }}>
+      <Header
+        style={{
+          backgroundColor: colorPrimaryBg,
+          height: 60,
+          borderBottom: '1px solid #eee',
+        }}
+      >
         <div
           style={{
             height: 60,
@@ -117,7 +121,7 @@ export default function MyHeader() {
             justifyContent: 'space-between',
           }}
         >
-          <Link to="/" style={{ fontSize: 30 }}>
+          <Link to="/" style={{ fontSize: 30 }} className="icons">
             🏠
           </Link>
           {accessToken ? (
