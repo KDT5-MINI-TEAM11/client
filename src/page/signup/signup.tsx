@@ -90,7 +90,7 @@ export default function Signup() {
         // 회원가입이 성공한 경우 홈으로 이동
         setTimeout(() => {
           navigate('/');
-        }, 2000);
+        }, 1000);
 
         return;
       }
@@ -159,45 +159,35 @@ export default function Signup() {
 
     if (!NUMBER_REGEX.test(value) && !ENGLISH_REGEX.test(value)) {
       return Promise.reject(
-        new Error(
-          '비밀번호에는 최소 하나의 숫자와 영어 대소문자가 포함되어야 합니다.',
-        ),
+        new Error('최소 하나의 숫자와 영어 대소문자가 포함되어야 합니다.'),
       );
     }
 
     if (!SPECIAL_REGEX.test(value) && !ENGLISH_REGEX.test(value)) {
       return Promise.reject(
-        new Error(
-          '비밀번호에는 최소 하나의 특수문자와 영어 대소문자가 포함되어야 합니다.',
-        ),
+        new Error('최소 하나의 특수문자와 영어 대소문자가 포함되어야 합니다.'),
       );
     }
 
     if (!NUMBER_REGEX.test(value) && !SPECIAL_REGEX.test(value)) {
       return Promise.reject(
-        new Error(
-          '비밀번호에는 최소 하나의 숫자와 특수문자가 포함되어야 합니다.',
-        ),
+        new Error('최소 하나의 숫자와 특수문자가 포함되어야 합니다.'),
       );
     }
 
     if (!NUMBER_REGEX.test(value)) {
-      return Promise.reject(
-        new Error('비밀번호에는 최소 하나의 숫자가 포함되어야 합니다.'),
-      );
+      return Promise.reject(new Error('최소 하나의 숫자가 포함되어야 합니다.'));
     }
 
     if (!SPECIAL_REGEX.test(value)) {
       return Promise.reject(
-        new Error('비밀번호에는 최소 하나의 특수문자가 포함되어야 합니다.'),
+        new Error('최소 하나의 특수문자가 포함되어야 합니다.'),
       );
     }
 
     if (!ENGLISH_REGEX.test(value)) {
       return Promise.reject(
-        new Error(
-          '비밀번호에는 최소 하나의 영어 대소문자가 포함되어야 합니다.',
-        ),
+        new Error('최소 하나의 영어 대소문자가 포함되어야 합니다.'),
       );
     }
 

@@ -16,9 +16,8 @@ import dayjs from 'dayjs';
 import Calendar from './calendar';
 import Signin from '@/page/home/signin';
 import { DatePickerProps, RangePickerProps } from 'antd/es/date-picker';
-import { addScheduleRequest, getMySchedule } from '@/api/mySchedule';
+import { addScheduleRequest } from '@/api/mySchedule';
 import MySchedule from '@/page/home/mySchedule';
-import { IMySchedule } from '@/types/IMySchdule';
 import { DUTY_ANNUAL } from '@/data/constants';
 import { ReRenderStateAtom } from '@/recoil/ReRenderStateAtom';
 import { scheduleList } from '@/api/home/scheduleList';
@@ -27,13 +26,16 @@ import { UserEmailAtom } from '@/recoil/UserEmailAtom';
 const { RangePicker } = DatePicker;
 
 export interface ScheduleItem {
-  id: number;
   userEmail: string;
   userName: string;
   scheduleType: string;
   startDate: string;
   endDate: string;
   state: string;
+}
+
+interface mySchedule extends ScheduleItem {
+  id: number;
 }
 
 export default function Home() {
@@ -86,8 +88,6 @@ export default function Home() {
   const [userYearlySchedulesLoading, setUserYearlySchedulesLoading] =
     useState(false);
 
-  console.log(userEmail);
-
   useEffect(() => {
     const getUsersYearlySchedules = async () => {
       if (!accessToken) {
@@ -99,8 +99,8 @@ export default function Home() {
         const listResponseData = listResponse.data.response;
 
         const sideMyScheduleData = listResponseData
-          .filter((item: ScheduleItem) => item.userEmail === userEmail)
-          .map((item: ScheduleItem) => {
+          .filter((item: mySchedule) => item.userEmail === userEmail)
+          .map((item: mySchedule) => {
             return {
               id: item.id,
               key: item.id,
@@ -113,11 +113,14 @@ export default function Home() {
         setSideMyschedule(sideMyScheduleData);
 
         const events = listResponseData.map((item: ScheduleItem) => {
+          const adjustEndDate = dayjs(item.endDate)
+            .add(1, 'day')
+            .format('YYYY-MM-DD');
           return {
             userEmail: item.userEmail,
             title: item.userName,
             start: item.startDate,
-            end: item.endDate,
+            end: adjustEndDate,
             color: DUTY_ANNUAL[item.scheduleType].color,
           };
         });
@@ -197,18 +200,7 @@ export default function Home() {
   };
 
   const mySchedule = events.filter((event) => event.userEmail === userEmail);
-  console.log(mySchedule);
-  // const myMyschedule:IMySchedule = mySchedule.map((schedule)=> ())
-
-  // export interface IMySchedule {
-  //   id: number;
-  //   key: number;
-  //   scheduleType: 'ANNUAL' | 'DUTY';
-  //   startDate: string;
-  //   endDate: string;
-  //   state: 'REJECT' | 'APPROVE' | 'PENDING';
-  // }
-
+  console.log(events);
   return (
     <>
       {contextHolder}
