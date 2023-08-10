@@ -107,7 +107,6 @@ export default function MySchedule({
       render: (_, { state, key }) => {
         return isPending ? (
           <Button
-            loading={isDeletingRequest}
             disabled={isDeletingRequest}
             size="small"
             style={{ fontSize: 9 }}

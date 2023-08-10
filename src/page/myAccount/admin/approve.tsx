@@ -156,7 +156,7 @@ export default function Approve() {
         },
         {
           text: '승인',
-          value: 'RESOLVE',
+          value: 'APPROVE',
         },
         {
           text: '거절',
