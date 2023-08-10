@@ -289,6 +289,7 @@ export default function Home() {
             <div style={{ width: '100%' }}>
               <MySchedule
                 isPending
+                setMyPendingScheduleList={setMyPendingScheduleList}
                 setToggleRequest={setToggleRequest}
                 schedule={myPendingScheduleList}
                 loading={pendingLoading}
