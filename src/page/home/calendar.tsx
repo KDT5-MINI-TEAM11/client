@@ -7,6 +7,7 @@ import { Switch, Button, Space, Typography, Tooltip } from 'antd';
 import { getMyAccount } from '@/api/myAccount/getMyAccount';
 import { getAccessTokenFromCookie } from '@/utils/cookies';
 import { DUTY_ANNUAL } from '@/data/constants';
+import dayjs from 'dayjs';
 
 interface ScheduleItem {
   userName: string;
@@ -69,10 +70,13 @@ export default function Calendar({ isSignedin, year, setYear }: propsType) {
               item.state === 'APPROVE'),
         )
         .map((item: ScheduleItem) => {
+          const adjustEndDate = dayjs(item.endDate)
+            .add(1, 'day')
+            .format('YYYY-MM-DD');
           return {
             title: item.userName,
             start: item.startDate,
-            end: item.endDate,
+            end: adjustEndDate,
             color: DUTY_ANNUAL[item.scheduleType].color,
           };
         });
