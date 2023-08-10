@@ -17,6 +17,18 @@ interface MyScheduleProps {
   caption: string;
   isPending?: boolean;
   setToggleRequest: React.Dispatch<React.SetStateAction<boolean>>;
+  setMyPendingScheduleList: React.Dispatch<
+    React.SetStateAction<
+      {
+        id: number;
+        key: number;
+        scheduleType: 'ANNUAL' | 'DUTY';
+        startDate: string;
+        endDate: string;
+        state: 'PENDING';
+      }[]
+    >
+  >;
 }
 export default function MySchedule({
   isPending,
@@ -24,6 +36,7 @@ export default function MySchedule({
   loading,
   caption,
   setToggleRequest,
+  setMyPendingScheduleList,
 }: MyScheduleProps) {
   const [isDeletingRequest, setIsDeletingRequest] = useState(false);
 
@@ -32,7 +45,7 @@ export default function MySchedule({
   // antd message(화면 상단에 뜨는 메세지)기능
   const [messageApi, contextHolder] = message.useMessage();
 
-  const handleCancleSchedule = async (key: number) => {
+  const handleCancleSchedule = async (key: number, scheduleType: string) => {
     try {
       setIsDeletingRequest(true);
       const response = await cancelScheduleRequest(key);
@@ -42,7 +55,12 @@ export default function MySchedule({
           content: response.data.response,
         });
         setToggleRequest((prev) => !prev);
-        setReRender((prev) => !prev);
+        if (scheduleType === 'ANNUAL') {
+          setReRender((prev) => !prev);
+        }
+        setMyPendingScheduleList((prev) =>
+          prev.filter((item) => item.key !== key),
+        );
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -104,14 +122,14 @@ export default function MySchedule({
       ),
       key: 'state',
       dataIndex: 'state',
-      render: (_, { state, key }) => {
+      render: (_, { state, key, scheduleType }) => {
         return isPending ? (
           <Button
             disabled={isDeletingRequest}
             size="small"
             style={{ fontSize: 9 }}
             danger
-            onClick={() => handleCancleSchedule(key)}
+            onClick={() => handleCancleSchedule(key, scheduleType)}
           >
             취소
           </Button>
