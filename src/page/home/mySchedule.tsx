@@ -17,7 +17,7 @@ interface MyScheduleProps {
   caption: string;
   isPending?: boolean;
   setToggleRequest: React.Dispatch<React.SetStateAction<boolean>>;
-  setMyPendingScheduleList: React.Dispatch<
+  setMyPendingScheduleList?: React.Dispatch<
     React.SetStateAction<
       {
         id: number;
@@ -58,7 +58,7 @@ export default function MySchedule({
         if (scheduleType === 'ANNUAL') {
           setReRender((prev) => !prev);
         }
-        setMyPendingScheduleList((prev) =>
+        setMyPendingScheduleList?.((prev) =>
           prev.filter((item) => item.key !== key),
         );
       }
