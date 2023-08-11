@@ -44,8 +44,6 @@ export default function Home() {
 
   const [messageApi, contextHolder] = message.useMessage();
 
-  const [toggleRequest, setToggleRequest] = useState(false);
-
   const [year, setYear] = useState(new Date().getFullYear());
   // const {
   //   token: { colorTextLabel },
@@ -101,7 +99,6 @@ export default function Home() {
   const [userYearlySchedulesLoading, setUserYearlySchedulesLoading] =
     useState(false);
 
-  const [pendingLoading, setPendingLoading] = useState(false);
   useEffect(() => {
     const getUsersYearlySchedules = async () => {
       if (!accessToken) {
@@ -126,18 +123,20 @@ export default function Home() {
           });
         setSideMyschedule(sideMyScheduleData);
 
-        const events = listResponseData.map((item: ScheduleItem) => {
-          const adjustEndDate = dayjs(item.endDate)
-            .add(1, 'day')
-            .format('YYYY-MM-DD');
-          return {
-            userEmail: item.userEmail,
-            title: item.userName,
-            start: item.startDate,
-            end: adjustEndDate,
-            color: DUTY_ANNUAL[item.scheduleType].color,
-          };
-        });
+        const events = listResponseData
+          .filter((item: mySchedule) => item.state === 'APPROVE')
+          .map((item: ScheduleItem) => {
+            const adjustEndDate = dayjs(item.endDate)
+              .add(1, 'day')
+              .format('YYYY-MM-DD');
+            return {
+              userEmail: item.userEmail,
+              title: item.userName,
+              start: item.startDate,
+              end: adjustEndDate,
+              color: DUTY_ANNUAL[item.scheduleType].color,
+            };
+          });
         setEvents(events);
       } catch (error) {
         console.log(error);
@@ -147,6 +146,8 @@ export default function Home() {
     };
     getUsersYearlySchedules();
   }, [year, accessToken, userEmail]);
+
+  const [pendingLoading, setPendingLoading] = useState(false);
 
   useEffect(() => {
     const myPendingSchedule = async () => {
@@ -292,7 +293,7 @@ export default function Home() {
             background: 'white',
             paddingTop: 20,
           }}
-          className="sider"
+          className="booh"
         >
           <div
             style={{
@@ -305,9 +306,8 @@ export default function Home() {
           >
             <div style={{ width: '100%' }}>
               <MySchedule
-                isPending
                 setMyPendingScheduleList={setMyPendingScheduleList}
-                setToggleRequest={setToggleRequest}
+                isPending
                 schedule={myPendingScheduleList}
                 loading={pendingLoading}
                 caption="요청대기"
@@ -315,7 +315,7 @@ export default function Home() {
             </div>
             <div style={{ width: '100%' }}>
               <MySchedule
-                setToggleRequest={setToggleRequest}
+                setMyPendingScheduleList={setMyPendingScheduleList}
                 schedule={sideMySchedule}
                 loading={userYearlySchedulesLoading}
                 caption="요청결과"

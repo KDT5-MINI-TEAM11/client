@@ -115,6 +115,7 @@ export default function MyHeader() {
           backgroundColor: colorPrimaryBg,
           height: 60,
           borderBottom: '1px solid #eee',
+          padding: '0 20px',
         }}
       >
         <div
