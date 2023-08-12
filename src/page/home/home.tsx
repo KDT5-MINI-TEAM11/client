@@ -33,6 +33,7 @@ export interface ScheduleItem {
   startDate: string;
   endDate: string;
   state: string;
+  color: string;
 }
 
 interface mySchedule extends ScheduleItem {
@@ -99,6 +100,17 @@ export default function Home() {
   const [userYearlySchedulesLoading, setUserYearlySchedulesLoading] =
     useState(false);
 
+  /*   const [shcduleTypeList, setShcduleTypeList] = useState<
+    {
+      id: number;
+      key: number;
+      scheduleType: 'ANNUAL' | 'DUTY';
+      startDate: string;
+      endDate: string;
+      state: 'APPROVE';
+    }[]
+  >([]); */
+
   useEffect(() => {
     const getUsersYearlySchedules = async () => {
       if (!accessToken) {
@@ -122,6 +134,8 @@ export default function Home() {
             };
           });
         setSideMyschedule(sideMyScheduleData);
+
+        /*         const scheduleCheckbox = listResponseData.filter((item: mySchedule) => item.state === 'APPROVE') */
 
         const events = listResponseData
           .filter((item: mySchedule) => item.state === 'APPROVE')
