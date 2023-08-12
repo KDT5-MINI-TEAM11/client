@@ -14,6 +14,7 @@ import {
   EditOutlined,
   CloseCircleOutlined,
   PlusOutlined,
+  LoadingOutlined,
 } from '@ant-design/icons';
 import defaultProfile from '@/assets/defaultProfile.png';
 import { POSITIONS } from '@/data/constants';
@@ -56,6 +57,9 @@ export default function MyAccount() {
   const setReRender = useSetRecoilState(ReRenderStateAtom);
 
   const accessToken = useRecoilValue(AccessTokenAtom);
+
+  const [uploadLoading, setUploadLoading] = useState(false);
+  const [imgUrl, setimgUrl] = useState('');
 
   useEffect(() => {
     const getData = async () => {
@@ -116,8 +120,8 @@ export default function MyAccount() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleChangeProfileImg = async (file: any) => {
     const imageUrl = await getImageUrl(file);
-    console.log(imageUrl);
     try {
+      setUploadLoading(true);
       const response = await changeMyInfo({
         profileThumbUrl: imageUrl,
       });
@@ -133,7 +137,7 @@ export default function MyAccount() {
           content: '프로필 이미지를 수정하였습니다.',
         });
       }
-
+      setimgUrl('');
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       messageApi.open({
@@ -142,6 +146,7 @@ export default function MyAccount() {
       });
     } finally {
       setEditProfileThumbUrl(false);
+      setUploadLoading(false);
     }
   };
 
@@ -181,6 +186,33 @@ export default function MyAccount() {
 
     return imageUrl;
   };
+
+  const props = {
+    showUploadList: false,
+    beforeUpload: (file: any) => {
+      const isImage = file.type.startsWith('image/');
+      if (!isImage) {
+        message.error('이미지 파일만 업로드할 수 있습니다!');
+        return false;
+      }
+      if (imgUrl) {
+        // 이미 이미지가 업로드되어 있다면 새로운 업로드 중지
+        message.error('이미 사진이 업로드되었습니다!');
+        return false;
+      }
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => setimgUrl(reader.result as string); // 미리보기를 위한 이미지 URL 설정
+      return true;
+    },
+  };
+
+  const uploadButton = (
+    <div>
+      {uploadLoading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+  );
 
   return (
     <div style={{ padding: 20 }}>
@@ -272,6 +304,7 @@ export default function MyAccount() {
                 <EditOutlined
                   onClick={() => {
                     setEditProfileThumbUrl(true);
+                    setimgUrl('');
                   }}
                   style={{ marginLeft: 5, fontSize: 15 }}
                   className="icons"
@@ -288,29 +321,32 @@ export default function MyAccount() {
                   width: '200px',
                   height: '200px',
                   display: 'flex',
-
                   alignItems: 'center',
-                  paddingTop: '22px',
                 }}
               >
-                <div style={{ display: 'flex' }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
                   <Form.Item
                     name="profileThumbUrl"
                     valuePropName="fileList"
                     getValueFromEvent={normFile}
                   >
-                    <Upload
-                      beforeUpload={() => false} /* showUploadList={false} */
-                    >
-                      <Button>
-                        <PlusOutlined /> Click to Upload
-                      </Button>
+                    <Upload listType="picture-card" {...props}>
+                      {imgUrl ? (
+                        <img
+                          src={imgUrl}
+                          alt="avatar"
+                          style={{ width: '100%' }}
+                        />
+                      ) : (
+                        uploadButton
+                      )}
                     </Upload>
                   </Form.Item>
                   <Button
                     type="primary"
                     htmlType="submit"
-                    style={{ margin: '0 0 24px 5px' }}
+                    style={{ margin: '0 0 0 15px' }}
+                    loading={uploadLoading}
                   >
                     수정
                   </Button>
