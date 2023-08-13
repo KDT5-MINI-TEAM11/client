@@ -11,7 +11,7 @@ import Email from './EmailChecked/email';
 import EmailValidation from './EmailValidation/emailValidation';
 import PasswordValidation from './PasswordValidation/passwordValidation';
 import ProfileImg from './ProfileImageUrl/profileImg';
-import SelectPosition from './SelectPostion/SelectPosition';
+import SelectPosition from './SelectPostion/selectPosition';
 
 interface valuseType {
   confirm_password: string;
