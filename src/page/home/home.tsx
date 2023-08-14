@@ -8,7 +8,7 @@ import {
   Space,
   message,
 } from 'antd';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilValue, useRecoilState } from 'recoil';
 import Sider from 'antd/es/layout/Sider';
 import { Content } from 'antd/es/layout/layout';
 import { useEffect, useState } from 'react';
@@ -33,6 +33,7 @@ export interface ScheduleItem {
   startDate: string;
   endDate: string;
   state: string;
+  color: string;
 }
 
 interface mySchedule extends ScheduleItem {
@@ -52,8 +53,7 @@ export default function Home() {
   const accessToken = useRecoilValue(AccessTokenAtom);
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(!accessToken);
-  const setReRender = useSetRecoilState(ReRenderStateAtom);
-  const reRender = useRecoilValue(ReRenderStateAtom);
+  const [reRender, setReRender] = useRecoilState(ReRenderStateAtom);
   // 로그아웃을 하면 isModalOpen이 !accessToken의 상태를 바로 반영하지 않음
   // 따라서 useEffect로 반영이 되도록함
   useEffect(() => {
@@ -99,6 +99,17 @@ export default function Home() {
   const [userYearlySchedulesLoading, setUserYearlySchedulesLoading] =
     useState(false);
 
+  /*   const [shcduleTypeList, setShcduleTypeList] = useState<
+    {
+      id: number;
+      key: number;
+      scheduleType: 'ANNUAL' | 'DUTY';
+      startDate: string;
+      endDate: string;
+      state: 'APPROVE';
+    }[]
+  >([]); */
+
   useEffect(() => {
     const getUsersYearlySchedules = async () => {
       if (!accessToken) {
@@ -122,6 +133,8 @@ export default function Home() {
             };
           });
         setSideMyschedule(sideMyScheduleData);
+
+        /*         const scheduleCheckbox = listResponseData.filter((item: mySchedule) => item.state === 'APPROVE') */
 
         const events = listResponseData
           .filter((item: mySchedule) => item.state === 'APPROVE')
