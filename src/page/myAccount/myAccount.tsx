@@ -324,12 +324,17 @@ export default function MyAccount() {
                   alignItems: 'center',
                 }}
               >
+
                 <div style={{ display: 'flex', alignItems: 'center' }}>
+
+                <div style={{ display: 'flex' }}>
+
                   <Form.Item
                     name="profileThumbUrl"
                     valuePropName="fileList"
                     getValueFromEvent={normFile}
                   >
+
                     <Upload listType="picture-card" {...props}>
                       {imgUrl ? (
                         <img
@@ -340,6 +345,14 @@ export default function MyAccount() {
                       ) : (
                         uploadButton
                       )}
+
+                    <Upload
+                      beforeUpload={() => false} /* showUploadList={false} */
+                    >
+                      <Button>
+                        <PlusOutlined /> Click to Upload
+                      </Button>
+
                     </Upload>
                   </Form.Item>
                   <Button
@@ -347,6 +360,7 @@ export default function MyAccount() {
                     htmlType="submit"
                     style={{ margin: '0 0 0 15px' }}
                     loading={uploadLoading}
+                    style={{ margin: '0 0 24px 5px' }}
                   >
                     수정
                   </Button>
