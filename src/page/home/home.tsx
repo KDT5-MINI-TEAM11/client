@@ -306,7 +306,6 @@ export default function Home() {
             background: 'white',
             paddingTop: 20,
           }}
-          className="booh"
         >
           <div
             style={{
