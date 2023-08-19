@@ -15,6 +15,7 @@ import {
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { ScheduleItem } from './home';
 import { DUTY_ANNUAL } from '@/data/constants';
+import { DatesSetArg } from '@fullcalendar/core/index.js';
 
 interface propsType {
   mySchedule: ScheduleItem[];
@@ -45,13 +46,7 @@ export default function Calendar({
   const { Title } = Typography;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const renderDayCellContent = (args: any) => {
-    // '일' 문자 제거
-    return args.date.getDate();
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleDateSet = (info: any) => {
+  const handleDateSet = (info: DatesSetArg) => {
     const date = info.view.currentStart;
     setYear(date.getFullYear());
     setMonth(date.getMonth() + 1);
@@ -191,7 +186,7 @@ export default function Calendar({
             height={'calc(100vh - 140px)'}
             datesSet={handleDateSet}
             locale={'ko'} // 지역
-            dayCellContent={renderDayCellContent} // '일' 문자 렌더링 변경
+            dayCellContent={(args) => args.date.getDate()}
             ref={calendarRef}
             headerToolbar={false}
           />

@@ -41,15 +41,9 @@ interface mySchedule extends ScheduleItem {
 }
 
 export default function Home() {
-  // antd message(화면 상단에 뜨는 메세지)기능
-
   const [messageApi, contextHolder] = message.useMessage();
 
   const [year, setYear] = useState(new Date().getFullYear());
-  // const {
-  //   token: { colorTextLabel },
-  // } = theme.useToken();
-
   const accessToken = useRecoilValue(AccessTokenAtom);
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(!accessToken);
@@ -96,19 +90,8 @@ export default function Home() {
     }[]
   >([]);
 
-  const [userYearlySchedulesLoading, setUserYearlySchedulesLoading] =
+  const [usersYearlySchedulesLoading, setUsersYearlySchedulesLoading] =
     useState(false);
-
-  /*   const [shcduleTypeList, setShcduleTypeList] = useState<
-    {
-      id: number;
-      key: number;
-      scheduleType: 'ANNUAL' | 'DUTY';
-      startDate: string;
-      endDate: string;
-      state: 'APPROVE';
-    }[]
-  >([]); */
 
   useEffect(() => {
     const getUsersYearlySchedules = async () => {
@@ -116,7 +99,7 @@ export default function Home() {
         return;
       }
       try {
-        setUserYearlySchedulesLoading(true);
+        setUsersYearlySchedulesLoading(true);
         const listResponse = await scheduleList(year);
         const listResponseData = listResponse.data.response;
 
@@ -134,8 +117,6 @@ export default function Home() {
           });
         setSideMyschedule(sideMyScheduleData);
 
-        /*         const scheduleCheckbox = listResponseData.filter((item: mySchedule) => item.state === 'APPROVE') */
-
         const events = listResponseData
           .filter((item: mySchedule) => item.state === 'APPROVE')
           .map((item: ScheduleItem) => {
@@ -152,13 +133,13 @@ export default function Home() {
           });
         setEvents(events);
       } catch (error) {
-        console.log(error);
+        console.error(error);
       } finally {
-        setUserYearlySchedulesLoading(false);
+        setUsersYearlySchedulesLoading(false);
       }
     };
     getUsersYearlySchedules();
-  }, [year, accessToken, userEmail]);
+  }, [accessToken, userEmail, year]);
 
   const [pendingLoading, setPendingLoading] = useState(false);
 
@@ -252,7 +233,6 @@ export default function Home() {
             state: response.data.response.state,
           };
           setMyPendingScheduleList((prev) => {
-            console.log(prev);
             return [...prev, newPendingSchedule];
           });
         }
@@ -329,7 +309,7 @@ export default function Home() {
               <MySchedule
                 setMyPendingScheduleList={setMyPendingScheduleList}
                 schedule={sideMySchedule}
-                loading={userYearlySchedulesLoading}
+                loading={usersYearlySchedulesLoading}
                 caption="요청결과"
               />
             </div>
@@ -394,7 +374,7 @@ export default function Home() {
               events={events}
               year={year}
               setYear={setYear}
-              userYearlySchedulesLoading={userYearlySchedulesLoading}
+              userYearlySchedulesLoading={usersYearlySchedulesLoading}
             />
           </Content>
         </Layout>
