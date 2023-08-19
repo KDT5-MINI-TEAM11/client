@@ -198,116 +198,114 @@
 
 - Authorization
 
-- 사용자가 로그인을 요청을 보내면 서버에서 accessToken은 res.body에 담아서 보내고, refreshToken은 Http Only 쿠키로 보낸다.<br><br>
+  - 사용자가 로그인을 요청을 보내면 서버에서 accessToken은 res.body에 담아서 보내고, refreshToken은 Http Only 쿠키로 보낸다.<br><br>
 
 - Athentication
 
-- 로그인 한 사용자가 요청을 보낼 때 header에 accessToken을 담아 보낸다.
-- Axios interceptor를 이용하면 accessToken이 필요한 모든 요청들에 토큰을 담아 보낼 수 있다.<br><br>
+  - 로그인한 사용자가 요청을 보낼 때 header에 accessToken을 담아 보낸다.
+  - Axios interceptor를 이용하면 accessToken이 필요한 모든 요청들에 토큰을 담아 보낼 수 있다.<br><br>
 
-```js
-export const customAxios = axios.create({
-  baseURL: BASE_API_URL,
-  timeout: 5000,
-});
+  ```js
+  export const customAxios = axios.create({
+    baseURL: BASE_API_URL,
+    timeout: 5000,
+  });
 
-customAxios.interceptors.request.use(
-  async (req) => {
-    const accessToken = getAccessTokenFromCookie();
-    if (!accessToken) {
+  customAxios.interceptors.request.use(
+    async (req) => {
+      const accessToken = getAccessTokenFromCookie();
+      if (!accessToken) {
+        return req;
+      }
+      req.headers.Authorization = `Bearer ${accessToken}`;
       return req;
-    }
-    req.headers.Authorization = `Bearer ${accessToken}`;
-    return req;
-  },
-  (error) => {
-    return Promise.reject(error);
-  },
-);
-```
-
-- 서버는 해당 accessToken을 검증하고 응답을 보낸다.<br><br>
+    },
+    (error) => {
+      return Promise.reject(error);
+    },
+  );
+  ```
 
 - AccessToken이 만료 된 경우
 
-- accessToken이 만료 된 경우 서버에서는 401 상태메세지를 보내고 이를 Axios interceptor로 가로채 새로운 accessToken을 요청하는 로직을 구현할 수 있다.
+  - accessToken이 만료 된 경우 서버에서는 401 상태메세지를 보내고 이를 Axios interceptor로 가로채 새로운 accessToken을 요청하는 로직을 구현할 수 있다.
 
-```ts
-// 여러개의 요청이 밀렸을 경우 리프레시토큰 api가 여러번 실행되는 것을 막는 flag
-let isRefreshing = false;
+  ```ts
+  // 여러개의 요청이 밀렸을 경우 리프레시토큰 api가 여러번 실행되는 것을 막는 flag
+  let isRefreshing = false;
 
-// 만료된 토큰으로 인해 pending상태가 된 기존의 요청들을 배열에 담음, 새로운 토큰이 발행되면 이들 요청을 진행
-let refreshSubscribers: ((accessToken: string) => void)[] = [];
+  // 만료된 토큰으로 인해 pending상태가 된 기존의 요청들을 배열에 담음, 새로운 토큰이 발행되면 이들 요청을 진행
+  let refreshSubscribers: ((accessToken: string) => void)[] = [];
 
-customAxios.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  async (error) => {
-    const status = error.response?.data.error.status;
+  customAxios.interceptors.response.use(
+    (response) => {
+      return response;
+    },
+    async (error) => {
+      const status = error.response?.data.error.status;
 
-    if (status === 401) {
-      if (!isRefreshing) {
-        isRefreshing = true;
+      if (status === 401) {
+        if (!isRefreshing) {
+          isRefreshing = true;
 
-        try {
-          const response = await axios(
-            `${BASE_API_URL}/v1/auth/refresh-token`,
-            {
-              withCredentials: true,
-            },
-          );
-
-          if (response.status === 200) {
-            setAccessTokenToCookie(response.data.response.accessToken);
-
-            const config = error.config;
-            config.headers.Authorization = `Bearer ${response.data.response.accessToken}`;
-            config.withCredentials = true;
-
-            const retryOriginalRequest = new Promise((resolve) => {
-              resolve(axios(config));
-            });
-
-            isRefreshing = false;
-
-            refreshSubscribers.forEach((callback) =>
-              callback(response.data.response.accessToken),
+          try {
+            const response = await axios(
+              `${BASE_API_URL}/v1/auth/refresh-token`,
+              {
+                withCredentials: true,
+              },
             );
-            refreshSubscribers = [];
 
-            return retryOriginalRequest;
+            if (response.status === 200) {
+              setAccessTokenToCookie(response.data.response.accessToken);
+
+              const config = error.config;
+              config.headers.Authorization = `Bearer ${response.data.response.accessToken}`;
+              config.withCredentials = true;
+
+              const retryOriginalRequest = new Promise((resolve) => {
+                resolve(axios(config));
+              });
+
+              isRefreshing = false;
+
+              refreshSubscribers.forEach((callback) =>
+                callback(response.data.response.accessToken),
+              );
+              refreshSubscribers = [];
+
+              return retryOriginalRequest;
+            }
+          } catch (error) {
+            deleteAccessTokenFromCookie();
+            isRefreshing = false;
+            return Promise.reject(error);
           }
-        } catch (error) {
-          deleteAccessTokenFromCookie();
-          isRefreshing = false;
-          return Promise.reject(error);
+        } else {
+          return new Promise((resolve) => {
+            refreshSubscribers.push((accessToken: string) => {
+              error.config.headers.Authorization = `Bearer ${accessToken}`;
+              resolve(axios(error.config));
+            });
+          });
         }
       } else {
-        return new Promise((resolve) => {
-          refreshSubscribers.push((accessToken: string) => {
-            error.config.headers.Authorization = `Bearer ${accessToken}`;
-            resolve(axios(error.config));
-          });
-        });
+        return Promise.reject(error);
       }
-    } else {
-      return Promise.reject(error);
-    }
-  },
-);
-```
+    },
+  );
+  ```
 
 - HttpOnly 쿠키
 
-- 401응답을 받은 클라이언트는 accessToken 재발급을 위해 "/v1/auth/refresh-token" GET요청을 보낸다. 이 때 refreshToken은 이미 쿠키에 담겨있다.
-- HttpOnly 쿠키는 클라이언트측에서 자바스크립트로 접근 할 수 없으므로 XXS와 같은 공격을 무력화 시킨다.
-- `withCredentials`를 `true`로 설정해야 한다.
-  httpOnly 쿠키를 사용하기 위해서는 클라이언트 배포 주소와 서버 배포 주소가 모두 SSL인증서를 필요로 한다.
-  - 서버에서는 무료 dns와 SSL인증서를 발급 받아서 해결
-  - 클라이언트는 vecel로 배포시 https로 배포가 되므로 따로 작업을 필요로 하지 않는다.
-  - 그러나 로컬 환경에서 테스트를 할 때는 `http://localhost:5173` 이므로 배포 환경과 로컬 환경에서의 api를 분리하여서 작업하였다.
-  - 해당 리포지토리는 로컬용이다.
+  - 401응답을 받은 클라이언트는 accessToken 재발급을 위해 "/v1/auth/refresh-token" GET요청을 보낸다. 이 때 refreshToken은 이미 쿠키에 담겨있다.
+  - HttpOnly 쿠키는 클라이언트측에서 자바스크립트로 접근 할 수 없으므로 XXS와 같은 공격을 무력화 시킨다.
+  - `withCredentials`를 `true`로 설정해야 한다.
+    httpOnly 쿠키를 사용하기 위해서는 클라이언트 배포 주소와 서버 배포 주소가 모두 SSL인증서를 필요로 한다.
+    - 서버에서는 무료 dns와 SSL인증서를 발급 받아서 해결
+    - 클라이언트는 vecel로 배포시 https로 배포가 되므로 따로 작업을 필요로 하지 않는다.
+    - 그러나 로컬 환경에서 테스트를 할 때는 `http://localhost:5173` 이므로 배포 환경과 로컬 환경에서의 api를 분리하여서 작업하였다.
+    - 본 리포지토리는 로컬용이다.
 
 ### 놓친 부분, 개선 할 부분
 
