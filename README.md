@@ -180,13 +180,13 @@
   - 달력에 표시되는 모든 사원의 연차/당직 데이터는 1년치이다. 달력에서는 `요청대기상태의 연차/당직 데이터`가 필요 없기 때문에 해당 요청의 응답에는 `요청대기 연차/당직 데이터`는 포함되어있지 않다.
 
     - 좌측 사이드바 상단의 사용자의 요청 대기 연차/당직 데이터는 별도의 GET요청을 통해 받는다.
-    - 좌측 사이드바 하단의 사용자의 연차/당직 요청결과 데이터는 모든 사원의 연차/당직 데이터 내에 포함되어 있으므로 전체 데이터에서 내 사용자의 데이터를 필터링하여 사용한다. <br/><br/>
+    - 좌측 사이드바 하단의 사용자의 연차/당직 요청결과 데이터는 모든 사원의 연차/당직 데이터 내에 포함되어 있으므로 별도의 요청없이 필터링하여 사용한다. <br/><br/>
 
   - 한달치 데이터 받기 vs 1년치 데이터 받기
     - 한달치 데이터를 받는 경우
       - 달력에서 월을 이동 할 때마다 통신이 발생한다.
-      - 이전달의 후반부(최대 6일)과 다음달의 전반부(2월인 경우 최대 14일)이 달력에 표시된다.
-      - 필요한 데이터를 동적으로 예측하는 것을 불가능에 가깝기 떄문에 해당월 + 전달 마지막 6일 + 다음달 14일 데이터를 요청해야 한다. 해당월 데이터에 20일이 추가 되기 때문에 매우 비효율적이다.
+      - 이전달의 후반부(최대 6일)와 다음달의 전반부(2월은 최대 14일)가 달력에 표시된다.
+      - 필요한 데이터를 동적으로 예측하는 것을 불가능에 가깝기 떄문에 해당월 + 전달 마지막 6일 + 다음달 14일 데이터를 요청해야 한다. 따라서 한번 요청에 해당월 + 20일치가 추가 되므로 매우 비효율적이다.
     - 1년치 데이터를 받는 경우
       - 달력에서 년이 바뀔 때 통신이 발생한다.
       - 이전달 후반부 다음달 전반부를 신경쓰지 않고 이전년도 12월 26일 ~ 31일, 다음 년도 1월 1일 ~ 11일만 추가적으로 보내주면 된다.
@@ -332,55 +332,54 @@ customAxios.interceptors.response.use(
 수정 전
 switch토글과 month의 상태가 변할 때 마다 서버에 불필요하게 요청을 함.
 
-```
+```js
 const listResponse = await scheduleList(year);
 const infoResponse = await getMyAccount();
 ```
 
 scheduleList의 response에 있는 userName과 getMyAccount response에 있는 userName이 같을 시에 필터링 되게 하였었음.
 
-```
+```js
 useEffect(() => {
-   const schedule = async () => {
-     // getAccessTokenFromCookie를 이용해서 쿠키에 저장된 accessToken을 가져옴
-     const accessToken = getAccessTokenFromCookie();
-     // 엑세스 토큰이 없으면 서버에 요청하지 않음
-     if (!accessToken) {
-       return;
-     }
+  const schedule = async () => {
+    // getAccessTokenFromCookie를 이용해서 쿠키에 저장된 accessToken을 가져옴
+    const accessToken = getAccessTokenFromCookie();
+    // 엑세스 토큰이 없으면 서버에 요청하지 않음
+    if (!accessToken) {
+      return;
+    }
 
-     setIsLoading(true);
+    setIsLoading(true);
 
-     const listResponse = await scheduleList(year);
-     const infoResponse = await getMyAccount();
+    const listResponse = await scheduleList(year);
+    const infoResponse = await getMyAccount();
 
-     // 실제 응답 데이터 추출
-     const listResponseData = listResponse.data.response;
-     const infoResponseData = infoResponse.data.response;
+    // 실제 응답 데이터 추출
+    const listResponseData = listResponse.data.response;
+    const infoResponseData = infoResponse.data.response;
 
-     // response data를 가져오는데 그 내부에 있는 response라는 배열 데이터를 각각의 요소를
-     // 아래의 형태의 객체로 변환해서 events 변수에 저장, setEvents에 전달
-     const events = listResponseData
-       .filter(
-         (item: ScheduleItem) =>
-           (isAllChecked && item.state === 'APPROVE') ||
-           (item.userName === infoResponseData.userName &&
-             item.state === 'APPROVE'),
-       )
-       .map((item: ScheduleItem) => {
-         return {
-           title: item.userName,
-           start: item.startDate,
-           end: item.endDate,
-           color: DUTY_ANNUAL[item.scheduleType].color,
-         };
-       });
-     setEvents(events);
-     setIsLoading(false);
-   };
-   schedule();
- }, [isSignedin, year, month, isAllChecked]);
-
+    // response data를 가져오는데 그 내부에 있는 response라는 배열 데이터를 각각의 요소를
+    // 아래의 형태의 객체로 변환해서 events 변수에 저장, setEvents에 전달
+    const events = listResponseData
+      .filter(
+        (item: ScheduleItem) =>
+          (isAllChecked && item.state === 'APPROVE') ||
+          (item.userName === infoResponseData.userName &&
+            item.state === 'APPROVE'),
+      )
+      .map((item: ScheduleItem) => {
+        return {
+          title: item.userName,
+          start: item.startDate,
+          end: item.endDate,
+          color: DUTY_ANNUAL[item.scheduleType].color,
+        };
+      });
+    setEvents(events);
+    setIsLoading(false);
+  };
+  schedule();
+}, [isSignedin, year, month, isAllChecked]);
 ```
 
 수정 후
@@ -390,54 +389,54 @@ userEmail을 리코일을 통해서 전역으로 관리하여, response의 userE
 scheduleList는 년 단위의 데이터를 받아오니 월 단위 변경에 대해서 의존성 배열에서 필요없다고 판단하였고,
 스위치 토글 또한 처음 받아온 년 단위 데이터를 이용하면 되어서 의존성 배열에서 제거했다.
 
-```
+```js
 useEffect(() => {
-   const getUsersYearlySchedules = async () => {
-     if (!accessToken) {
-       return;
-     }
-     try {
-       setUserYearlySchedulesLoading(true);
-       const listResponse = await scheduleList(year);
-       const listResponseData = listResponse.data.response;
+  const getUsersYearlySchedules = async () => {
+    if (!accessToken) {
+      return;
+    }
+    try {
+      setUserYearlySchedulesLoading(true);
+      const listResponse = await scheduleList(year);
+      const listResponseData = listResponse.data.response;
 
-       const sideMyScheduleData = listResponseData
-         .filter((item: mySchedule) => item.userEmail === userEmail)
-         .map((item: mySchedule) => {
-           return {
-             id: item.id,
-             key: item.id,
-             scheduleType: item.scheduleType,
-             startDate: item.startDate,
-             endDate: item.endDate,
-             state: item.state,
-           };
-         });
-       setSideMyschedule(sideMyScheduleData);
+      const sideMyScheduleData = listResponseData
+        .filter((item: mySchedule) => item.userEmail === userEmail)
+        .map((item: mySchedule) => {
+          return {
+            id: item.id,
+            key: item.id,
+            scheduleType: item.scheduleType,
+            startDate: item.startDate,
+            endDate: item.endDate,
+            state: item.state,
+          };
+        });
+      setSideMyschedule(sideMyScheduleData);
 
-       const events = listResponseData
-         .filter((item: mySchedule) => item.state === 'APPROVE')
-         .map((item: ScheduleItem) => {
-           const adjustEndDate = dayjs(item.endDate)
-             .add(1, 'day')
-             .format('YYYY-MM-DD');
-           return {
-             userEmail: item.userEmail,
-             title: item.userName,
-             start: item.startDate,
-             end: adjustEndDate,
-             color: DUTY_ANNUAL[item.scheduleType].color,
-           };
-         });
-       setEvents(events);
-     } catch (error) {
-       console.log(error);
-     } finally {
-       setUserYearlySchedulesLoading(false);
-     }
-   };
-   getUsersYearlySchedules();
- }, [year, accessToken, userEmail]);
+      const events = listResponseData
+        .filter((item: mySchedule) => item.state === 'APPROVE')
+        .map((item: ScheduleItem) => {
+          const adjustEndDate = dayjs(item.endDate)
+            .add(1, 'day')
+            .format('YYYY-MM-DD');
+          return {
+            userEmail: item.userEmail,
+            title: item.userName,
+            start: item.startDate,
+            end: adjustEndDate,
+            color: DUTY_ANNUAL[item.scheduleType].color,
+          };
+        });
+      setEvents(events);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setUserYearlySchedulesLoading(false);
+    }
+  };
+  getUsersYearlySchedules();
+}, [year, accessToken, userEmail]);
 ```
 
 ## 프로젝트가 끝난 후 수정
@@ -445,15 +444,3 @@ useEffect(() => {
 - 프로필 이미지 수정 썸네일 출력 안되는 부분 수정 및 관련 스타일 수정
 - 체크박스를 사용해서 연차/당직 구분
 - signup 컴포넌트 가독성이 좋지 않은거 같아서 일부 컴포넌트 분리작업 하였음.
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
