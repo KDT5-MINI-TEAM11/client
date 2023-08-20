@@ -43,7 +43,7 @@ interface mySchedule extends ScheduleItem {
 export default function Home() {
   const [messageApi, contextHolder] = message.useMessage();
 
-  const [year, setYear] = useState(new Date().getFullYear());
+  const [year, setYear] = useState(2024);
   const accessToken = useRecoilValue(AccessTokenAtom);
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(!accessToken);
@@ -102,7 +102,6 @@ export default function Home() {
         setUsersYearlySchedulesLoading(true);
         const listResponse = await scheduleList(year);
         const listResponseData = listResponse.data.response;
-
         const sideMyScheduleData = listResponseData
           .filter((item: mySchedule) => item.userEmail === userEmail)
           .map((item: mySchedule) => {
@@ -116,7 +115,6 @@ export default function Home() {
             };
           });
         setSideMyschedule(sideMyScheduleData);
-
         const events = listResponseData
           .filter((item: mySchedule) => item.state === 'APPROVE')
           .map((item: ScheduleItem) => {
@@ -139,7 +137,7 @@ export default function Home() {
       }
     };
     getUsersYearlySchedules();
-  }, [accessToken, userEmail, year]);
+  }, [year, accessToken, userEmail, setUsersYearlySchedulesLoading]);
 
   const [pendingLoading, setPendingLoading] = useState(false);
 
@@ -374,7 +372,7 @@ export default function Home() {
               events={events}
               year={year}
               setYear={setYear}
-              userYearlySchedulesLoading={usersYearlySchedulesLoading}
+              usersYearlySchedulesLoading={usersYearlySchedulesLoading}
             />
           </Content>
         </Layout>
